@@ -1,0 +1,16 @@
+.vercel
+.env*.local
+.vscode
+node_modules
+dist
+# Evitar subir copias de seguridad del Mall
+index_pro_BKP_*.html
+index_ESTABLE.html
+index_pro_ESTABLE.html
+# Documentos personales
+*.docx
+*.pdf
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
