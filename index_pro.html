@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } } </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #c9a66b; --bg-dark: #050505; }
         body { margin: 0; background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
@@ -79,12 +80,55 @@
         .floor-toggle { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
         .floor-btn { background: #222; color: #888; border: none; padding: 8px 20px; cursor: pointer; border-radius: 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
         .floor-btn.active { background: #c5a059; color: black; font-weight: bold; }
+
+        /* MULTIJUGADOR: ETIQUETAS DE AVATAR */
+        .avatar-label {
+            position: fixed; top: 0; left: 0; padding: 4px 12px;
+            background: rgba(0,0,0,0.8); color: #c5a059; border: 1px solid #c5a059;
+            border-radius: 4px; font-size: 10px; font-weight: bold;
+            pointer-events: none; z-index: 100; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        /* LOGIN OVERLAY LUXURY */
+        #login-overlay {
+            position: fixed; inset: 0; background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+            z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .login-card {
+            background: rgba(15,15,15,0.9); padding: 50px; border: 1px solid #c5a059; border-radius: 20px;
+            text-align: center; box-shadow: 0 0 50px rgba(197, 160, 89, 0.1); max-width: 400px;
+        }
+        #nickname-input {
+            width: 100%; background: transparent; border: none; border-bottom: 2px solid #333;
+            color: white; font-size: 24px; text-align: center; margin: 30px 0; outline: none;
+            transition: border-color 0.3s; font-family: 'Cormorant Garamond', serif;
+        }
+        #nickname-input:focus { border-color: #c5a059; }
+        .enter-btn {
+            background: #c5a059; color: black; border: none; padding: 15px 40px; border-radius: 50px;
+            font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .enter-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); }
     </style>
 </head>
 <body>
 
     <div id="loader">
         <h1 class="text-4xl font-extralight luxury-gradient tracking-[15px] mb-4">REPARANDO MALL...</h1>
+    </div>
+
+    <!-- LOGIN PARA EL METAVERSO -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <h1 class="text-4xl font-extralight luxury-gradient tracking-[8px] mb-2">BIENVENIDO</h1>
+            <p class="text-[10px] text-gray-500 tracking-[3px] uppercase">Acceso al Centro Comercial 3D</p>
+            <input type="text" id="nickname-input" placeholder="Tu Nombre" maxlength="15">
+            <button class="enter-btn" onclick="startMallExperience()">Entrar al Mall</button>
+            <p class="mt-8 text-[9px] text-gray-600 tracking-widest uppercase">Experiencia Multijugador Sincronizada</p>
+        </div>
     </div>
 
     <header class="fixed top-0 w-full p-8 flex justify-between items-start z-50 pointer-events-none">
@@ -183,6 +227,34 @@
             return new THREE.CanvasTexture(canvas);
         }
 
+        // --- CENTRAL STRUCTURE PARAMETERS ---
+        const VAULT_RADIUS = 17;
+        const VAULT_LENGTH = 78;
+        const VAULT_CENTER_OFFSET = 56.5;
+        const DOME_CENTER_Y = 16.5;
+        const CENTRAL_DOME_RADIUS = 28.0;
+        const LONGITUDINAL_BEAM_LEVELS = [-19, -16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16, 19];
+        const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16, 19];
+
+        function getVaultAngleForLevel(level) {
+            return (level / VAULT_RADIUS) * (Math.PI / 2);
+        }
+
+        function getVaultHeightForLevel(level) {
+            return DOME_CENTER_Y + Math.cos(getVaultAngleForLevel(level)) * VAULT_RADIUS;
+        }
+
+        function getDomeRingRadiusForHeight(height) {
+            const verticalDelta = height - DOME_CENTER_Y;
+            return Math.sqrt(Math.max((CENTRAL_DOME_RADIUS ** 2) - (verticalDelta ** 2), 0));
+        }
+
+        const DOME_RING_TARGETS = RING_FAMILY_LEVELS.map((level) => ({
+            level,
+            height: getVaultHeightForLevel(level),
+            radius: getDomeRingRadiusForHeight(getVaultHeightForLevel(level))
+        }));
+
         // --- SUBMOTIVOS DE ARQUITECTURA PROTEGIDOS ---
         function addVaultShell(group, r, l) {
             // Bajamos el inicio a -0.3 rad y extendemos el arco a 3.74 rad para cerrar el hueco de 5m
@@ -209,189 +281,109 @@
         }
 
         function addLongitudinalGirders(group, r, l, wingLabel) {
-            // Añadimos fierros inferiores (-19, -16) y superiores (16, 19) para cubrir el nuevo arco
-            const beams = [-19, -16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16, 19];
-            beams.forEach((anglePos, index) => {
-                let beamLen = l;
-                let zOffset = 0;
+            const innerSign = (wingLabel === 'N' || wingLabel === 'E') ? -1 : 1;
+            const outerLocalZ = -innerSign * (l / 2);
 
-                // CIRUGÍA TÉCNICA - AJUSTES ESPECÍFICOS (PASO 37 - CONEXIONES S-2 A S-8)
-                if (wingLabel === 'S' && (index >= 1 && index <= 7)) { 
-                    beamLen = l + 1.6; // Ajuste de precisión (Fierros 2 al 8 Sur)
-                    zOffset = 0.8; 
-                }
+            LONGITUDINAL_BEAM_LEVELS.forEach((anglePos, index) => {
+                if (anglePos === 0) return; // ELIMINACIÓN DE FIERROS CENITALES
+                const familyLevel = Math.abs(anglePos);
+                const ringTarget = DOME_RING_TARGETS.find((target) => target.level === familyLevel);
+                
+                const actualRingHeight = ringTarget.height; 
+                const innerY = actualRingHeight - DOME_CENTER_Y;
 
-                // CONEXIONES ALA ESTE (PASO 51 - E5 a ANILLO 5 PRECISIÓN)
-                if (wingLabel === 'E' && index === 4) {
-                    beamLen = l;
-                    zOffset = -1.5;
-                }
+                const angle = (anglePos / r) * (Math.PI / 2);
+                const xLocal = Math.sin(angle) * r;
+                const outerY = Math.cos(angle) * r;
 
-                // CONEXIONES ALA ESTE (PASO 52 - E2 a ANILLO 2)
-                if (wingLabel === 'E' && index === 1) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
+                const innerAxisAbs = Math.sqrt(Math.max((CENTRAL_DOME_RADIUS ** 2) - (xLocal ** 2) - (innerY ** 2), 0));
+                const innerLocalZ = innerSign * (VAULT_CENTER_OFFSET - innerAxisAbs);
 
-                // CONEXIONES ALA ESTE (PASO 53 - E3 a ANILLO 3)
-                if (wingLabel === 'E' && index === 2) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
+                const start = new THREE.Vector3(xLocal, outerY, outerLocalZ);
+                const end = new THREE.Vector3(xLocal, innerY, innerLocalZ);
 
-                // CONEXIONES ALA ESTE (PASO 54 - E4 a ANILLO 4)
-                if (wingLabel === 'E' && index === 3) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA ESTE (PASO 55 - E6 a ANILLO 4)
-                if (wingLabel === 'E' && index === 5) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA ESTE (PASO 56 - E7 a ANILLO 3)
-                if (wingLabel === 'E' && index === 6) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA ESTE (PASO 57 - E8 a ANILLO 2)
-                if (wingLabel === 'E' && index === 7) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 58 - O2 a ANILLO 2)
-                if (wingLabel === 'O' && index === 1) {
-                    beamLen = l + 1.6;
-                    zOffset = 0.8;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 59 - O3 a ANILLO 3)
-                if (wingLabel === 'O' && index === 2) {
-                    beamLen = l + 1.6;
-                    zOffset = 0.8;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 60 - O4 a ANILLO 4)
-                if (wingLabel === 'O' && index === 3) {
-                    beamLen = l + 1.6;
-                    zOffset = 0.8;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 61 - O5 a ANILLO 5 CÉNIT)
-                if (wingLabel === 'O' && index === 4) {
-                    beamLen = l;
-                    zOffset = 1.5;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 62 - O6 a ANILLO 4)
-                if (wingLabel === 'O' && index === 5) {
-                    beamLen = l + 1.6;
-                    zOffset = 0.8;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 63 - O7 a ANILLO 3)
-                if (wingLabel === 'O' && index === 6) {
-                    beamLen = l + 1.6;
-                    zOffset = 0.8;
-                }
-
-                // CONEXIONES ALA OESTE (PASO 64 - O8 a ANILLO 2)
-                if (wingLabel === 'O' && index === 7) {
-                    beamLen = l + 1.6;
-                    zOffset = 0.8;
-                }
-
-                // CONEXIONES ALA NORTE (PASO 65 - N2 Y N8 a ANILLO 2 POR PARES)
-                if (wingLabel === 'N' && (index === 1 || index === 7)) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA NORTE (PASO 66 - N3 Y N7 a ANILLO 3 POR PARES)
-                if (wingLabel === 'N' && (index === 2 || index === 6)) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA NORTE (PASO 67 - N4 Y N6 a ANILLO 4 POR PARES)
-                if (wingLabel === 'N' && (index === 3 || index === 5)) {
-                    beamLen = l + 1.6;
-                    zOffset = -0.8;
-                }
-
-                // CONEXIONES ALA NORTE (PASO 68 - N5 a ANILLO 5 CÉNIT)
-                if (wingLabel === 'N' && index === 4) {
-                    beamLen = l;
-                    zOffset = -1.5;
-                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                const direction = new THREE.Vector3().subVectors(end, start);
+                const beamLen = direction.length();
+                const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
 
                 const beam = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, beamLen), darkMat);
-                const angle = (anglePos/r) * (Math.PI/2);
-                beam.position.set(Math.sin(angle)*r, Math.cos(angle)*r, zOffset);
-                beam.rotation.z = -angle; 
-                beam.name = `Fierro_${index + 1}`; 
+                beam.position.copy(midPoint);
+                beam.lookAt(end);
+
+                beam.name = `Fierro_${wingLabel}_${index + 1}`;
+                beam.userData.familyLevel = familyLevel;
                 group.add(beam);
             });
         }
 
-        function addEndCap(group, r, l, p, rx, ry, rz) {
-            const capG = new THREE.Group(); capG.position.set(0, 0, (l/2) * p);
-            capG.rotation.x = rx; capG.rotation.y = ry; capG.rotation.z = rz; 
-            const dM = new THREE.Mesh(new THREE.SphereGeometry(r, 64, 32, 0, Math.PI*2, 0, 1.88), glassMat);
-            dM.rotation.x = -Math.PI/2; capG.add(dM);
-            // MERIDIANOS ALINEADOS (Giro de 90° para conectar con vigas longitudinales)
-            const beamConfig = [-19.2, -16.2, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16.2, 19.2];
-            beamConfig.forEach(anglePos => {
-                const angle = (anglePos/r) * (Math.PI/2);
-                const crib = new THREE.Mesh(new THREE.TorusGeometry(r, 0.15, 16, 64, 1.88), darkMat);
-                // Nueva orientación: meridiano longitudinal
-                crib.rotation.x = 0; 
-                crib.rotation.y = Math.PI/2; 
-                crib.rotation.z = angle - Math.PI/2 - 0.31; 
-                // Posicionamos y rotamos para que apunte hacia el polo del eje Z local
-                crib.position.set(0, 0, 0);
-                const ribGroup = new THREE.Group();
-                ribGroup.add(crib);
-                ribGroup.rotation.y = -angle;
-                capG.add(ribGroup);
+
+
+
+
+
+
+
+
+
+
+        function addEndCap(group, r, l, p, rx, ry, rz, wingLabel) {
+            // Solo procesamos el Norte por ahora como pidió el usuario
+            if (wingLabel !== 'N') return; 
+
+            const capG = new THREE.Group(); 
+            const innerSign = (wingLabel === 'N' || wingLabel === 'E') ? -1 : 1;
+            const zStart = -innerSign * (l / 2);
+            capG.position.set(0, 0, zStart);
+
+            // Centro de convergencia (Eje sobre el techo de la gran tienda)
+            // La tienda está en 100, el ala termina en 95.5. Distancia ~4.5
+            const convergeZ = -innerSign * 4.5; 
+            const convergeY = 11.5 - 16.5; // Relativo al centro de la bóveda (16.5)
+            const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
+
+            const beamLevels = [-19, -16, -13, -10, -7, -4, 4, 7, 10, 13, 16, 19];
+            
+            beamLevels.forEach(anglePos => {
+                const angle = (anglePos / r) * (Math.PI / 2);
+                const xLocal = Math.sin(angle) * r;
+                const yLocal = Math.cos(angle) * r;
+                const startPoint = new THREE.Vector3(xLocal, yLocal, 0);
+
+                // Crear un arco (meridiano) usando QuadraticBezierCurve
+                // El punto de control lo elevamos para dar efecto de "cuarto de esfera"
+                const controlPoint = new THREE.Vector3(xLocal, yLocal, convergeZ);
+                const curve = new THREE.QuadraticBezierCurve3(startPoint, controlPoint, targetPoint);
+                
+                const points = curve.getPoints(20);
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const meridian = new THREE.Line(geometry, darkMat);
+                capG.add(meridian);
+
+                // También agregamos un tubo o caja para el fierro con grosor
+                for (let j = 0; j < points.length - 1; j++) {
+                    const segStart = points[j];
+                    const segEnd = points[j+1];
+                    const dist = segStart.distanceTo(segEnd);
+                    const beamSeg = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, dist), darkMat);
+                    beamSeg.position.copy(segStart).add(segEnd).multiplyScalar(0.5);
+                    beamSeg.lookAt(segEnd);
+                    capG.add(beamSeg);
+                }
             });
+
+            // Shell de cristal del cuarto de esfera (Esquemático con Mesh)
+            const glassPoints = [];
+            // Aproximación de malla simple para el cristal
             group.add(capG);
         }
 
-        function createVaultedRoof(x, z, length, wingLabel, rot = false, capPos = 1, capX = 0, capY = 0, capZ = 0) {
+        function createVaultedRoof(x, z, length, wingLabel, rot = false, capPos = 1, capX = 0, capY = 0, capZ = 0, showCap = true) {
             const vaultG = new THREE.Group(); vaultG.position.set(x, 16.5, z);
             if(rot) vaultG.rotation.y = Math.PI/2;
-            addVaultShell(vaultG, 17, length);
-            addTransverseRibs(vaultG, 17, length, wingLabel);
-            addLongitudinalGirders(vaultG, 17, length, wingLabel);
-            // addEndCap(vaultG, 17, length, capPos, capX, capY, capZ); // Desactivado temporalmente
+            addVaultShell(vaultG, VAULT_RADIUS, length);
+            addTransverseRibs(vaultG, VAULT_RADIUS, length, wingLabel);
+            addLongitudinalGirders(vaultG, VAULT_RADIUS, length, wingLabel);
+            if (showCap) addEndCap(vaultG, 17, length, capPos, capX, capY, capZ, wingLabel); 
             scene.add(vaultG);
         }
 
@@ -897,22 +889,25 @@
 
 
 
-        createVaultedRoof(0, 56.5, 78, 'N', false, 1, 0, Math.PI, Math.PI); 
-        createVaultedRoof(0, -56.5, 78, 'S', false, -1, 0, 0, Math.PI); 
-        createVaultedRoof(56.5, 0, 78, 'E', true, 1, 0, Math.PI, Math.PI); 
-        createVaultedRoof(-56.5, 0, 78, 'O', true, -1, 0, 0, Math.PI); 
+        createVaultedRoof(0, VAULT_CENTER_OFFSET, VAULT_LENGTH, 'N', false, 1, 0, Math.PI, Math.PI, true); 
+        createVaultedRoof(0, -VAULT_CENTER_OFFSET, VAULT_LENGTH, 'S', false, -1, 0, 0, Math.PI); 
+        createVaultedRoof(VAULT_CENTER_OFFSET, 0, VAULT_LENGTH, 'E', true, 1, 0, Math.PI, Math.PI); 
+        createVaultedRoof(-VAULT_CENTER_OFFSET, 0, VAULT_LENGTH, 'O', true, -1, 0, 0, Math.PI); 
         
-        const centralDome = new THREE.Mesh(new THREE.SphereGeometry(24.1, 32, 16, 0, Math.PI*2, 0, Math.PI/2), glassMat);
-        centralDome.position.set(0, 16.5, 0); scene.add(centralDome);
+        const centralDome = new THREE.Mesh(new THREE.SphereGeometry(CENTRAL_DOME_RADIUS, 32, 16, 0, Math.PI*2, 0, Math.PI/2), glassMat);
+        centralDome.position.set(0, DOME_CENTER_Y, 0); scene.add(centralDome);
         for(let i=0; i<8; i++) {
-            const rib = new THREE.Mesh(new THREE.TorusGeometry(24.1, 0.15, 16,32, Math.PI/2), darkMat);
-            rib.position.set(0, 16.5, 0); rib.rotation.y = (Math.PI/4)*i; scene.add(rib);
+            const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.15, 16,32, Math.PI/2), darkMat);
+            rib.position.set(0, DOME_CENTER_Y, 0); rib.rotation.y = (Math.PI/4)*i; scene.add(rib);
         }
-        // Anillos re-calculados para radio 24.1 (ajustados para rodear el exterior del cristal)
-        [24.2, 23.7, 22.7, 21.5, 21.0].forEach((r, idx) => {
-            const h = [16.5, 21.092, 24.985, 27.586, 28.5][idx];
-            const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.15, 16, 128), darkMat);
-            ring.position.set(0, h, 0); ring.rotation.x = Math.PI/2; 
+        // Rebuild de anillos desde cero (7 niveles):
+        // 1) fierro más alto (0), 2..7) pares siguientes por altura (±4, ±7, ±10, ±13, ±16, ±19).
+        DOME_RING_TARGETS.forEach((target) => {
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(target.radius, 0.15, 16, 128), darkMat);
+            const ringHeight = target.height;
+            ring.position.set(0, ringHeight, 0);
+            ring.rotation.x = Math.PI/2;
+            ring.userData.familyLevel = target.level;
             scene.add(ring);
         });
 
@@ -1163,8 +1158,142 @@
             }
         });
 
-        let lastAdUpdate = 0;
-        let adIndex = 0;
+        // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
+        let supabaseClient = null;
+        let myNickname = "";
+        let otherPlayers = {}; // { sessionId: { mesh, label, targetPos, targetRot } }
+        let presenceChannel = null;
+
+        // Variables de optimización (Ahorro de datos)
+        let lastSentPos = new THREE.Vector3();
+        let lastSentRot = 0;
+        const POS_THRESHOLD = 0.3; // No enviar si se mueve menos de 30cm
+        const ROT_THRESHOLD = 0.15; // No enviar si rota menos de ~8 grados
+        const HEARTBEAT_LIMIT = 4000; // Enviar cada 4 seg aunque esté quieto
+        let lastUpdateTime = 0;
+
+        window.startMallExperience = async function() {
+            const nick = document.getElementById('nickname-input').value.trim();
+            if(!nick) return alert("Por favor, ingresa tu nombre de visitante");
+            myNickname = nick;
+            
+            document.getElementById('login-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('login-overlay').style.display = 'none', 500);
+            
+            if(!isWalking) window.toggleWalkMode();
+
+            // Configuración de Supabase
+            const SB_URL = window.NEXT_PUBLIC_SUPABASE_URL || "TU_SUPABASE_URL";
+            const SB_KEY = window.NEXT_PUBLIC_SUPABASE_ANON_KEY || "TU_SUPABASE_ANON_KEY";
+
+            if (SB_URL !== "TU_SUPABASE_URL" && typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+                console.log("🚀 Conexion exitosa con el Metaverso (Modo Ahorro)");
+                initPresence();
+            } else {
+                console.warn("⚠️ Supabase no configurado. Modo multijugador offline.");
+            }
+        };
+
+        function initPresence() {
+            presenceChannel = supabaseClient.channel('mall_presence', {
+                config: { presence: { key: myNickname } }
+            });
+
+            presenceChannel
+                .on('presence', { event: 'sync' }, () => {
+                    syncPlayers(presenceChannel.presenceState());
+                })
+                .on('presence', { event: 'leave' }, ({ key }) => {
+                    removePlayer(key);
+                })
+                .subscribe(async (status) => {
+                    if (status === 'SUBSCRIBED') {
+                        await trackMySelf();
+                    }
+                });
+            
+            // Intervalo inteligente de actualización
+            setInterval(() => {
+                if(!presenceChannel) return;
+
+                const dist = camera.position.distanceTo(lastSentPos);
+                const rotDiff = Math.abs(camera.rotation.y - lastSentRot);
+                const now = Date.now();
+
+                // LÓGICA DE OPTIMIZACIÓN: Solo enviar si hubo cambio significativo o pasó el tiempo de heartbeat
+                if (dist > POS_THRESHOLD || rotDiff > ROT_THRESHOLD || (now - lastUpdateTime) > HEARTBEAT_LIMIT) {
+                    trackMySelf();
+                    lastSentPos.copy(camera.position);
+                    lastSentRot = camera.rotation.y;
+                    lastUpdateTime = now;
+                }
+            }, 200); // Revisión cada 200ms (5 veces por seg) en lugar de 10
+        }
+
+        async function trackMySelf() {
+            if(!presenceChannel) return;
+            await presenceChannel.track({
+                nickname: myNickname,
+                x: camera.position.x,
+                y: camera.position.y,
+                z: camera.position.z,
+                r: camera.rotation.y
+            });
+        }
+
+        function createAvatar(nickname) {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.25, 0.25, 1.4, 8),
+                new THREE.MeshStandardMaterial({ color: 0xc9a66b, transparent: true, opacity: 0.7, metalness: 0.8, roughness: 0.2 })
+            );
+            body.position.y = 0.7; group.add(body);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            head.position.y = 1.6; group.add(head);
+            scene.add(group);
+
+            const label = document.createElement('div');
+            label.className = 'avatar-label'; label.innerText = nickname;
+            document.body.appendChild(label);
+
+            return { mesh: group, label: label, targetPos: new THREE.Vector3(), targetRot: 0 };
+        }
+
+        function syncPlayers(state) {
+            Object.keys(state).forEach(id => {
+                if(id === myNickname) return;
+                const pData = state[id][0];
+                if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id);
+                const p = otherPlayers[id];
+                p.targetPos.set(pData.x, pData.y - 1.7, pData.z);
+                p.targetRot = pData.r;
+            });
+        }
+
+        function removePlayer(id) {
+            if(otherPlayers[id]) {
+                scene.remove(otherPlayers[id].mesh);
+                otherPlayers[id].label.remove();
+                delete otherPlayers[id];
+            }
+        }
+
+        function updateOtherPlayers() {
+            Object.values(otherPlayers).forEach(p => {
+                if(p.mesh) {
+                    p.mesh.position.lerp(p.targetPos, 0.08); // Suavizado mayor para compensar saltos
+                    p.mesh.rotation.y = p.targetRot;
+                    const tempVec = p.mesh.position.clone();
+                    tempVec.y += 2.0;
+                    tempVec.project(camera);
+                    const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
+                    p.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                    p.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1) ? 'none' : 'block';
+                }
+            });
+        }
 
         function animate() { 
             requestAnimationFrame(animate); 
@@ -1177,16 +1306,19 @@
             }
 
             updateKeyboardNavigation();
+            updateOtherPlayers(); 
+            
             controls.update(); 
             renderer.render(scene, camera); 
         }
+
         // --- VÍNCULOS DE CIERRE (MÉTODO ROBUSTO) ---
         function closeModal() {
             document.getElementById('modal-overlay').style.display = 'none';
             document.getElementById('store-modal').style.display = 'none';
             document.getElementById('search-modal').style.display = 'none';
         }
-        window.closeModal = closeModal; // Exportar a global por si acaso
+        window.closeModal = closeModal; 
         
         document.getElementById('modal-close-btn-fixed').addEventListener('click', closeModal);
         document.getElementById('modal-overlay').addEventListener('click', closeModal);
