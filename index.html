@@ -1186,12 +1186,17 @@
             const SB_URL = "https://wwvkmxqonsnrliedqtqn.supabase.co";
             const SB_KEY = "sb_publishable_6elC2KGVGeqzhkuolO4hFQ_D4OjNdCu";
 
+            console.log("🛠️ Inicializando conexión con Supabase...");
             if (typeof supabase !== 'undefined') {
-                supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-                console.log("🚀 Conexion exitosa con el Metaverso (Modo Ahorro)");
-                initPresence();
+                try {
+                    supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+                    console.log("🚀 Conexion exitosa con el Metaverso (Modo Ahorro)");
+                    initPresence();
+                } catch (e) {
+                    console.error("❌ Error al conectar con Supabase:", e);
+                }
             } else {
-                console.warn("⚠️ Supabase no configurado. Modo multijugador offline.");
+                console.warn("⚠️ Supabase no detectado. Modo multijugador offline.");
             }
         };
 
