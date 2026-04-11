@@ -116,7 +116,18 @@
         .avatar-opt { display: inline-block; padding: 5px 10px; margin: 4px; border: 1px solid #555; border-radius: 4px; cursor: pointer; color: #aaa; font-size: 11px; text-transform: uppercase; }
         .avatar-opt.selected { border-color: #c5a059; color: #c5a059; background: rgba(197,160,89,0.1); }
     #chat-messages::-webkit-scrollbar { width: 6px; }
-#chat-messages::-webkit-scrollbar-thumb { background: rgba(197,160,89, 0.5); border-radius: 3px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: rgba(197,160,89, 0.5); border-radius: 3px; }
+    
+    @media(max-width: 768px) {
+        #mobile-dpad {
+            grid-template-columns: 50px 50px 50px;
+            grid-template-rows: 50px 50px;
+            gap: 5px; position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+        }
+        #mall-chat { bottom: 140px !important; }
+    }
+    .dpad-btn { background: rgba(10, 15, 20, 0.7); border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 8px; color: #c5a059; font-size: 20px; display: flex; justify-content: center; align-items: center; user-select: none; touch-action: none; }
+    .dpad-btn:active { background: rgba(197, 160, 89, 0.4); }
 </style>
 </head>
 <body>
@@ -167,6 +178,12 @@
 
     <div class="view-indicator" id="view-indicator">VISTA SUR</div>
     <div class="interaction-hint">Haz clic en un local para ver su ficha comercial</div>
+    
+    <!-- MOBILE DPAD -->
+    <div id="mobile-dpad" style="display: none;">
+        <div style="visibility:hidden"></div><div class="dpad-btn" id="dpad-up">▲</div><div style="visibility:hidden"></div>
+        <div class="dpad-btn" id="dpad-left">◀</div><div class="dpad-btn" id="dpad-down">▼</div><div class="dpad-btn" id="dpad-right">▶</div>
+    </div>
 
     <!-- MODAL DE FICHA COMERCIAL -->
     <div class="overlay" id="modal-overlay"></div>
@@ -238,6 +255,10 @@
                 controls.minPolarAngle = Math.PI/2 - 0.5;
                 controls.maxPolarAngle = Math.PI/2 + 0.5;
                 controls.minDistance = 0.01; controls.maxDistance = 0.05;
+
+                if(window.innerWidth <= 768) {
+                    document.getElementById('mobile-dpad').style.display = 'grid';
+                }
             } else {
                 btn.innerText = "Modo Paseo";
                 camera.position.set(45, 45, 45);
@@ -245,6 +266,7 @@
                 controls.enablePan = true;
                 controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI;
                 controls.minDistance = 1; controls.maxDistance = 500;
+                document.getElementById('mobile-dpad').style.display = 'none';
             }
         };
 
@@ -962,6 +984,21 @@
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, ControlLeft: false, ControlRight: false };
         window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
         window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
+
+        // Touch simulador de teclado
+        const bindKey = (id, key) => {
+            const el = document.getElementById(id);
+            if(!el) return;
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+            el.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
+            el.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
+            el.addEventListener('mouseleave', (e) => { e.preventDefault(); keys[key] = false; });
+        };
+        bindKey('dpad-up', 'ArrowUp');
+        bindKey('dpad-down', 'ArrowDown');
+        bindKey('dpad-left', 'ArrowLeft');
+        bindKey('dpad-right', 'ArrowRight');
 
         let moveSpeed = 0.15;
         let rotSpeed = 0.02;
