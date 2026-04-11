@@ -751,15 +751,15 @@
             // --- MURO PERIMETRAL EXTERIOR (CIERRA HUECOS CENTRALES, DEJA ENTRADAS LIBRES) ---
             const wallM = whiteMat;
             const h = 5.2; const thickness = 0.2;
-            const corridorLen = 68; // Cubre solo el bloque de boutiques
+            const corridorLen = 48; // Recortado para no sobresalir al pasillo central
             
             // Muro para oRows (atrás de las tiendas en el eje horizontal)
             const w1 = new THREE.Mesh(new THREE.BoxGeometry(corridorLen, h, thickness), wallM);
-            w1.position.set(49 * sx, y + h/2, 35 * sz); gr.add(w1);
+            w1.position.set(59 * sx, y + h/2, 35 * sz); gr.add(w1);
             
             // Muro para sideRows (atrás de las tiendas en el eje vertical)
             const w2 = new THREE.Mesh(new THREE.BoxGeometry(thickness, h, corridorLen), wallM);
-            w2.position.set(35 * sx, y + h/2, 49 * sz); gr.add(w2);
+            w2.position.set(35 * sx, y + h/2, 59 * sz); gr.add(w2);
 
             return gr;
         };
