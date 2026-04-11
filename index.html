@@ -352,8 +352,6 @@
 
 
         function addEndCap(group, r, l, p, rx, ry, rz, wingLabel) {
-            // Solo procesamos el Norte por ahora como pidió el usuario
-            if (wingLabel !== 'N') return; 
 
             const capG = new THREE.Group(); 
             const innerSign = (wingLabel === 'N' || wingLabel === 'E') ? -1 : 1;
