@@ -194,6 +194,9 @@
         scene.background = new THREE.Color(0xaabbcc);
         scene.fog = new THREE.Fog(0xaabbcc, 40, 600);
 
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 1500);
+        camera.position.set(45, 45, 45);
+
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.toneMapping = THREE.ReinhardToneMapping;
@@ -1026,23 +1029,6 @@
             }
         }
 
-        let isWalking = false;
-        window.toggleWalkMode = function() {
-            const btn = document.getElementById('walk-btn-ctrl');
-            isWalking = !isWalking;
-            
-            if (isWalking) {
-                btn.innerText = "Volver a Vista Aérea";
-                camera.position.set(0, 1.7, 140);
-                controls.target.set(0, 1.7, 100);
-                if(document.getElementById('loader')) document.getElementById('loader').remove();
-            } else {
-                btn.innerText = "Modo Paseo";
-                camera.position.set(100, 100, 100); // Vista amplia de lujo
-                controls.target.set(0, 0, 0);
-            }
-            controls.update();
-        };
 
 
         // --- LÓGICA DE GESTIÓN COMERCIAL (BASE DE DATOS DINÁMICA) ---
