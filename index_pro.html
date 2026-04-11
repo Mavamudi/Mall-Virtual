@@ -194,19 +194,33 @@
         scene.background = new THREE.Color(0xaabbcc);
         scene.fog = new THREE.Fog(0xaabbcc, 40, 600);
 
-        // CUBO DE DIAGNÓSTICO (Si ves esto, el motor funciona)
-        const debugCube = new THREE.Mesh(new THREE.BoxGeometry(5,5,5), new THREE.MeshBasicMaterial({color: 0xff0000}));
-        debugCube.position.set(0, 10, 0);
-        scene.add(debugCube);
-
-        const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 1500);
-        camera.position.set(45, 45, 45);
-
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.setPixelRatio(window.devicePixelRatio);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        let isWalking = false;
+        window.toggleWalkMode = function() {
+            isWalking = !isWalking;
+            const btn = document.getElementById('walk-btn-ctrl');
+            if (isWalking) {
+                btn.innerText = "Modo Aéreo";
+                camera.position.set(0, 1.7, 85); // Entrada Sur
+                controls.target.set(0, 1.7, 0);
+                controls.enablePan = false;
+                controls.minPolarAngle = Math.PI/2 - 0.5;
+                controls.maxPolarAngle = Math.PI/2 + 0.5;
+                controls.minDistance = 0.01; controls.maxDistance = 0.05;
+            } else {
+                btn.innerText = "Modo Paseo";
+                camera.position.set(45, 45, 45);
+                controls.target.set(0, 0, 0);
+                controls.enablePan = true;
+                controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI;
+                controls.minDistance = 1; controls.maxDistance = 500;
+            }
+        };
 
         console.log("🎮 Controles de órbita...");
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -1177,10 +1191,7 @@
         let lastSentRot = 0;
         const POS_THRESHOLD = 0.3; // No enviar si se mueve menos de 30cm
         const ROT_THRESHOLD = 0.15; // No enviar si rota menos de ~8 grados
-        const HEARTBEAT_LIMIT = 4000; // Enviar cada 4 seg aunque esté quieto
-        let lastUpdateTime = 0;
-
-        window.startMallExperience = async function() {
+         window.startMallExperience = async function() {
             const nick = document.getElementById('nickname-input').value.trim();
             if(!nick) return alert("Por favor, ingresa tu nombre de visitante");
             myNickname = nick;
@@ -1203,10 +1214,11 @@
                 } catch (e) {
                     console.error("❌ Error al conectar con Supabase:", e);
                 }
-            } else {
-                console.warn("⚠️ Supabase no detectado. Modo multijugador offline.");
             }
         };
+
+        const HEARTBEAT_LIMIT = 4000; // Enviar cada 4 seg aunque esté quieto
+        let lastUpdateTime = 0;
 
         function initPresence() {
             presenceChannel = supabaseClient.channel('mall_presence', {
