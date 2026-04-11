@@ -1225,29 +1225,44 @@
 
             presenceChannel
                 .on('presence', { event: 'sync' }, () => {
-                    syncPlayers(presenceChannel.presenceState());
+                    const state = presenceChannel.presenceState();
+                    Object.keys(state).forEach(id => {
+                        if(id === myNickname) return;
+                        if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id);
+                    });
                 })
                 .on('presence', { event: 'leave' }, ({ key }) => {
                     removePlayer(key);
                     addChatMessage("Sistema", `${key} ha salido del mall.`);
                 })
-                .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                .on('presence', { event: 'join' }, ({ key }) => {
                     if (key !== myNickname) {
                         addChatMessage("Sistema", `${key} ha entrado al mall.`);
+                        broadcastMyPosition(); // Responder inmediatamente al que acaba de entrar
                     }
                 })
                 .on('broadcast', { event: 'chat_msg' }, payload => {
                     addChatMessage(payload.payload.user, payload.payload.text);
+                })
+                .on('broadcast', { event: 'pos_update' }, payload => {
+                    const id = payload.payload.user;
+                    if(id === myNickname) return;
+                    if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id);
+                    const p = otherPlayers[id];
+                    const pData = payload.payload;
+                    p.targetPos.set(pData.x, pData.y - 1.7, pData.z);
+                    p.targetRot = pData.r;
                 })
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
                         await trackMySelf();
                         document.getElementById('mall-chat').style.display = 'flex';
                         addChatMessage("Sistema", `¡Hola ${myNickname}! Presiona Enter para enviar mensajes a otros visitantes.`);
+                        broadcastMyPosition();
                     }
                 });
             
-            // Intervalo inteligente de actualización
+            // Intervalo de Broadcast en lugar de Presence Track
             setInterval(() => {
                 if(!presenceChannel) return;
 
@@ -1255,24 +1270,34 @@
                 const rotDiff = Math.abs(camera.rotation.y - lastSentRot);
                 const now = Date.now();
 
-                // LÓGICA DE OPTIMIZACIÓN: Solo enviar si hubo cambio significativo o pasó el tiempo de heartbeat
+                // LÓGICA DE OPTIMIZACIÓN: Solo enviar si hubo cambio o pasó el tiempo límite
                 if (dist > POS_THRESHOLD || rotDiff > ROT_THRESHOLD || (now - lastUpdateTime) > HEARTBEAT_LIMIT) {
-                    trackMySelf();
+                    broadcastMyPosition();
                     lastSentPos.copy(camera.position);
                     lastSentRot = camera.rotation.y;
                     lastUpdateTime = now;
                 }
-            }, 200); // Revisión cada 200ms (5 veces por seg) en lugar de 10
+            }, 100); 
         }
 
         async function trackMySelf() {
             if(!presenceChannel) return;
-            await presenceChannel.track({
-                nickname: myNickname,
-                x: camera.position.x,
-                y: camera.position.y,
-                z: camera.position.z,
-                r: camera.rotation.y
+            // Solo registrar presencia básica (online state)
+            await presenceChannel.track({ nickname: myNickname });
+        }
+
+        function broadcastMyPosition() {
+            if(!presenceChannel) return;
+            presenceChannel.send({
+                type: 'broadcast',
+                event: 'pos_update',
+                payload: {
+                    user: myNickname,
+                    x: camera.position.x,
+                    y: camera.position.y,
+                    z: camera.position.z,
+                    r: camera.rotation.y
+                }
             });
         }
 
@@ -1334,11 +1359,8 @@
         function syncPlayers(state) {
             Object.keys(state).forEach(id => {
                 if(id === myNickname) return;
-                const pData = state[id][0];
                 if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id);
-                const p = otherPlayers[id];
-                p.targetPos.set(pData.x, pData.y - 1.7, pData.z);
-                p.targetRot = pData.r;
+                // No configuramos posiciones iniciales aquí porque las posiciones reales vendrán vía Broadcast
             });
         }
 
