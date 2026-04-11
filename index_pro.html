@@ -256,7 +256,7 @@
         const VAULT_RADIUS = 17;
         const VAULT_LENGTH = 78;
         const VAULT_CENTER_OFFSET = 56.5;
-        const DOME_CENTER_Y = 16.5;
+        const DOME_CENTER_Y = 22.0;
         const CENTRAL_DOME_RADIUS = 28.0;
         const LONGITUDINAL_BEAM_LEVELS = [-19, -16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16, 19];
         const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16, 19];
@@ -287,7 +287,7 @@
             m.rotation.x = Math.PI/2; m.rotation.z = -Math.PI/2; group.add(m);
         }
         function addTransverseRibs(group, r, l, wingLabel) {
-            const pillarH = 16.5 - 11.5; // Ajuste preciso al techo de las tiendas
+            const pillarH = 22.0 - 11.5; // Ajuste preciso al techo de las tiendas
             for(let i = -l/2; i <= l/2; i += 4) {
                 // Arco extendido a 3.74 y rotación de -0.3 para bajar de la horizontal
                 const rib = new THREE.Mesh(new THREE.TorusGeometry(r, 0.15, 16, 64, 3.74), darkMat);
@@ -299,7 +299,7 @@
                 // Soporte Vertical (Mantenemos pilares para mayor robustez visual)
                 [r*Math.cos(-0.3), -r*Math.cos(-0.3)].forEach(xSide => {
                     const p = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, pillarH), darkMat);
-                    p.position.set(xSide, -pillarH/2 - 4.8, zPos); // Ajuste de profundidad
+                    p.position.set(xSide, -pillarH/2, zPos); // Ajuste de profundidad para descansar en techo segundo piso
                     group.add(p);
                 });
             }
@@ -363,7 +363,7 @@
             // Centro de convergencia (Eje sobre el techo de la gran tienda)
             // La tienda está en 100, el ala termina en 95.5. Distancia ~4.5
             const convergeZ = -innerSign * 4.5; 
-            const convergeY = 11.5 - 16.5; // Relativo al centro de la bóveda (16.5)
+            const convergeY = 11.5 - 22.0; // Relativo al centro de la bóveda (22.0)
             const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
 
             const beamLevels = [-19, -16, -13, -10, -7, -4, 4, 7, 10, 13, 16, 19];
@@ -403,7 +403,7 @@
         }
 
         function createVaultedRoof(x, z, length, wingLabel, rot = false, capPos = 1, capX = 0, capY = 0, capZ = 0, showCap = true) {
-            const vaultG = new THREE.Group(); vaultG.position.set(x, 16.5, z);
+            const vaultG = new THREE.Group(); vaultG.position.set(x, 22.0, z);
             if(rot) vaultG.rotation.y = Math.PI/2;
             addVaultShell(vaultG, VAULT_RADIUS, length);
             addTransverseRibs(vaultG, VAULT_RADIUS, length, wingLabel);
@@ -636,8 +636,8 @@
             const gr = new THREE.Group(); gr.position.set(x, 0.1, z);
             // Columnas Guía (Oro)
             [2.5, -2.5].forEach(px => [2.5, -2.5].forEach(pz => {
-                const col = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 16.5), goldMat);
-                col.position.set(px, 8.25, pz); gr.add(col);
+                const col = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 22.0), goldMat);
+                col.position.set(px, 11.0, pz); gr.add(col);
             }));
             // Cápsula de Cristal
             const cab = new THREE.Group(); cab.position.y = 2.7; // Posición estática elegante
@@ -787,10 +787,10 @@
         for(let j = -70; j <= 70; j += 25) { if(Math.abs(j) < 15) continue; createPlanter(0, j); createBench(8, j, 0); createBench(-8, j, 0); }
         for(let k = -70; k <= 70; k += 25) { if(Math.abs(k) < 15) continue; createPlanter(k, 0); createBench(k, 8, Math.PI/2); createBench(k, -8, Math.PI/2); }
         createCentralFountain(); // La fuente crece visualmente por el espacio
-        createDigitalScreen(0, 16.5, 17, 0);
-        createDigitalScreen(0, 16.5, -17, Math.PI);
-        createDigitalScreen(17, 16.5, 0, -Math.PI/2);
-        createDigitalScreen(-17, 16.5, 0, Math.PI/2);
+        createDigitalScreen(0, 22.0, 17, 0);
+        createDigitalScreen(0, 22.0, -17, Math.PI);
+        createDigitalScreen(17, 22.0, 0, -Math.PI/2);
+        createDigitalScreen(-17, 22.0, 0, Math.PI/2);
 
         function createInteriorFloors() {
             const marbleMat = new THREE.MeshStandardMaterial({ color: 0xb0b0b0, roughness: 0.1, metalness: 0.1 });
