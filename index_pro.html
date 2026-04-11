@@ -113,7 +113,9 @@
             cursor: pointer; transition: all 0.3s;
         }
         .enter-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); }
-    </style>
+    #chat-messages::-webkit-scrollbar { width: 6px; }
+#chat-messages::-webkit-scrollbar-thumb { background: rgba(197,160,89, 0.5); border-radius: 3px; }
+</style>
 </head>
 <body>
 
@@ -129,6 +131,15 @@
             <input type="text" id="nickname-input" placeholder="Tu Nombre" maxlength="15">
             <button class="enter-btn" onclick="startMallExperience()">Entrar al Mall</button>
             <p class="mt-8 text-[9px] text-gray-600 tracking-widest uppercase">Experiencia Multijugador Sincronizada</p>
+        </div>
+    </div>
+
+    <!-- Chat Box -->
+    <div id="mall-chat" style="display: none; position: fixed; bottom: 20px; left: 20px; width: 320px; height: 250px; background: rgba(10, 15, 20, 0.85); border: 1px solid #c5a059; border-radius: 8px; flex-direction: column; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: 'Montserrat', sans-serif; transition: opacity 0.3s;">
+        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px;"></div>
+        <div id="chat-input-container" style="display: flex; border-top: 1px solid rgba(197, 160, 89, 0.3); padding: 10px;">
+            <input type="text" id="chat-input" placeholder="Escribe para el chat..." maxlength="100" autocomplete="off" style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(197, 160, 89, 0.5); color: #fff; padding: 8px 12px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 13px; outline: none;">
+            <button id="chat-send" style="background: #c5a059; color: #000; border: none; border-radius: 4px; margin-left: 8px; padding: 0 12px; cursor: pointer; font-weight: bold; transition: 0.2s;">▶</button>
         </div>
     </div>
 
@@ -1206,7 +1217,10 @@
 
         function initPresence() {
             presenceChannel = supabaseClient.channel('mall_presence', {
-                config: { presence: { key: myNickname } }
+                config: { 
+                    presence: { key: myNickname },
+                    broadcast: { self: true }
+                }
             });
 
             presenceChannel
@@ -1215,10 +1229,21 @@
                 })
                 .on('presence', { event: 'leave' }, ({ key }) => {
                     removePlayer(key);
+                    addChatMessage("Sistema", `${key} ha salido del mall.`);
+                })
+                .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                    if (key !== myNickname) {
+                        addChatMessage("Sistema", `${key} ha entrado al mall.`);
+                    }
+                })
+                .on('broadcast', { event: 'chat_msg' }, payload => {
+                    addChatMessage(payload.payload.user, payload.payload.text);
                 })
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
                         await trackMySelf();
+                        document.getElementById('mall-chat').style.display = 'flex';
+                        addChatMessage("Sistema", `¡Hola ${myNickname}! Presiona Enter para enviar mensajes a otros visitantes.`);
                     }
                 });
             
@@ -1251,15 +1276,52 @@
             });
         }
 
+        function addChatMessage(user, text) {
+            const container = document.getElementById('chat-messages');
+            const p = document.createElement('p');
+            p.style.margin = '0'; p.style.fontSize = '13px'; p.style.color = '#fff'; p.style.lineHeight = '1.4'; p.style.wordWrap = 'break-word';
+            p.innerHTML = `<strong style="color: #c5a059; text-transform: uppercase; font-size: 11px; margin-right: 5px;">${user}:</strong> ${text.replace(/</g, "&lt;")}`;
+            container.appendChild(p);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        
+        function sendChat() {
+            const text = chatInput.value.trim();
+            if (!text || !presenceChannel) return;
+            presenceChannel.send({
+                type: 'broadcast',
+                event: 'chat_msg',
+                payload: { user: myNickname, text: text }
+            });
+            chatInput.value = '';
+        }
+
+        chatSend.onclick = sendChat;
+        chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendChat(); e.stopPropagation(); };
+        chatInput.addEventListener('keydown', e => e.stopPropagation());
+        chatInput.addEventListener('keyup', e => e.stopPropagation());
+
         function createAvatar(nickname) {
             const group = new THREE.Group();
+            
+            // Cuerpo
             const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.25, 0.25, 1.4, 8),
-                new THREE.MeshStandardMaterial({ color: 0xc9a66b, transparent: true, opacity: 0.7, metalness: 0.8, roughness: 0.2 })
+                new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16),
+                new THREE.MeshStandardMaterial({ color: 0xc9a66b, transparent: true, opacity: 0.9, metalness: 0.5, roughness: 0.4 })
             );
-            body.position.y = 0.7; group.add(body);
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-            head.position.y = 1.6; group.add(head);
+            body.position.y = 0.6; group.add(body);
+            
+            // Cabeza
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            head.position.y = 1.45; group.add(head);
+
+            // Gafas o visor (para saber hacia dónde mira)
+            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.1, 0.15), new THREE.MeshStandardMaterial({ color: 0x000000 }));
+            visor.position.set(0, 1.45, 0.22); group.add(visor);
+
             scene.add(group);
 
             const label = document.createElement('div');
