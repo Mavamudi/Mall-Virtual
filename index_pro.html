@@ -113,6 +113,8 @@
             cursor: pointer; transition: all 0.3s;
         }
         .enter-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); }
+        .avatar-opt { display: inline-block; padding: 5px 10px; margin: 4px; border: 1px solid #555; border-radius: 4px; cursor: pointer; color: #aaa; font-size: 11px; text-transform: uppercase; }
+        .avatar-opt.selected { border-color: #c5a059; color: #c5a059; background: rgba(197,160,89,0.1); }
     #chat-messages::-webkit-scrollbar { width: 6px; }
 #chat-messages::-webkit-scrollbar-thumb { background: rgba(197,160,89, 0.5); border-radius: 3px; }
 </style>
@@ -129,6 +131,12 @@
             <h1 class="text-4xl font-extralight luxury-gradient tracking-[8px] mb-2">BIENVENIDO</h1>
             <p class="text-[10px] text-gray-500 tracking-[3px] uppercase">Acceso al Centro Comercial 3D</p>
             <input type="text" id="nickname-input" placeholder="Tu Nombre" maxlength="15">
+            <div id="avatar-selection" style="margin: 15px 0;">
+                <p style="font-size: 10px; color: #888; margin-bottom: 8px;">Elige tu Tu Aspecto:</p>
+                <div class="avatar-opt selected" onclick="selectAvatar('1', this)">👔 Formal</div>
+                <div class="avatar-opt" onclick="selectAvatar('2', this)">🏃 Deportivo</div>
+                <div class="avatar-opt" onclick="selectAvatar('3', this)">🧑‍🎨 Urbano</div>
+            </div>
             <button class="enter-btn" onclick="startMallExperience()">Entrar al Mall</button>
             <p class="mt-8 text-[9px] text-gray-600 tracking-widest uppercase">Experiencia Multijugador Sincronizada</p>
         </div>
@@ -1187,6 +1195,13 @@
         // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
         let supabaseClient = null;
         let myNickname = "";
+        let myAvatarStyle = "1";
+
+        window.selectAvatar = function(id, el) {
+            myAvatarStyle = id;
+            document.querySelectorAll('.avatar-opt').forEach(btn => btn.classList.remove('selected'));
+            el.classList.add('selected');
+        }
         
         // Administradores y Chat
         const ADMINS = ['javier', 'javi', 'mauri', 'admin'];
@@ -1285,7 +1300,8 @@
                 .on('broadcast', { event: 'pos_update' }, payload => {
                     const id = payload.payload.user;
                     if(id === myNickname) return;
-                    if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id);
+                    // Pasamos tb el estilo en el payload por si no lo teníamos en presence inicial
+                    if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id, payload.payload.style || "1");
                     const p = otherPlayers[id];
                     const pData = payload.payload;
                     p.targetPos.set(pData.x, pData.y - 1.7, pData.z);
@@ -1320,8 +1336,8 @@
 
         async function trackMySelf() {
             if(!presenceChannel) return;
-            // Solo registrar presencia básica (online state)
-            await presenceChannel.track({ nickname: myNickname });
+            // Solo registrar presencia básica y qué avatar escogimos
+            await presenceChannel.track({ nickname: myNickname, style: myAvatarStyle });
         }
 
         function broadcastMyPosition() {
@@ -1331,6 +1347,7 @@
                 event: 'pos_update',
                 payload: {
                     user: myNickname,
+                    style: myAvatarStyle,
                     x: camera.position.x,
                     y: camera.position.y,
                     z: camera.position.z,
@@ -1374,26 +1391,57 @@
         chatInput.addEventListener('keydown', e => e.stopPropagation());
         chatInput.addEventListener('keyup', e => e.stopPropagation());
 
-        function createAvatar(nickname) {
+        function createAvatar(nickname, styleCode = "1") {
             const group = new THREE.Group();
             
-            // Cuerpo
-            const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16),
-                new THREE.MeshStandardMaterial({ color: 0xc9a66b, transparent: true, opacity: 0.9, metalness: 0.5, roughness: 0.4 })
-            );
-            body.position.y = 0.6; group.add(body);
-            body.userData.playerId = nickname; // Para el Raycaster
+            // Colores por clase
+            let skinColor = 0xffcc99; // base
+            let shirtColor = 0x222222; // formal
+            let pantsColor = 0x111111;
+
+            if (styleCode === "2") { shirtColor = 0xffd700; pantsColor = 0x3344cc; } // deportivo
+            if (styleCode === "3") { shirtColor = 0xaa4455; pantsColor = 0x556677; } // casual urbano
+
+            const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.6 });
+            const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.8 });
+            const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.9 });
+            const blackMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+
+            // Torso (0.6x0.8x0.3) centro en Y=1.1
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.3), shirtMat);
+            body.position.set(0, 1.1, 0); 
+            group.add(body);
+            body.userData.playerId = nickname; 
             
-            // Cabeza
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-            head.position.y = 1.45; group.add(head);
+            // Cabeza (0.5x0.5x0.5) centro en Y=1.75
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.4), skinMat);
+            head.position.set(0, 1.75, 0); 
+            group.add(head);
             head.userData.playerId = nickname;
 
-            // Gafas o visor (para saber hacia dónde mira)
-            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.1, 0.15), new THREE.MeshStandardMaterial({ color: 0x000000 }));
-            visor.position.set(0, 1.45, 0.22); group.add(visor);
+            // Gafas o visor (para saber hacia dónde mira) (frontal en el eje Z positivo)
+            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.1, 0.15), blackMat);
+            visor.position.set(0, 1.75, 0.22); 
+            group.add(visor);
             visor.userData.playerId = nickname;
+
+            // Brazos
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), skinMat);
+            armL.position.set(-0.45, 1.15, 0); group.add(armL);
+            armL.userData.playerId = nickname;
+
+            const armR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), skinMat);
+            armR.position.set(0.45, 1.15, 0); group.add(armR);
+            armR.userData.playerId = nickname;
+
+            // Piernas
+            const legL = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.7, 0.25), pantsMat);
+            legL.position.set(-0.15, 0.35, 0); group.add(legL);
+            legL.userData.playerId = nickname;
+
+            const legR = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.7, 0.25), pantsMat);
+            legR.position.set(0.15, 0.35, 0); group.add(legR);
+            legR.userData.playerId = nickname;
 
             scene.add(group);
 
@@ -1407,8 +1455,10 @@
         function syncPlayers(state) {
             Object.keys(state).forEach(id => {
                 if(id === myNickname) return;
-                if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id);
-                // No configuramos posiciones iniciales aquí porque las posiciones reales vendrán vía Broadcast
+                let remoteStyle = "1";
+                if (state[id] && state[id][0] && state[id][0].style) remoteStyle = state[id][0].style;
+                if(!otherPlayers[id]) otherPlayers[id] = createAvatar(id, remoteStyle);
+                // No configuramos posiciones iniciales aquí porque vendrán vía Broadcast
             });
         }
 
