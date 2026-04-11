@@ -142,9 +142,20 @@
         </div>
     </div>
 
+    <!-- Chat Icon (Minimized state) -->
+    <div id="chat-minimized-btn" onclick="toggleChat()" style="display: none; position: fixed; bottom: 20px; left: 20px; width: 50px; height: 50px; background: rgba(10, 15, 20, 0.85); border: 2px solid #c5a059; border-radius: 50%; z-index: 1000; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(5px);">
+        <span style="font-size: 20px; line-height: 1;">💬</span>
+        <div id="chat-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ff3b30; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; font-weight: bold; align-items: center; justify-content: center; border: 2px solid #0a0f14;">0</div>
+    </div>
+
     <!-- Chat Box -->
-    <div id="mall-chat" style="display: none; position: fixed; bottom: 20px; left: 20px; width: 320px; height: 250px; background: rgba(10, 15, 20, 0.85); border: 1px solid #c5a059; border-radius: 8px; flex-direction: column; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: 'Montserrat', sans-serif; transition: opacity 0.3s;">
-        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px;"></div>
+    <div id="mall-chat" style="display: none; position: fixed; bottom: 80px; left: 20px; width: 320px; height: 260px; background: rgba(10, 15, 20, 0.85); border: 1px solid #c5a059; border-radius: 8px; flex-direction: column; z-index: 1000; backdrop-filter: blur(5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: 'Montserrat', sans-serif; transition: opacity 0.3s;">
+        <!-- Header Chat -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(197, 160, 89, 0.3); background: rgba(0,0,0,0.5); border-radius: 8px 8px 0 0;">
+            <strong style="color: #c5a059; font-size: 11px; text-transform: uppercase;">Chat del Mall</strong>
+            <button onclick="toggleChat()" style="background: none; border: none; color: #888; font-size: 20px; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+        </div>
+        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
         <div id="chat-target-indicator" style="font-size: 10px; color: #c5a059; padding: 4px 10px; text-transform: uppercase; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(197, 160, 89, 0.3); display: flex; justify-content: space-between; align-items: center;">
             <span id="chat-target-text">Destino: ...</span>
             <span id="chat-reset-btn" style="cursor: pointer; display: none; padding: 2px 5px; border-radius: 3px; background: rgba(197, 160, 89, 0.2);" onclick="resetChatTarget()">VOLVER A TODOS</span>
@@ -1233,6 +1244,20 @@
         const ADMINS = ['javier', 'javi', 'mauri', 'admin'];
         let chatTarget = ""; 
         let isAdmin = false;
+        let isChatOpen = false;
+        let unreadCount = 0;
+
+        window.toggleChat = function() {
+            isChatOpen = !isChatOpen;
+            document.getElementById('mall-chat').style.display = isChatOpen ? 'flex' : 'none';
+            document.getElementById('chat-minimized-btn').style.display = isChatOpen ? 'none' : 'flex';
+            if (isChatOpen) {
+                unreadCount = 0;
+                document.getElementById('chat-badge').style.display = 'none';
+                const msgs = document.getElementById('chat-messages');
+                msgs.scrollTop = msgs.scrollHeight;
+            }
+        };
 
         window.setChatTarget = function(user) {
             if (user === myNickname) return;
@@ -1336,8 +1361,9 @@
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
                         await trackMySelf();
-                        document.getElementById('mall-chat').style.display = 'flex';
-                        addChatMessage("Sistema", `¡Hola ${myNickname}! Presiona Enter para enviar mensajes a otros visitantes.`);
+                        document.getElementById('chat-minimized-btn').style.display = 'flex';
+                        window.toggleChat(); // Abre el chat por defecto la primera vez
+                        addChatMessage("Sistema", `¡Hola ${myNickname}! Presiona Enter para enviar mensajes.`);
                         broadcastMyPosition();
                     }
                 });
@@ -1385,11 +1411,18 @@
         function addChatMessage(user, text, to = "Todos") {
             const container = document.getElementById('chat-messages');
             const p = document.createElement('p');
-            p.style.margin = '0'; p.style.fontSize = '13px'; p.style.color = '#fff'; p.style.lineHeight = '1.4'; p.style.wordWrap = 'break-word';
+            p.style.margin = '0'; p.style.fontSize = '12px'; p.style.color = '#fff'; p.style.lineHeight = '1.4'; p.style.wordWrap = 'break-word';
             let label = to === "Todos" ? `<strong style="color: #c5a059;">${user}</strong>` : `<strong style="color: #6dbcdb;">[Privado] ${user}</strong>`;
             p.innerHTML = `${label}: ${text.replace(/</g, "&lt;")}`;
             container.appendChild(p);
             container.scrollTop = container.scrollHeight;
+
+            if (!isChatOpen && user !== "Sistema" && user !== myNickname) {
+                unreadCount++;
+                const badge = document.getElementById('chat-badge');
+                badge.innerText = unreadCount;
+                badge.style.display = 'flex';
+            }
         }
 
         const chatInput = document.getElementById('chat-input');
