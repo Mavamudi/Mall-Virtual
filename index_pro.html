@@ -1322,6 +1322,7 @@
                 payload: { user: myNickname, text: text }
             });
             chatInput.value = '';
+            chatInput.blur(); // Quitar el foco para devolver el control a la cámara/teclado del mall
         }
 
         chatSend.onclick = sendChat;
