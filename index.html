@@ -1173,35 +1173,9 @@
             if (keys.KeyD) { camera.position.addScaledVector(right, moveSpeed); controls.target.addScaledVector(right, moveSpeed); }
 
 
-            // --- LÓGICA DE ESCALERAS MECÁNICAS (TRANSPORTE AUTOMÁTICO) ---
-            let onEscalator = false;
-            escalatorList.forEach(e => {
-                const dx = Math.abs(camera.position.x - e.x);
-                const dz = (camera.position.z >= e.zMin && camera.position.z <= e.zMax);
-                if (dx < 2.5 && dz) {
-                    onEscalator = true;
-                    // TRACCIÓN AUTOMÁTICA: Mover en Z sin necesidad de flechas
-                    const distDir = Math.sign(e.zEnd - e.zStart);
-                    const speed = 0.08; // Velocidad de la cinta mecánica
-                    camera.position.z += distDir * speed;
-                    controls.target.z += distDir * speed;
-
-                    // Calcular progreso para altura (Y)
-                    const totalZ = Math.abs(e.zMax - e.zMin);
-                    const currentZ = Math.abs(camera.position.z - e.zStart);
-                    const progress = THREE.MathUtils.clamp(currentZ / totalZ, 0, 1);
-                    
-                    // Altura precisa: Nivel Piso base + recorrido + 1.7m
-                    if(e.up) {
-                        camera.position.y = (progress * 5.4) + 1.8;
-                    } else {
-                        camera.position.y = ((1 - progress) * 5.4) + 1.8;
-                    }
-                }
-            });
-
             // BLOQUEO DE ALTURA MODO PASEO (Garantiza 1.70m sobre el suelo actual)
-            if (isWalking && !onEscalator) {
+            if (isWalking) {
+                // Lógica de transición de piso simplificada
                 const currentFloorY = camera.position.y > 3 ? 5.4 : 0.1;
                 camera.position.y = currentFloorY + 1.7;
             }
