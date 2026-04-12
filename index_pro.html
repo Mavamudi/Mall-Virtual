@@ -342,10 +342,10 @@
         const VAULT_RADIUS = 17;
         const VAULT_LENGTH = 78;
         const VAULT_CENTER_OFFSET = 56.5;
-        const DOME_CENTER_Y = 22.0;
+        const DOME_CENTER_Y = 25.5; // Elevado para mayor lujo y espacio
         const CENTRAL_DOME_RADIUS = 28.0;
-        const LONGITUDINAL_BEAM_LEVELS = [-19, -16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16, 19];
-        const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16, 19];
+        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 4, 7, 10, 13, 16]; // Ajustado al semicírculo
+        const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16];
 
         function getVaultAngleForLevel(level) {
             return (level / VAULT_RADIUS) * (Math.PI / 2);
@@ -368,24 +368,24 @@
 
         // --- SUBMOTIVOS DE ARQUITECTURA PROTEGIDOS ---
         function addVaultShell(group, r, l) {
-            // Bajamos el inicio a -0.3 rad y extendemos el arco a 3.74 rad para cerrar el hueco de 5m
-            const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 32, 1, true, -0.3, 3.74), glassMat);
+            // Semicírculo perfecto (PI) comenzando desde la horizontal (0)
+            const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 32, 1, true, 0, Math.PI), glassMat);
             m.rotation.x = Math.PI/2; m.rotation.z = -Math.PI/2; group.add(m);
         }
         function addTransverseRibs(group, r, l, wingLabel) {
-            const pillarH = 22.0 - 11.5; // Ajuste preciso al techo de las tiendas
+            const pillarH = DOME_CENTER_Y - 11.5; // Ajuste dinámico a la altura del domo
             for(let i = -l/2; i <= l/2; i += 4) {
-                // Arco extendido a 3.74 y rotación de -0.3 para bajar de la horizontal
-                const rib = new THREE.Mesh(new THREE.TorusGeometry(r, 0.15, 16, 64, 3.74), darkMat);
-                rib.rotation.z = -0.3; 
+                // Arco de semicírculo perfecto - Grosor reducido a 0.10
+                const rib = new THREE.Mesh(new THREE.TorusGeometry(r, 0.10, 16, 64, Math.PI), darkMat);
+                rib.rotation.z = 0; 
                 let zPos = i;
                 if (wingLabel === 'N' || wingLabel === 'E') zPos = i + 2;
                 rib.position.z = zPos; group.add(rib);
 
-                // Soporte Vertical (Mantenemos pilares para mayor robustez visual)
-                [r*Math.cos(-0.3), -r*Math.cos(-0.3)].forEach(xSide => {
-                    const p = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, pillarH), darkMat);
-                    p.position.set(xSide, -pillarH/2, zPos); // Ajuste de profundidad para descansar en techo segundo piso
+                // Soporte Vertical - Grosor reducido a 0.10
+                [r, -r].forEach(xSide => {
+                    const p = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, pillarH), darkMat);
+                    p.position.set(xSide, -pillarH/2, zPos); 
                     group.add(p);
                 });
             }
@@ -417,7 +417,7 @@
                 const beamLen = direction.length();
                 const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
 
-                const beam = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, beamLen), darkMat);
+                const beam = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.10, beamLen), darkMat);
                 beam.position.copy(midPoint);
                 beam.lookAt(end);
 
@@ -446,11 +446,12 @@
 
             // Centro de convergencia (Eje sobre el techo de la gran tienda)
             // La tienda está en 100, el ala termina en 95.5. Distancia ~4.5
+            // Centro de convergencia ajustado a la nueva altura
             const convergeZ = -innerSign * 4.5; 
-            const convergeY = 11.5 - 22.0; // Relativo al centro de la bóveda (22.0)
+            const convergeY = 11.5 - DOME_CENTER_Y; 
             const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
 
-            const beamLevels = [-19, -16, -13, -10, -7, -4, 4, 7, 10, 13, 16, 19];
+            const beamLevels = [-16, -13, -10, -7, -4, 4, 7, 10, 13, 16];
             
             beamLevels.forEach(anglePos => {
                 const angle = (anglePos / r) * (Math.PI / 2);
@@ -487,7 +488,7 @@
         }
 
         function createVaultedRoof(x, z, length, wingLabel, rot = false, capPos = 1, capX = 0, capY = 0, capZ = 0, showCap = true) {
-            const vaultG = new THREE.Group(); vaultG.position.set(x, 22.0, z);
+            const vaultG = new THREE.Group(); vaultG.position.set(x, DOME_CENTER_Y, z);
             if(rot) vaultG.rotation.y = Math.PI/2;
             addVaultShell(vaultG, VAULT_RADIUS, length);
             addTransverseRibs(vaultG, VAULT_RADIUS, length, wingLabel);
@@ -1006,13 +1007,13 @@
         const centralDome = new THREE.Mesh(new THREE.SphereGeometry(CENTRAL_DOME_RADIUS, 32, 16, 0, Math.PI*2, 0, Math.PI/2), glassMat);
         centralDome.position.set(0, DOME_CENTER_Y, 0); scene.add(centralDome);
         for(let i=0; i<8; i++) {
-            const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.15, 16,32, Math.PI/2), darkMat);
+            const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.10, 16,32, Math.PI/2), darkMat);
             rib.position.set(0, DOME_CENTER_Y, 0); rib.rotation.y = (Math.PI/4)*i; scene.add(rib);
         }
         // Rebuild de anillos desde cero (7 niveles):
         // 1) fierro más alto (0), 2..7) pares siguientes por altura (±4, ±7, ±10, ±13, ±16, ±19).
         DOME_RING_TARGETS.forEach((target) => {
-            const ring = new THREE.Mesh(new THREE.TorusGeometry(target.radius, 0.15, 16, 128), darkMat);
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(target.radius, 0.10, 16, 128), darkMat);
             const ringHeight = target.height;
             ring.position.set(0, ringHeight, 0);
             ring.rotation.x = Math.PI/2;
@@ -1092,6 +1093,7 @@
         let rotSpeed = 0.02;
 
         function updateKeyboardNavigation() {
+            const prevY = camera.position.y;
             const isCtrl = keys.ControlLeft || keys.ControlRight;
             const dir = new THREE.Vector3();
             camera.getWorldDirection(dir);
@@ -1179,44 +1181,35 @@
                 const dx = Math.abs(camera.position.x - e.x);
                 const dz = (camera.position.z >= e.zMin && camera.position.z <= e.zMax);
                 
-                if (dx < 3.5 && dz) { 
+                if (dx < 3.0 && dz) { 
                     onEscalator = true;
                     
-                    // 1. Tracción automática
-                    const distTotal = Math.abs(e.zEnd - e.zStart);
+                    // 1. Tracción Horizontal (Z)
                     const distDir = Math.sign(e.zEnd - e.zStart);
-                    const speed = 0.09; 
-                    camera.position.z += distDir * speed;
-                    controls.target.z += distDir * speed;
+                    const speedZ = 0.09; 
+                    camera.position.z += distDir * speedZ;
+                    controls.target.z += distDir * speedZ;
 
-                    // 2. Altura Progresiva Sincronizada con el modelo (tramo plano de 4m)
-                    const flatLen = 4;
-                    const diagLen = distTotal - (flatLen * 2);
-                    const currentPosDist = Math.abs(camera.position.z - e.zStart);
+                    // 2. Empuje Vertical Constante (Y) - Según sugerencia del usuario
+                    const speedY = 0.04; // Velocidad de ascenso/descenso
+                    const targetHeight = e.up ? 7.1 : 1.8; // Piso 2 o PB
                     
-                    let progress = 0;
-                    if (currentPosDist < flatLen) {
-                        progress = 0; // Tramo plano inicial
-                    } else if (currentPosDist > distTotal - flatLen) {
-                        progress = 1; // Tramo plano final
-                    } else {
-                        progress = (currentPosDist - flatLen) / diagLen; // Rampa diagonal
-                    }
-                    
-                    const stairHeight = 5.4; 
-                    if(e.up) {
-                        camera.position.y = (progress * stairHeight) + 1.8;
-                    } else {
-                        camera.position.y = ((1 - progress) * stairHeight) + 1.8;
+                    if (e.up && camera.position.y < targetHeight) {
+                        camera.position.y += speedY;
+                        controls.target.y += speedY;
+                    } else if (!e.up && camera.position.y > targetHeight) {
+                        camera.position.y -= speedY;
+                        controls.target.y -= speedY;
                     }
                 }
             });
 
-            // BLOQUEO DE ALTURA MODO PASEO
+            // BLOQUEO DE ALTURA (SOLO FUERA DE ESCALERAS)
             if (isWalking && !onEscalator) {
-                // Umbral de transición ajustado: si estás a más de 2m de altura, perteneces al 2do piso
-                const currentFloorY = camera.position.y > 2.0 ? 5.4 : 0.1;
-                camera.position.y = currentFloorY + 1.7;
+                const prevFloorY = camera.position.y;
+                const groundY = camera.position.y > 3.0 ? 5.4 : 0.1;
+                camera.position.y = groundY + 1.7;
+                controls.target.y += (camera.position.y - prevFloorY);
             }
         }
 
