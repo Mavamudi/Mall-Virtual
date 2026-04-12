@@ -1173,39 +1173,39 @@
             if (keys.KeyD) { camera.position.addScaledVector(right, moveSpeed); controls.target.addScaledVector(right, moveSpeed); }
 
 
-            // --- NUEVO MOTOR DE ESCALERAS MECÁNICAS ---
+            // --- NUEVO MOTOR DE ESCALERAS MECÁNICAS (V2 CORREGIDA) ---
             let onEscalator = false;
             escalatorList.forEach(e => {
                 const dx = Math.abs(camera.position.x - e.x);
                 const dz = (camera.position.z >= e.zMin && camera.position.z <= e.zMax);
                 
-                if (dx < 2.0 && dz) { // Detección precisa sobre la cinta
+                if (dx < 3.5 && dz) { // Margen ampliado para detección segura
                     onEscalator = true;
                     
-                    // 1. Tracción en Z (Movimiento automático)
+                    // 1. Tracción automática
                     const distDir = Math.sign(e.zEnd - e.zStart);
-                    const speed = 0.08; 
+                    const speed = 0.088; // Un poco más rápida para compensar el caminar
                     camera.position.z += distDir * speed;
                     controls.target.z += distDir * speed;
 
-                    // 2. Cálculo de Altura Progresiva (Y)
+                    // 2. Altura Progresiva
                     const totalZ = Math.abs(e.zMax - e.zMin);
                     const currentPosInZ = Math.abs(camera.position.z - e.zStart);
                     const progress = THREE.MathUtils.clamp(currentPosInZ / totalZ, 0, 1);
                     
-                    // Altura base del piso (0.1) o (5.4)
-                    const floorHeight = 5.4; 
+                    const stairHeight = 5.4; 
                     if(e.up) {
-                        camera.position.y = (progress * floorHeight) + 1.7;
+                        camera.position.y = (progress * stairHeight) + 1.75;
                     } else {
-                        camera.position.y = ((1 - progress) * floorHeight) + 1.7;
+                        camera.position.y = ((1 - progress) * stairHeight) + 1.75;
                     }
                 }
             });
 
-            // BLOQUEO DE ALTURA MODO PASEO (Solo si NO está en una escalera)
+            // BLOQUEO DE ALTURA MODO PASEO
             if (isWalking && !onEscalator) {
-                const currentFloorY = camera.position.y > 3 ? 5.4 : 0.1;
+                // Umbral de transición ajustado: si estás a más de 2m de altura, perteneces al 2do piso
+                const currentFloorY = camera.position.y > 2.0 ? 5.4 : 0.1;
                 camera.position.y = currentFloorY + 1.7;
             }
         }
