@@ -1128,11 +1128,11 @@
                 }
             } else {
                 // MODO CAMINATA (WALK + YAW)
-                if (keys.ArrowUp && !isWalking) { // Para vista aerea
+                if (keys.ArrowUp) { 
                     camera.position.addScaledVector(walkDir, moveSpeed);
                     controls.target.addScaledVector(walkDir, moveSpeed);
                 }
-                if (keys.ArrowDown && !isWalking) { 
+                if (keys.ArrowDown) { 
                     camera.position.addScaledVector(walkDir, -moveSpeed);
                     controls.target.addScaledVector(walkDir, -moveSpeed);
                 }
