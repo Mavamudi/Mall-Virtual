@@ -119,15 +119,35 @@
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(197,160,89, 0.5); border-radius: 3px; }
     
     @media(max-width: 768px) {
-        #mobile-dpad {
-            grid-template-columns: 50px 50px 50px;
-            grid-template-rows: 50px 50px;
-            gap: 5px; position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+        #mobile-controls-container {
+            display: none; position: fixed; bottom: 30px; left: 0; width: 100%; height: 160px;
+            z-index: 1000; pointer-events: none; justify-content: space-between; align-items: center; padding: 0 20px;
         }
-        #mall-chat { bottom: 140px !important; }
+        #mall-chat { bottom: 180px !important; }
     }
-    .dpad-btn { background: rgba(10, 15, 20, 0.7); border: 1px solid rgba(197, 160, 89, 0.5); border-radius: 8px; color: #c5a059; font-size: 20px; display: flex; justify-content: center; align-items: center; user-select: none; touch-action: none; }
-    .dpad-btn:active { background: rgba(197, 160, 89, 0.4); }
+    
+    /* VIRTUAL JOYSTICK */
+    .joystick-container {
+        width: 120px; height: 120px; background: rgba(0,0,0,0.4); border: 2px solid rgba(197, 160, 89, 0.3);
+        border-radius: 50%; position: relative; pointer-events: auto; backdrop-filter: blur(5px);
+    }
+    .joystick-knob {
+        width: 50px; height: 50px; background: #c5a059; border-radius: 50%;
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); pointer-events: none;
+    }
+    
+    /* BOTONES DE ROTACIÓN */
+    .rotation-controls {
+        display: grid; grid-template-columns: 50px 50px; gap: 10px; pointer-events: auto;
+    }
+    .dpad-btn { 
+        background: rgba(10, 15, 20, 0.7); border: 1px solid rgba(197, 160, 89, 0.5); 
+        border-radius: 12px; color: #c5a059; font-size: 22px; width: 50px; height: 50px;
+        display: flex; justify-content: center; align-items: center; 
+        user-select: none; touch-action: none; transition: 0.2s;
+    }
+    .dpad-btn:active { background: rgba(197, 160, 89, 0.4); transform: scale(0.9); }
 </style>
 </head>
 <body>
@@ -190,10 +210,20 @@
     <div class="view-indicator" id="view-indicator">VISTA SUR</div>
     <div class="interaction-hint">Haz clic en un local para ver su ficha comercial</div>
     
-    <!-- MOBILE DPAD -->
-    <div id="mobile-dpad" style="display: none;">
-        <div style="visibility:hidden"></div><div class="dpad-btn" id="dpad-up">▲</div><div style="visibility:hidden"></div>
-        <div class="dpad-btn" id="dpad-left">◀</div><div class="dpad-btn" id="dpad-down">▼</div><div class="dpad-btn" id="dpad-right">▶</div>
+    <!-- JOYSTICK Y CONTROLES MÓVILES -->
+    <div id="mobile-controls-container">
+        <!-- Joystick Izquierdo (Desplazamiento) -->
+        <div class="joystick-container" id="joystick-zone">
+            <div class="joystick-knob" id="joystick-knob"></div>
+        </div>
+        
+        <!-- Botones Derecha (Rotación) -->
+        <div class="rotation-controls">
+            <div class="dpad-btn" id="btn-rotate-left">↺</div>
+            <div class="dpad-btn" id="btn-rotate-right">↻</div>
+            <div class="dpad-btn" id="btn-look-up">▲</div>
+            <div class="dpad-btn" id="btn-look-down">▼</div>
+        </div>
     </div>
 
     <!-- MODAL DE FICHA COMERCIAL -->
@@ -261,14 +291,14 @@
             if (isWalking) {
                 btn.innerText = "Modo Aéreo";
                 camera.position.set(0, 1.7, 85); // Entrada Sur
-                controls.target.set(0, 1.88, 84); // Mirada equilibrada ~10 grados hacia arriba
+                controls.target.set(0, 1.72, 84); // Mirada al frente (nivel de ojos)
                 controls.enablePan = false;
-                controls.minPolarAngle = Math.PI/2 - 0.6; // Dar más libertad para mirar arriba
+                controls.minPolarAngle = Math.PI/2 - 0.7; 
                 controls.maxPolarAngle = Math.PI/2 + 0.5;
                 controls.minDistance = 0.01; controls.maxDistance = 0.05;
 
                 if(window.innerWidth <= 768) {
-                    document.getElementById('mobile-dpad').style.display = 'grid';
+                    document.getElementById('mobile-controls-container').style.display = 'flex';
                 }
             } else {
                 btn.innerText = "Modo Paseo";
@@ -277,7 +307,7 @@
                 controls.enablePan = true;
                 controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI;
                 controls.minDistance = 1; controls.maxDistance = 500;
-                document.getElementById('mobile-dpad').style.display = 'none';
+                document.getElementById('mobile-controls-container').style.display = 'none';
             }
         };
 
@@ -991,25 +1021,72 @@
         });
 
 
-        // --- SISTEMA DE NAVEGACIÓN POR TECLADO (PRIMERA PERSONA) CON CTRL ---
-        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, ControlLeft: false, ControlRight: false };
+        // --- SISTEMA DE NAVEGACIÓN REFORZADO (TECLADO + JOYSTICK) ---
+        const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false, ControlLeft: false, ControlRight: false };
         window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
         window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
 
-        // Touch simulador de teclado
+        // --- LÓGICA DE JOYSTICK VIRTUAL ---
+        let joystickActive = false;
+        let joystickDir = { x: 0, y: 0 };
+        const joyZone = document.getElementById('joystick-zone');
+        const joyKnob = document.getElementById('joystick-knob');
+        const joyRect = joyZone.getBoundingClientRect();
+        const joyRadius = 60;
+
+        function handleJoystick(e) {
+            e.preventDefault();
+            const rect = joyZone.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            const centerX = rect.left + joyRadius;
+            const centerY = rect.top + joyRadius;
+            let dx = touch.clientX - centerX;
+            let dy = touch.clientY - centerY;
+            const distance = Math.min(Math.sqrt(dx*dx + dy*dy), joyRadius);
+            const angle = Math.atan2(dy, dx);
+            
+            const moveX = Math.cos(angle) * distance;
+            const moveY = Math.sin(angle) * distance;
+            
+            joyKnob.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+            
+            joystickDir.x = moveX / joyRadius;
+            joystickDir.y = moveY / joyRadius;
+        }
+
+        joyZone.addEventListener('touchstart', (e) => { 
+            joystickActive = true; 
+            handleJoystick(e); 
+        });
+        joyZone.addEventListener('touchmove', handleJoystick);
+        joyZone.addEventListener('touchend', () => {
+            joystickActive = false;
+            joystickDir = { x: 0, y: 0 };
+            joyKnob.style.transform = `translate(-50%, -50%)`;
+        });
+
+        // Touch simulador de teclado para botones de rotación
         const bindKey = (id, key) => {
             const el = document.getElementById(id);
             if(!el) return;
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
-            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; el.classList.add('opacity-50'); });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; el.classList.remove('opacity-50'); });
             el.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
             el.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
-            el.addEventListener('mouseleave', (e) => { e.preventDefault(); keys[key] = false; });
         };
-        bindKey('dpad-up', 'ArrowUp');
-        bindKey('dpad-down', 'ArrowDown');
-        bindKey('dpad-left', 'ArrowLeft');
-        bindKey('dpad-right', 'ArrowRight');
+        bindKey('btn-rotate-left', 'ArrowLeft');
+        bindKey('btn-rotate-right', 'ArrowRight');
+        bindKey('btn-look-up', 'ArrowUp'); // En modo paseo ArrowUp rota hacia arriba si Control está presionado, pero aquí daremos movilidad total
+        bindKey('btn-look-down', 'ArrowDown');
+
+        // Lógica de Look Up/Down para botones específicos
+        let isBtnLookUp = false;
+        let isBtnLookDown = false;
+        document.getElementById('btn-look-up').onpointerdown = () => isBtnLookUp = true;
+        document.getElementById('btn-look-up').onpointerup = () => isBtnLookUp = false;
+        document.getElementById('btn-look-down').onpointerdown = () => isBtnLookDown = true;
+        document.getElementById('btn-look-down').onpointerup = () => isBtnLookDown = false;
+
 
         let moveSpeed = 0.15;
         let rotSpeed = 0.02;
@@ -1018,14 +1095,24 @@
             const isCtrl = keys.ControlLeft || keys.ControlRight;
             const dir = new THREE.Vector3();
             camera.getWorldDirection(dir);
+            const walkDir = dir.clone(); walkDir.y = 0; walkDir.normalize();
             
             // Vector derecha (perpendicular a la mirada y al eje Y)
-            const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), dir).normalize();
+            const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), walkDir).normalize();
+
+            // --- DESPLAZAMIENTO (JOYSTICK + TECLADO WASD) ---
+            if (joystickActive) {
+                // Adelante/Atrás (Eje Y del joystick)
+                camera.position.addScaledVector(walkDir, -joystickDir.y * moveSpeed);
+                controls.target.addScaledVector(walkDir, -joystickDir.y * moveSpeed);
+                // Strafe Lateral (Eje X del joystick)
+                camera.position.addScaledVector(right, joystickDir.x * moveSpeed);
+                controls.target.addScaledVector(right, joystickDir.x * moveSpeed);
+            }
 
             if (isCtrl) {
                 // MODO MIRADA VERTICAL (PITCH)
                 if (keys.ArrowUp) {
-                    // Solo rotar si no estamos ya mirando al cenit (evitar gimbal lock)
                     if (dir.dot(new THREE.Vector3(0,1,0)) < 0.95) {
                         const relTarget = controls.target.clone().sub(camera.position);
                         relTarget.applyAxisAngle(right, -rotSpeed);
@@ -1033,7 +1120,6 @@
                     }
                 }
                 if (keys.ArrowDown) {
-                    // Solo rotar si no estamos ya mirando al nadir
                     if (dir.dot(new THREE.Vector3(0,-1,0)) < 0.95) {
                         const relTarget = controls.target.clone().sub(camera.position);
                         relTarget.applyAxisAngle(right, rotSpeed);
@@ -1042,16 +1128,16 @@
                 }
             } else {
                 // MODO CAMINATA (WALK + YAW)
-                const walkDir = dir.clone(); walkDir.y = 0; walkDir.normalize();
-
-                if (keys.ArrowUp) {
+                if (keys.ArrowUp && !isWalking) { // Para vista aerea
                     camera.position.addScaledVector(walkDir, moveSpeed);
                     controls.target.addScaledVector(walkDir, moveSpeed);
                 }
-                if (keys.ArrowDown) {
+                if (keys.ArrowDown && !isWalking) { 
                     camera.position.addScaledVector(walkDir, -moveSpeed);
                     controls.target.addScaledVector(walkDir, -moveSpeed);
                 }
+                
+                // Rotación Horizontal
                 if (keys.ArrowLeft) {
                     const relativeTarget = controls.target.clone().sub(camera.position);
                     relativeTarget.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotSpeed);
@@ -1062,7 +1148,30 @@
                     relativeTarget.applyAxisAngle(new THREE.Vector3(0, 1, 0), -rotSpeed);
                     controls.target.copy(camera.position).add(relativeTarget);
                 }
+
+                // Mirada Vertical con botones dedicados
+                if (isBtnLookUp) {
+                    if (dir.dot(new THREE.Vector3(0,1,0)) < 0.95) {
+                        const relTarget = controls.target.clone().sub(camera.position);
+                        relTarget.applyAxisAngle(right, -rotSpeed);
+                        controls.target.copy(camera.position).add(relTarget);
+                    }
+                }
+                if (isBtnLookDown) {
+                    if (dir.dot(new THREE.Vector3(0,-1,0)) < 0.95) {
+                        const relTarget = controls.target.clone().sub(camera.position);
+                        relTarget.applyAxisAngle(right, rotSpeed);
+                        controls.target.copy(camera.position).add(relTarget);
+                    }
+                }
             }
+
+            // --- REFUERZO DE TECLADO WASD PARA PC ---
+            if (keys.KeyW) { camera.position.addScaledVector(walkDir, moveSpeed); controls.target.addScaledVector(walkDir, moveSpeed); }
+            if (keys.KeyS) { camera.position.addScaledVector(walkDir, -moveSpeed); controls.target.addScaledVector(walkDir, -moveSpeed); }
+            if (keys.KeyA) { camera.position.addScaledVector(right, -moveSpeed); controls.target.addScaledVector(right, -moveSpeed); }
+            if (keys.KeyD) { camera.position.addScaledVector(right, moveSpeed); controls.target.addScaledVector(right, moveSpeed); }
+
 
             // --- LÓGICA DE ESCALERAS MECÁNICAS (TRANSPORTE AUTOMÁTICO) ---
             let onEscalator = false;
