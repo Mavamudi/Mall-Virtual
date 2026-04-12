@@ -1173,9 +1173,38 @@
             if (keys.KeyD) { camera.position.addScaledVector(right, moveSpeed); controls.target.addScaledVector(right, moveSpeed); }
 
 
-            // BLOQUEO DE ALTURA MODO PASEO (Garantiza 1.70m sobre el suelo actual)
-            if (isWalking) {
-                // Lógica de transición de piso simplificada
+            // --- NUEVO MOTOR DE ESCALERAS MECÁNICAS ---
+            let onEscalator = false;
+            escalatorList.forEach(e => {
+                const dx = Math.abs(camera.position.x - e.x);
+                const dz = (camera.position.z >= e.zMin && camera.position.z <= e.zMax);
+                
+                if (dx < 2.0 && dz) { // Detección precisa sobre la cinta
+                    onEscalator = true;
+                    
+                    // 1. Tracción en Z (Movimiento automático)
+                    const distDir = Math.sign(e.zEnd - e.zStart);
+                    const speed = 0.08; 
+                    camera.position.z += distDir * speed;
+                    controls.target.z += distDir * speed;
+
+                    // 2. Cálculo de Altura Progresiva (Y)
+                    const totalZ = Math.abs(e.zMax - e.zMin);
+                    const currentPosInZ = Math.abs(camera.position.z - e.zStart);
+                    const progress = THREE.MathUtils.clamp(currentPosInZ / totalZ, 0, 1);
+                    
+                    // Altura base del piso (0.1) o (5.4)
+                    const floorHeight = 5.4; 
+                    if(e.up) {
+                        camera.position.y = (progress * floorHeight) + 1.7;
+                    } else {
+                        camera.position.y = ((1 - progress) * floorHeight) + 1.7;
+                    }
+                }
+            });
+
+            // BLOQUEO DE ALTURA MODO PASEO (Solo si NO está en una escalera)
+            if (isWalking && !onEscalator) {
                 const currentFloorY = camera.position.y > 3 ? 5.4 : 0.1;
                 camera.position.y = currentFloorY + 1.7;
             }
