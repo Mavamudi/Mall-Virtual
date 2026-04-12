@@ -1105,9 +1105,9 @@
                 // Adelante/Atrás (Eje Y del joystick)
                 camera.position.addScaledVector(walkDir, -joystickDir.y * moveSpeed);
                 controls.target.addScaledVector(walkDir, -joystickDir.y * moveSpeed);
-                // Strafe Lateral (Eje X del joystick)
-                camera.position.addScaledVector(right, joystickDir.x * moveSpeed);
-                controls.target.addScaledVector(right, joystickDir.x * moveSpeed);
+                // Strafe Lateral (Eje X del joystick) - INVERTIDO por intuición del usuario
+                camera.position.addScaledVector(right, -joystickDir.x * moveSpeed);
+                controls.target.addScaledVector(right, -joystickDir.x * moveSpeed);
             }
 
             if (isCtrl) {
