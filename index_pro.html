@@ -344,7 +344,7 @@
         const VAULT_CENTER_OFFSET = 56.5;
         const DOME_CENTER_Y = 25.5; // Elevado para mayor lujo y espacio
         const CENTRAL_DOME_RADIUS = 28.0;
-        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 4, 7, 10, 13, 16]; // Ajustado al semicírculo
+        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16]; // Añadido el 0 para el cenit
         const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16];
 
         function getVaultAngleForLevel(level) {
@@ -396,7 +396,6 @@
             const outerLocalZ = -innerSign * (l / 2);
 
             LONGITUDINAL_BEAM_LEVELS.forEach((anglePos, index) => {
-                if (anglePos === 0) return; // ELIMINACIÓN DE FIERROS CENITALES
                 const familyLevel = Math.abs(anglePos);
                 const ringTarget = DOME_RING_TARGETS.find((target) => target.level === familyLevel);
                 
@@ -451,7 +450,7 @@
             const convergeY = 11.5 - DOME_CENTER_Y; 
             const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
 
-            const beamLevels = [-16, -13, -10, -7, -4, 4, 7, 10, 13, 16];
+            const beamLevels = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16];
             
             beamLevels.forEach(anglePos => {
                 const angle = (anglePos / r) * (Math.PI / 2);
