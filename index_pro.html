@@ -880,7 +880,7 @@
 
             // --- REGISTRO DE COLISIÓN (Paredes laterales y trasera) ---
             const cos = Math.cos(rotY); const sin = Math.sin(rotY);
-            const yB = (isUpper ? 5.4 : 0);
+            const yB = (posY > 5 ? 5.4 : 0);
             // Pared Trasera y laterales para nivel correspondiente
             registerCollider(posX + sin*0, posZ + cos*(-9), 12, 0.5, yB, yB + 6); 
             registerCollider(posX + cos*(-6), posZ + sin*(6), 0.5, 18, yB, yB + 6);
