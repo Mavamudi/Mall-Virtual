@@ -319,7 +319,7 @@
         scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2.5)); 
         const sun = new THREE.DirectionalLight(0xffffff, 3.0); sun.position.set(150, 200, 150); scene.add(sun);
 
-        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.98, transparent: true, opacity: 0.15, metalness: 0, roughness: 0.02 });
+        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.5, transparent: true, opacity: 0.5, metalness: 0.2, roughness: 0.05 });
         const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }); 
         const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9a66b, metalness: 0.9, roughness: 0.1 });
         const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
@@ -1180,7 +1180,7 @@
                 const dx = Math.abs(camera.position.x - e.x);
                 const dz = (camera.position.z >= e.zMin && camera.position.z <= e.zMax);
                 
-                if (dx < 3.0 && dz) { 
+                if (dx < 1.8 && dz) { 
                     onEscalator = true;
                     
                     // 1. Tracción Horizontal (Z)
