@@ -268,17 +268,18 @@
     </div>
 
     <script>
-        // --- MOTOR DE COLISIONES ---
+        // --- MOTOR DE COLISIONES PRO (CON ALTURA) ---
         const colliders = [];
-        function registerCollider(x, z, w, d) {
+        function registerCollider(x, z, w, d, minY = -5, maxY = 50) {
             colliders.push({
                 minX: x - w/2, maxX: x + w/2,
-                minZ: z - d/2, maxZ: z + d/2
+                minZ: z - d/2, maxZ: z + d/2,
+                minY, maxY
             });
         }
-        function checkCollision(nx, nz) {
+        function checkCollision(nx, ny, nz) {
             for (let c of colliders) {
-                if (nx > c.minX && nx < c.maxX && nz > c.minZ && nz < c.maxZ) return true;
+                if (nx > c.minX && nx < c.maxX && nz > c.minZ && nz < c.maxZ && ny > c.minY && ny < c.maxY) return true;
             }
             return false;
         }
@@ -527,10 +528,38 @@
             sM.position.set(0, height + 1.25, 5.45); g.add(sM);
             return g;
         }
-        scene.add(createAnchorStore(0,-100,70,11.5,"TIENDA SUR", "S")); 
-        scene.add(createAnchorStore(0,100,70,11.5,"TIENDA NORTE", "N").rotateY(Math.PI));
-        scene.add(createAnchorStore(100,0,70,11.5,"TIENDA ESTE", "E").rotateY(-Math.PI/2)); 
-        scene.add(createAnchorStore(-100,0,70,11.5,"TIENDA OESTE", "O").rotateY(Math.PI/2));
+        scene.add(createAnchorStore(0, 95.5, 40, 30, "MALL NORTE", "N")); 
+        registerCollider(0, 105, 40, 10, 0, 12); 
+        registerCollider(20, 95.5, 1, 30, 0, 12);
+        registerCollider(-20, 95.5, 1, 30, 0, 12);
+
+        scene.add(createAnchorStore(0, -95.5, 40, 30, "MALL SUR", "S"));
+        registerCollider(0, -105, 40, 10, 0, 12);
+        registerCollider(20, -95.5, 1, 30, 0, 12);
+        registerCollider(-20, -95.5, 1, 30, 0, 12);
+
+        scene.add(createAnchorStore(95.5, 0, 40, 30, "MALL ESTE", "E"));
+        registerCollider(105, 0, 10, 40, 0, 12);
+        registerCollider(95.5, 20, 30, 1, 0, 12);
+        registerCollider(95.5, -20, 30, 1, 0, 12);
+
+        scene.add(createAnchorStore(-95.5, 0, 40, 30, "MALL OESTE", "O"));
+        registerCollider(-105, 0, 10, 40, 0, 12);
+        registerCollider(-95.5, 20, 30, 1, 0, 12);
+        registerCollider(-95.5, -20, 30, 1, 0, 12);
+
+        // --- COLISIÓN TORRE CENTRAL Y FUENTE ---
+        registerCollider(0, 0, 6, 6, 0, 30); // El núcleo central es sólido
+
+        // --- MUEBLES PLAZA CENTRAL (Sólidos) ---
+        function createTableSet(x, z) {
+            const gr = new THREE.Group(); gr.position.set(x, 0.1, z);
+            const table = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.1), whiteMat); table.position.y = 1.0; gr.add(table);
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1), darkMat); pole.position.y = 0.5; gr.add(pole);
+            scene.add(gr);
+            registerCollider(x, z, 2.2, 2.2, 0, 3);
+        }
+        createTableSet(8, 8); createTableSet(-8, 8); createTableSet(8, -8); createTableSet(-8, -8);
 
         // --- URBANISMO Y PAISAJISMO EXTERIOR ---
         const grassMat = new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.8 }); // Verde pasto
@@ -607,7 +636,7 @@
                 leaf.rotation.z = Math.PI/3; leaf.rotation.y = (i * Math.PI * 2) / 5; leaf.position.y = 3; gr.add(leaf);
             }
             scene.add(gr);
-            registerCollider(x, z, 2.5, 2.5);
+            registerCollider(x, z, 2.5, 2.5, 0, 3);
         }
         function createBench(x, z, rot) {
             const gr = new THREE.Group(); gr.position.set(x, 0.1, z); gr.rotation.y = rot;
@@ -784,11 +813,11 @@
 
             // --- REGISTRO DE COLISIÓN (Paredes laterales y trasera) ---
             const cos = Math.cos(rotY); const sin = Math.sin(rotY);
-            // Pared Trasera
-            registerCollider(posX + sin*0, posZ + cos*(-9), 12, 0.5); 
-            // Paredes Laterales
-            registerCollider(posX + cos*(-6), posZ + sin*(6), 0.5, 18);
-            registerCollider(posX + cos*(6), posZ + sin*(-6), 0.5, 18);
+            const yB = (isUpper ? 5.4 : 0);
+            // Pared Trasera y laterales para nivel correspondiente
+            registerCollider(posX + sin*0, posZ + cos*(-9), 12, 0.5, yB, yB + 6); 
+            registerCollider(posX + cos*(-6), posZ + sin*(6), 0.5, 18, yB, yB + 6);
+            registerCollider(posX + cos*(6), posZ + sin*(-6), 0.5, 18, yB, yB + 6);
 
             return sh;
         }
@@ -818,7 +847,7 @@
             // Marco Oro
             const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 3.2, 0.5), goldMat); frame.position.y = 2.5; gr.add(frame);
             scene.add(gr);
-            registerCollider(x, z, 2, 2); 
+            registerCollider(x, z, 2, 2, 0, 5); 
         }
 
         // --- POBLAR TÓTEMS ---
@@ -970,7 +999,8 @@
                 sM.position.set(x, 6.1, z + (rot?0:0.06)); if(rot) { sM.rotation.y = -Math.PI/2; sM.position.x += (x>0?0.06:-0.06); }
                 scene.add(sM);
             }
-            registerCollider(x, z, rot?0.2:len, rot?len:0.2);
+            // Barandillas a altura 2.2m o 7.6m (evitar bloqueo primer piso)
+            registerCollider(x, z, rot?0.2:len, rot?len:0.2, 5.5, 8); 
         }
 
 
@@ -1205,15 +1235,16 @@
             // --- APLICACIÓN DE MOVIMIENTO CON MOTOR DE COLISIONES ---
             if (Math.abs(moveAccumX) > 0.0001 || Math.abs(moveAccumZ) > 0.0001) {
                 const nx = camera.position.x + moveAccumX;
+                const ny = camera.position.y;
                 const nz = camera.position.z + moveAccumZ;
 
                 // Colisión Eje X (deslizamiento)
-                if (!checkCollision(nx, camera.position.z)) {
+                if (!checkCollision(nx, ny, camera.position.z)) {
                     camera.position.x = nx;
                     controls.target.x += moveAccumX;
                 }
                 // Colisión Eje Z (deslizamiento)
-                if (!checkCollision(camera.position.x, nz)) {
+                if (!checkCollision(camera.position.x, ny, nz)) {
                     camera.position.z = nz;
                     controls.target.z += moveAccumZ;
                 }
