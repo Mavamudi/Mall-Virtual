@@ -1937,16 +1937,24 @@
             isAdmin = ADMINS.includes(myNickname.toLowerCase());
 
             if (isAdmin) {
-                resetChatTarget(); // Admin puede hablarle a todos
+                resetChatTarget();
             } else {
-                chatTarget = "";
+                chatTarget = ""; 
                 document.getElementById('chat-target-text').innerText = "🖱️ Clickea un jugador para hablarle";
             }
-
+            
             document.getElementById('login-overlay').style.opacity = '0';
-            setTimeout(() => document.getElementById('login-overlay').style.display = 'none', 500);
-
-            if (!isWalking) window.toggleWalkMode();
+            setTimeout(() => {
+                document.getElementById('login-overlay').style.display = 'none';
+                // Forzar posición de inicio al entrar
+                if (!isWalking) {
+                    window.toggleWalkMode();
+                } else {
+                    camera.position.set(0, 1.7, -82);
+                    controls.target.set(0, 1.80, -78);
+                    controls.update();
+                }
+            }, 500);
 
             // Configuración de Supabase
             const SB_URL = "https://wwvkmxqonsnrliedqtqn.supabase.co";
