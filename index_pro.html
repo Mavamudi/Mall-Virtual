@@ -268,9 +268,21 @@
     </div>
 
     <script>
-        // --- MOTOR GRÁFICO REFORZADO ---
-        console.log("🌌 Iniciando Motor Gráfico PRO...");
-        
+        // --- MOTOR DE COLISIONES ---
+        const colliders = [];
+        function registerCollider(x, z, w, d) {
+            colliders.push({
+                minX: x - w/2, maxX: x + w/2,
+                minZ: z - d/2, maxZ: z + d/2
+            });
+        }
+        function checkCollision(nx, nz) {
+            for (let c of colliders) {
+                if (nx > c.minX && nx < c.maxX && nz > c.minZ && nz < c.maxZ) return true;
+            }
+            return false;
+        }
+
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xaabbcc);
         scene.fog = new THREE.Fog(0xaabbcc, 40, 600);
@@ -595,6 +607,7 @@
                 leaf.rotation.z = Math.PI/3; leaf.rotation.y = (i * Math.PI * 2) / 5; leaf.position.y = 3; gr.add(leaf);
             }
             scene.add(gr);
+            registerCollider(x, z, 2.5, 2.5);
         }
         function createBench(x, z, rot) {
             const gr = new THREE.Group(); gr.position.set(x, 0.1, z); gr.rotation.y = rot;
@@ -768,6 +781,15 @@
                 idPlaque.position.set(-5.0, 4.4, 9.15); sh.add(idPlaque);
             }
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
+
+            // --- REGISTRO DE COLISIÓN (Paredes laterales y trasera) ---
+            const cos = Math.cos(rotY); const sin = Math.sin(rotY);
+            // Pared Trasera
+            registerCollider(posX + sin*0, posZ + cos*(-9), 12, 0.5); 
+            // Paredes Laterales
+            registerCollider(posX + cos*(-6), posZ + sin*(6), 0.5, 18);
+            registerCollider(posX + cos*(6), posZ + sin*(-6), 0.5, 18);
+
             return sh;
         }
 
@@ -796,6 +818,7 @@
             // Marco Oro
             const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 3.2, 0.5), goldMat); frame.position.y = 2.5; gr.add(frame);
             scene.add(gr);
+            registerCollider(x, z, 2, 2); 
         }
 
         // --- POBLAR TÓTEMS ---
@@ -947,6 +970,7 @@
                 sM.position.set(x, 6.1, z + (rot?0:0.06)); if(rot) { sM.rotation.y = -Math.PI/2; sM.position.x += (x>0?0.06:-0.06); }
                 scene.add(sM);
             }
+            registerCollider(x, z, rot?0.2:len, rot?len:0.2);
         }
 
 
@@ -1107,14 +1131,13 @@
             // Vector derecha (perpendicular a la mirada y al eje Y)
             const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), walkDir).normalize();
 
+            let moveAccumX = 0;
+            let moveAccumZ = 0;
+
             // --- DESPLAZAMIENTO (JOYSTICK + TECLADO WASD) ---
             if (joystickActive) {
-                // Adelante/Atrás (Eje Y del joystick)
-                camera.position.addScaledVector(walkDir, -joystickDir.y * moveSpeed);
-                controls.target.addScaledVector(walkDir, -joystickDir.y * moveSpeed);
-                // Strafe Lateral (Eje X del joystick) - INVERTIDO por intuición del usuario
-                camera.position.addScaledVector(right, -joystickDir.x * moveSpeed);
-                controls.target.addScaledVector(right, -joystickDir.x * moveSpeed);
+                moveAccumX += walkDir.x * (-joystickDir.y * moveSpeed) + right.x * (-joystickDir.x * moveSpeed);
+                moveAccumZ += walkDir.z * (-joystickDir.y * moveSpeed) + right.z * (-joystickDir.x * moveSpeed);
             }
 
             if (isCtrl) {
@@ -1136,12 +1159,12 @@
             } else {
                 // MODO CAMINATA (WALK + YAW)
                 if (keys.ArrowUp) { 
-                    camera.position.addScaledVector(walkDir, moveSpeed);
-                    controls.target.addScaledVector(walkDir, moveSpeed);
+                    moveAccumX += walkDir.x * moveSpeed;
+                    moveAccumZ += walkDir.z * moveSpeed;
                 }
                 if (keys.ArrowDown) { 
-                    camera.position.addScaledVector(walkDir, -moveSpeed);
-                    controls.target.addScaledVector(walkDir, -moveSpeed);
+                    moveAccumX -= walkDir.x * moveSpeed;
+                    moveAccumZ -= walkDir.z * moveSpeed;
                 }
                 
                 // Rotación Horizontal
@@ -1171,6 +1194,30 @@
                         controls.target.copy(camera.position).add(relTarget);
                     }
                 }
+                
+                // Teclas WASD (Strafe opcional en teclado)
+                if (keys.KeyD) { moveAccumX += right.x * moveSpeed; moveAccumZ += right.z * moveSpeed; }
+                if (keys.KeyA) { moveAccumX -= right.x * moveSpeed; moveAccumZ -= right.z * moveSpeed; }
+                if (keys.KeyW) { moveAccumX += walkDir.x * moveSpeed; moveAccumZ += walkDir.z * moveSpeed; }
+                if (keys.KeyS) { moveAccumX -= walkDir.x * moveSpeed; moveAccumZ -= walkDir.z * moveSpeed; }
+            }
+
+            // --- APLICACIÓN DE MOVIMIENTO CON MOTOR DE COLISIONES ---
+            if (Math.abs(moveAccumX) > 0.0001 || Math.abs(moveAccumZ) > 0.0001) {
+                const nx = camera.position.x + moveAccumX;
+                const nz = camera.position.z + moveAccumZ;
+
+                // Colisión Eje X (deslizamiento)
+                if (!checkCollision(nx, camera.position.z)) {
+                    camera.position.x = nx;
+                    controls.target.x += moveAccumX;
+                }
+                // Colisión Eje Z (deslizamiento)
+                if (!checkCollision(camera.position.x, nz)) {
+                    camera.position.z = nz;
+                    controls.target.z += moveAccumZ;
+                }
+                isWalking = true;
             }
 
             // --- REFUERZO DE TECLADO WASD PARA PC ---
