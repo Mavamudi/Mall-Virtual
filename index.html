@@ -2234,19 +2234,19 @@
                 const style = ["1", "2", "3"][Math.floor(Math.random() * 3)];
                 const npc = createAvatar(`Bot_${i}`, style);
                 
-                // Posición inicial aleatoria dentro del mall
+                // Algunos empiezan arriba, otros abajo
+                const startY = Math.random() > 0.5 ? 5.4 : 0;
                 const startX = (Math.random() - 0.5) * 160;
                 const startZ = (Math.random() - 0.5) * 160;
-                npc.mesh.position.set(startX, 0, startZ);
+                npc.mesh.position.set(startX, startY, startZ);
                 
                 npcs.push({
                     mesh: npc.mesh,
-                    target: new THREE.Vector3(startX, 0, startZ),
+                    target: new THREE.Vector3(startX, startY, startZ),
                     state: 'walking',
                     timer: 0,
-                    speed: 0.015 + Math.random() * 0.025 // Velocidad de paseo relajada
+                    speed: 0.015 + Math.random() * 0.025
                 });
-                // No añadimos el label de los bots para ahorrar visualmente
                 npc.label.style.display = 'none';
             }
         }
@@ -2254,17 +2254,46 @@
         function updateNPCs() {
             const now = Date.now();
             npcs.forEach(npc => {
+                // --- LÓGICA DE ESCALERA PARA BOTS ---
+                let onEscalator = false;
+                escalatorList.forEach(e => {
+                    const dx = Math.abs(npc.mesh.position.x - e.x);
+                    const dz = (npc.mesh.position.z >= e.zMin && npc.mesh.position.z <= e.zMax);
+                    
+                    if (dx < 1.5 && dz) {
+                        onEscalator = true;
+                        const distDir = Math.sign(e.zEnd - e.zStart);
+                        const speedZ = 0.08;
+                        const speedY = 0.038;
+                        const targetHeight = e.up ? 5.4 : 0;
+
+                        npc.mesh.position.z += distDir * speedZ;
+                        if (e.up && npc.mesh.position.y < targetHeight) npc.mesh.position.y += speedY;
+                        else if (!e.up && npc.mesh.position.y > targetHeight) npc.mesh.position.y -= speedY;
+                        
+                        // Mirar hacia adelante mientras sube
+                        npc.mesh.rotation.y = distDir > 0 ? 0 : Math.PI;
+                    }
+                });
+
+                if (onEscalator) return; // No hace nada más si está en la escalera
+
                 if (npc.state === 'walking') {
                     const dist = npc.mesh.position.distanceTo(npc.target);
-                    if (dist < 0.5) {
+                    if (dist < 1.0) {
                         npc.state = 'looking';
-                        npc.timer = now + (3000 + Math.random() * 6000); // Mirando 3-9 seg
+                        npc.timer = now + (3000 + Math.random() * 6000);
                     } else {
-                        // Caminar hacia el objetivo
-                        const dir = npc.target.clone().sub(npc.mesh.position).normalize();
-                        npc.mesh.position.add(dir.multiplyScalar(npc.speed));
+                        const dir = npc.target.clone().sub(npc.mesh.position);
+                        // Si el target está en otro piso, caminar hacia el centro (escaleras)
+                        if (Math.abs(npc.target.y - npc.mesh.position.y) > 1) {
+                            // Caminar hacia X:0 Z: +/- 25 (área de escaleras)
+                            const escAreaZ = npc.target.y > npc.mesh.position.y ? -30 : -20; // Aproximación a las escaleras
+                            dir.set(0 - npc.mesh.position.x, 0, escAreaZ - npc.mesh.position.z);
+                        }
+                        dir.y = 0; dir.normalize();
                         
-                        // Rotar MUY suavemente hacia la dirección (0.05 en lugar de 0.1)
+                        npc.mesh.position.add(dir.multiplyScalar(npc.speed));
                         const targetRot = Math.atan2(dir.x, dir.z);
                         let diff = targetRot - npc.mesh.rotation.y;
                         while(diff < -Math.PI) diff += Math.PI * 2;
@@ -2273,14 +2302,14 @@
                     }
                 } else if (npc.state === 'looking') {
                     if (now > npc.timer) {
-                        // Buscar nueva tienda o punto de interés
                         npc.state = 'walking';
-                        // Elige un ala al azar o el centro
                         const wing = Math.random();
-                        if (wing < 0.25) npc.target.set((Math.random()-0.5)*20, 0, (Math.random()*80 + 20)); // Ala Norte
-                        else if (wing < 0.5) npc.target.set((Math.random()-0.5)*20, 0, -(Math.random()*80 + 20)); // Ala Sur
-                        else if (wing < 0.75) npc.target.set((Math.random()*80 + 20), 0, (Math.random()-0.5)*20); // Ala Este
-                        else npc.target.set(-(Math.random()*80 + 20), 0, (Math.random()-0.5)*20); // Ala Oeste
+                        const targetY = Math.random() > 0.5 ? 5.4 : 0; // Puede elegir cualquier piso
+                        
+                        if (wing < 0.25) npc.target.set((Math.random()-0.5)*20, targetY, (Math.random()*80 + 20));
+                        else if (wing < 0.5) npc.target.set((Math.random()-0.5)*20, targetY, -(Math.random()*80 + 20));
+                        else if (wing < 0.75) npc.target.set((Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
+                        else npc.target.set(-(Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
                     }
                 }
             });
