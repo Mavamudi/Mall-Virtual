@@ -319,7 +319,7 @@
         scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2.5)); 
         const sun = new THREE.DirectionalLight(0xffffff, 3.0); sun.position.set(150, 200, 150); scene.add(sun);
 
-        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.5, transparent: true, opacity: 0.5, metalness: 0.2, roughness: 0.05 });
+        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.3, transparent: true, opacity: 0.7, metalness: 0.2, roughness: 0.05 });
         const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }); 
         const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9a66b, metalness: 0.9, roughness: 0.1 });
         const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
