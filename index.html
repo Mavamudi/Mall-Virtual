@@ -2231,12 +2231,8 @@
                 const startZ = (Math.random() - 0.5) * 160;
                 npc.mesh.position.set(startX, 0, startZ);
                 
-                npcs.push({
-                    mesh: npc.mesh,
-                    target: new THREE.Vector3(startX, 0, startZ),
-                    state: 'walking', // 'walking' o 'looking'
-                    timer: 0,
-                    speed: 0.03 + Math.random() * 0.04
+                          timer: 0,
+                    speed: 0.015 + Math.random() * 0.025 // Velocidad de paseo relajada
                 });
                 // No añadimos el label de los bots para ahorrar visualmente
                 npc.label.style.display = 'none';
@@ -2250,15 +2246,18 @@
                     const dist = npc.mesh.position.distanceTo(npc.target);
                     if (dist < 0.5) {
                         npc.state = 'looking';
-                        npc.timer = now + (2000 + Math.random() * 5000); // Se queda mirando 2-7 seg
+                        npc.timer = now + (3000 + Math.random() * 6000); // Mirando 3-9 seg
                     } else {
                         // Caminar hacia el objetivo
                         const dir = npc.target.clone().sub(npc.mesh.position).normalize();
                         npc.mesh.position.add(dir.multiplyScalar(npc.speed));
                         
-                        // Rotar suavemente hacia la dirección
+                        // Rotar MUY suavemente hacia la dirección (0.05 en lugar de 0.1)
                         const targetRot = Math.atan2(dir.x, dir.z);
-                        npc.mesh.rotation.y = THREE.MathUtils.lerp(npc.mesh.rotation.y, targetRot, 0.1);
+                        let diff = targetRot - npc.mesh.rotation.y;
+                        while(diff < -Math.PI) diff += Math.PI * 2;
+                        while(diff > Math.PI) diff -= Math.PI * 2;
+                        npc.mesh.rotation.y += diff * 0.05;
                     }
                 } else if (npc.state === 'looking') {
                     if (now > npc.timer) {
