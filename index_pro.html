@@ -2231,7 +2231,11 @@
                 const startZ = (Math.random() - 0.5) * 160;
                 npc.mesh.position.set(startX, 0, startZ);
                 
-                          timer: 0,
+                npcs.push({
+                    mesh: npc.mesh,
+                    target: new THREE.Vector3(startX, 0, startZ),
+                    state: 'walking',
+                    timer: 0,
                     speed: 0.015 + Math.random() * 0.025 // Velocidad de paseo relajada
                 });
                 // No añadimos el label de los bots para ahorrar visualmente
