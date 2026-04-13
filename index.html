@@ -513,37 +513,48 @@
         function createAnchorStore(posX, posZ, width, height, name = "ANCLA", idLetter = "") {
             const g = new THREE.Group(); g.position.set(posX, 0, posZ);
             g.userData = { isAnchor: true, shopCode: idLetter, name: name };
-            const m = (w,h,d,x,y,z,mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat); mw.position.set(x,y,z); g.add(mw); };
-            m(width, 0.2, 20, 0, 0.1, -5, whiteMat); m(width, 0.2, 20, 0, height, -5, whiteMat); m(width, height, 0.2, 0, height/2, -15, whiteMat);
-            m(0.2, height, 20, -width/2, height/2, -5, whiteMat); m(0.2, height, 20, width/2, height/2, -5, whiteMat);
-            
             if (idLetter !== "") {
                 const idTex = createSignTexture(idLetter, true);
                 const idM = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
                 idM.position.set(0, height + 0.1, -14); idM.rotation.x = -Math.PI/2; g.add(idM);
             }
 
+            const m = (w,h,d,x,y,z,mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat); mw.position.set(x,y,z); g.add(mw); };
+            m(width, 0.2, 30, 0, 0, -10, whiteMat); // Suelo extendido
+            m(width, 0.2, 30, 0, height, -10, whiteMat); // Techo
+            m(0.2, height, 30, -width/2, height/2, -10, whiteMat); // Paredes laterales
+            m(0.2, height, 30, width/2, height/2, -10, whiteMat);
+            
+            // Puerta central (abriendo el muro trasero)
+            m(width/2 - 6, height, 0.2, -(width/4 + 3), height/2, -25, whiteMat); 
+            m(width/2 - 6, height, 0.2, (width/4 + 3), height/2, -25, whiteMat); 
+            m(12, 4, 0.2, 0, height - 2, -25, whiteMat); // Dintel superior
+
             m(width + 2, 2.5, 0.8, 0, height + 1.25, 5, goldMat);
             const sM = new THREE.Mesh(new THREE.PlaneGeometry(width, 2), new THREE.MeshBasicMaterial({ map: createSignTexture(name), transparent: true }));
             sM.position.set(0, height + 1.25, 5.45); g.add(sM);
             return g;
         }
-        // --- TIENDAS ANCLA (RESTAURACIÓN ESTRUCTURAL) ---
+        // --- TIENDAS ANCLA (RESTAURACIÓN ESTRUCTURAL CON SALIDAS) ---
         const sAnchor = createAnchorStore(0, -100, 70, 15, "MALL SUR", "S"); 
         scene.add(sAnchor);
-        registerCollider(0, -100, 70, 20, 0, 15);
+        registerCollider(-25, -125, 45, 1, 0, 15); // Lateral Izq
+        registerCollider(25, -125, 45, 1, 0, 15);  // Lateral Der
 
         const nAnchor = createAnchorStore(0, 100, 70, 15, "MALL NORTE", "N");
         nAnchor.rotateY(Math.PI); scene.add(nAnchor);
-        registerCollider(0, 100, 70, 20, 0, 15);
+        registerCollider(-25, 125, 45, 1, 0, 15); 
+        registerCollider(25, 125, 45, 1, 0, 15); 
 
         const eAnchor = createAnchorStore(100, 0, 70, 15, "MALL ESTE", "E");
         eAnchor.rotateY(-Math.PI/2); scene.add(eAnchor);
-        registerCollider(100, 0, 20, 70, 0, 15);
+        registerCollider(125, -25, 1, 45, 0, 15); 
+        registerCollider(125, 25, 1, 45, 0, 15); 
 
         const wAnchor = createAnchorStore(-100, 0, 70, 15, "MALL OESTE", "O");
         wAnchor.rotateY(Math.PI/2); scene.add(wAnchor);
-        registerCollider(-100, 0, 20, 70, 0, 15);
+        registerCollider(-125, -25, 1, 45, 0, 15); 
+        registerCollider(-125, 25, 1, 45, 0, 15);
 
         // --- ANEXO: BOULEVARD & FOOD COURT (ALA NORTE RE-VINCULADA) ---
         function createBoulevardArea() {
