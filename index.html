@@ -319,7 +319,7 @@
         scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2.5)); 
         const sun = new THREE.DirectionalLight(0xffffff, 3.0); sun.position.set(150, 200, 150); scene.add(sun);
 
-        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.98, transparent: true, opacity: 0.15, metalness: 0, roughness: 0.02 });
+        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.5, transparent: true, opacity: 0.5, metalness: 0.2, roughness: 0.05 });
         const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }); 
         const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9a66b, metalness: 0.9, roughness: 0.1 });
         const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
@@ -344,7 +344,7 @@
         const VAULT_CENTER_OFFSET = 56.5;
         const DOME_CENTER_Y = 25.5; // Elevado para mayor lujo y espacio
         const CENTRAL_DOME_RADIUS = 28.0;
-        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 4, 7, 10, 13, 16]; // Ajustado al semicírculo
+        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16]; // Añadido el 0 para el cenit
         const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16];
 
         function getVaultAngleForLevel(level) {
@@ -396,7 +396,6 @@
             const outerLocalZ = -innerSign * (l / 2);
 
             LONGITUDINAL_BEAM_LEVELS.forEach((anglePos, index) => {
-                if (anglePos === 0) return; // ELIMINACIÓN DE FIERROS CENITALES
                 const familyLevel = Math.abs(anglePos);
                 const ringTarget = DOME_RING_TARGETS.find((target) => target.level === familyLevel);
                 
@@ -451,7 +450,7 @@
             const convergeY = 11.5 - DOME_CENTER_Y; 
             const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
 
-            const beamLevels = [-16, -13, -10, -7, -4, 4, 7, 10, 13, 16];
+            const beamLevels = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16];
             
             beamLevels.forEach(anglePos => {
                 const angle = (anglePos / r) * (Math.PI / 2);
@@ -1181,49 +1180,36 @@
                 const dx = Math.abs(camera.position.x - e.x);
                 const dz = (camera.position.z >= e.zMin && camera.position.z <= e.zMax);
                 
-                // Radio reducido a 1.8 para evitar solapamientos entre escaleras paralelas
                 if (dx < 1.8 && dz) { 
-                    // Validación de altura: Permitir activación en todo el rango vertical de la escala
-                    if (camera.position.y > 1.0 && camera.position.y < 9.0) {
-                        onEscalator = true;
-                        
-                        // 1. Tracción automática
-                        const distTotal = Math.abs(e.zEnd - e.zStart);
-                        const distDir = Math.sign(e.zEnd - e.zStart);
-                        const speed = 0.09; 
-                        camera.position.z += distDir * speed;
-                        controls.target.z += distDir * speed;
+                    onEscalator = true;
+                    
+                    // 1. Tracción Horizontal (Z)
+                    const distDir = Math.sign(e.zEnd - e.zStart);
+                    const speedZ = 0.09; 
+                    camera.position.z += distDir * speedZ;
+                    controls.target.z += distDir * speedZ;
 
-                    // 2. Altura Progresiva Sincronizada con el modelo (tramo plano de 4m)
-                    const flatLen = 4;
-                    const diagLen = distTotal - (flatLen * 2);
-                    const currentPosDist = Math.abs(camera.position.z - e.zStart);
+                    // 2. Empuje Vertical Constante (Y) - Según sugerencia del usuario
+                    const speedY = 0.04; // Velocidad de ascenso/descenso
+                    const targetHeight = e.up ? 7.1 : 1.8; // Piso 2 o PB
                     
-                    let progress = 0;
-                    if (currentPosDist < flatLen) {
-                        progress = 0; // Tramo plano inicial
-                    } else if (currentPosDist > distTotal - flatLen) {
-                        progress = 1; // Tramo plano final
-                    } else {
-                        progress = (currentPosDist - flatLen) / diagLen; // Rampa diagonal
-                    }
-                    
-                    const stairHeight = 5.4; 
-                    } else {
-                        camera.position.y = ((1 - progress) * stairHeight) + 1.8;
+                    if (e.up && camera.position.y < targetHeight) {
+                        camera.position.y += speedY;
+                        controls.target.y += speedY;
+                    } else if (!e.up && camera.position.y > targetHeight) {
+                        camera.position.y -= speedY;
+                        controls.target.y -= speedY;
                     }
                 }
             });
 
-            // BLOQUEO DE ALTURA MODO PASEO
+            // BLOQUEO DE ALTURA (SOLO FUERA DE ESCALERAS)
             if (isWalking && !onEscalator) {
-                // Umbral de transición ajustado: si estás a más de 2m de altura, perteneces al 2do piso
-                const currentFloorY = camera.position.y > 2.0 ? 5.4 : 0.1;
-                camera.position.y = currentFloorY + 1.7;
+                const prevFloorY = camera.position.y;
+                const groundY = camera.position.y > 3.0 ? 5.4 : 0.1;
+                camera.position.y = groundY + 1.7;
+                controls.target.y += (camera.position.y - prevFloorY);
             }
-
-            // APLICAR CAMBIOS DE ALTURA AL TARGET PARA MANTENER LA MIRADA NIVELADA
-            controls.target.y += (camera.position.y - prevY);
         }
 
 
