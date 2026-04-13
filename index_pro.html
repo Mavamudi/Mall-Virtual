@@ -836,7 +836,7 @@
             const zStart = -innerSign * (l / 2);
             capG.position.set(0, 0, zStart);
             const convergeZ = -innerSign * 4.5;
-            const convergeY = 11.5 - DOME_CENTER_Y;
+            const convergeY = 16.5 - DOME_CENTER_Y; // Elevado para que quede sobre el techo de las tiendas (15m)
             const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
             const beamLevels = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16];
             beamLevels.forEach(anglePos => {
@@ -884,14 +884,20 @@
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
             m(width, 0.2, 30, 0, 0, -10, whiteMat); // Suelo extendido
-            m(width, 0.2, 30, 0, height, -10, whiteMat); // Techo
-            m(0.2, height, 30, -width / 2, height / 2, -10, whiteMat); // Paredes laterales
+            m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo sólido
+
+            // Paredes laterales
+            m(0.2, height, 30, -width / 2, height / 2, -10, whiteMat);
             m(0.2, height, 30, width / 2, height / 2, -10, whiteMat);
 
-            // Puerta central (abriendo el muro trasero)
-            m(width / 2 - 6, height, 0.2, -(width / 4 + 3), height / 2, -25, whiteMat);
-            m(width / 2 - 6, height, 0.2, (width / 4 + 3), height / 2, -25, whiteMat);
-            m(12, 4, 0.2, 0, height - 2, -25, whiteMat); // Dintel superior
+            // Muro trasero SEPARADO: Planta Baja (con hueco) y Planta Alta (CERRADO)
+            // 1. Planta Baja (Puerta de 12m de ancho y 5.4m de alto)
+            m(width / 2 - 6, 5.4, 0.2, -(width / 4 + 3), 5.4 / 2, -25, whiteMat);
+            m(width / 2 - 6, 5.4, 0.2, (width / 4 + 3), 5.4 / 2, -25, whiteMat);
+            m(12, 1.4, 0.2, 0, 5.4 - 0.7, -25, whiteMat); // Dintel de la puerta
+
+            // 2. Planta Alta (MURO TOTALMENTE CERRADO para seguridad)
+            m(width, height - 5.4, 0.2, 0, 5.4 + (height - 5.4) / 2, -25, whiteMat);
 
             m(width + 2, 2.5, 0.8, 0, height + 1.25, 5, goldMat);
             const sM = new THREE.Mesh(new THREE.PlaneGeometry(width, 2), new THREE.MeshBasicMaterial({ map: createSignTexture(name), transparent: true }));
