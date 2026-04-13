@@ -489,7 +489,7 @@
         function createVaultedRoof(x, z, length, wingLabel, rot = false, capPos = 1, capX = 0, capY = 0, capZ = 0, showCap = true) {
             const vaultG = new THREE.Group(); vaultG.position.set(x, DOME_CENTER_Y, z);
             if(rot) vaultG.rotation.y = Math.PI/2;
-            if (wingLabel === 'S' || wingLabel === 'N') {
+            if (wingLabel === 'S' || wingLabel === 'N' || wingLabel === 'O') {
                 addArchitecturalShell(vaultG, VAULT_RADIUS, length, wingLabel);
             } else {
                 addVaultShell(vaultG, VAULT_RADIUS, length);
