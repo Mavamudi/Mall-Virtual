@@ -1505,7 +1505,8 @@
 
         const centralDome = new THREE.Mesh(new THREE.SphereGeometry(CENTRAL_DOME_RADIUS, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), glassMat);
         centralDome.position.set(0, DOME_CENTER_Y, 0); scene.add(centralDome);
-        const domeRibArc = Math.asin(17 / CENTRAL_DOME_RADIUS); // Ángulo para llegar al primer anillo (42.5 de altura)
+        const lastRingTarget = DOME_RING_TARGETS[DOME_RING_TARGETS.length - 1];
+        const domeRibArc = Math.acos((lastRingTarget.height - DOME_CENTER_Y) / CENTRAL_DOME_RADIUS); // Ángulo para llegar al último anillo
         for (let i = 0; i < 8; i++) {
             const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.10, 16, 64, domeRibArc), darkMat);
             rib.position.set(0, DOME_CENTER_Y, 0);
