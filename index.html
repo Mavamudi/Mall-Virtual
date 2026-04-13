@@ -1005,9 +1005,13 @@
         
         const centralDome = new THREE.Mesh(new THREE.SphereGeometry(CENTRAL_DOME_RADIUS, 32, 16, 0, Math.PI*2, 0, Math.PI/2), glassMat);
         centralDome.position.set(0, DOME_CENTER_Y, 0); scene.add(centralDome);
+        const domeRibArc = Math.asin(17 / CENTRAL_DOME_RADIUS); // Ángulo para llegar al primer anillo (42.5 de altura)
         for(let i=0; i<8; i++) {
-            const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.10, 16,32, Math.PI/2), darkMat);
-            rib.position.set(0, DOME_CENTER_Y, 0); rib.rotation.y = (Math.PI/4)*i; scene.add(rib);
+            const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.10, 16, 64, domeRibArc), darkMat);
+            rib.position.set(0, DOME_CENTER_Y, 0); 
+            rib.rotation.z = Math.PI/2; // Orientar verticalmente
+            rib.rotation.y = (Math.PI/4)*i; // Distribuir radialmente
+            scene.add(rib);
         }
         // Rebuild de anillos desde cero (7 niveles):
         // 1) fierro más alto (0), 2..7) pares siguientes por altura (±4, ±7, ±10, ±13, ±16, ±19).
