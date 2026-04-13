@@ -528,38 +528,35 @@
             sM.position.set(0, height + 1.25, 5.45); g.add(sM);
             return g;
         }
-        scene.add(createAnchorStore(0, 95.5, 40, 30, "MALL NORTE", "N")); 
-        registerCollider(0, 105, 40, 10, 0, 12); 
-        registerCollider(20, 95.5, 1, 30, 0, 12);
-        registerCollider(-20, 95.5, 1, 30, 0, 12);
+        // --- TIENDAS ANCLA (RESTAURACIÓN ESTRUCTURAL) ---
+        const sAnchor = createAnchorStore(0, -100, 70, 15, "MALL SUR", "S"); 
+        scene.add(sAnchor);
+        registerCollider(0, -100, 70, 20, 0, 15);
 
-        scene.add(createAnchorStore(0, -95.5, 40, 30, "MALL SUR", "S"));
-        registerCollider(0, -105, 40, 10, 0, 12);
-        registerCollider(20, -95.5, 1, 30, 0, 12);
-        registerCollider(-20, -95.5, 1, 30, 0, 12);
+        const nAnchor = createAnchorStore(0, 100, 70, 15, "MALL NORTE", "N");
+        nAnchor.rotateY(Math.PI); scene.add(nAnchor);
+        registerCollider(0, 100, 70, 20, 0, 15);
 
-        scene.add(createAnchorStore(95.5, 0, 40, 30, "MALL ESTE", "E"));
-        registerCollider(105, 0, 10, 40, 0, 12);
-        registerCollider(95.5, 20, 30, 1, 0, 12);
-        registerCollider(95.5, -20, 30, 1, 0, 12);
+        const eAnchor = createAnchorStore(100, 0, 70, 15, "MALL ESTE", "E");
+        eAnchor.rotateY(-Math.PI/2); scene.add(eAnchor);
+        registerCollider(100, 0, 20, 70, 0, 15);
 
-        scene.add(createAnchorStore(-95.5, 0, 40, 30, "MALL OESTE", "O"));
-        registerCollider(-105, 0, 10, 40, 0, 12);
-        registerCollider(-95.5, 20, 30, 1, 0, 12);
-        registerCollider(-95.5, -20, 30, 1, 0, 12);
+        const wAnchor = createAnchorStore(-100, 0, 70, 15, "MALL OESTE", "O");
+        wAnchor.rotateY(Math.PI/2); scene.add(wAnchor);
+        registerCollider(-100, 0, 20, 70, 0, 15);
 
-        // --- ANEXO: BOULEVARD & FOOD COURT (ALA NORTE) ---
+        // --- ANEXO: BOULEVARD & FOOD COURT (ALA NORTE RE-VINCULADA) ---
         function createBoulevardArea() {
-            const bX = 0, bZ = 160; 
+            const bX = 0, bZ = 165; 
             // 1. Suelo del Boulevard (Terracota)
             const floorGeo = new THREE.PlaneGeometry(120, 100);
             const floorMat = new THREE.MeshStandardMaterial({ color: 0xd2691e, roughness: 0.8 });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI/2; floor.position.set(bX, 0.1, bZ); scene.add(floor);
             
-            // Conector con el Mall (Pasillo de unión)
-            const conn = new THREE.Mesh(new THREE.PlaneGeometry(22, 50), floorMat);
-            conn.rotation.x = -Math.PI/2; conn.position.set(0, 0.1, 120); scene.add(conn);
+            // Conector con el Mall (Ajustado para atravesar la tienda norte)
+            const conn = new THREE.Mesh(new THREE.PlaneGeometry(20, 30), floorMat);
+            conn.rotation.x = -Math.PI/2; conn.position.set(0, 0.1, 115); scene.add(conn);
 
             // 2. Torre de Publicidad Central PRO
             const towerG = new THREE.Group(); towerG.position.set(bX, 0, bZ);
