@@ -548,8 +548,75 @@
         registerCollider(-95.5, 20, 30, 1, 0, 12);
         registerCollider(-95.5, -20, 30, 1, 0, 12);
 
+        // --- ANEXO: BOULEVARD & FOOD COURT (ALA NORTE) ---
+        function createBoulevardArea() {
+            const bX = 0, bZ = 160; 
+            // 1. Suelo del Boulevard (Terracota)
+            const floorGeo = new THREE.PlaneGeometry(120, 100);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0xd2691e, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI/2; floor.position.set(bX, 0.1, bZ); scene.add(floor);
+            
+            // Conector con el Mall (Pasillo de unión)
+            const conn = new THREE.Mesh(new THREE.PlaneGeometry(22, 50), floorMat);
+            conn.rotation.x = -Math.PI/2; conn.position.set(0, 0.1, 120); scene.add(conn);
+
+            // 2. Torre de Publicidad Central PRO
+            const towerG = new THREE.Group(); towerG.position.set(bX, 0, bZ);
+            const adLogos = ["BINANCE", "HONEYGAIN", "QUANTUM", "TRADING"];
+            const adColors = [0xf3ba2f, 0xffa500, 0x00ffff, 0xff00ff];
+            for (let i = 0; i < 4; i++) {
+                const screen = new THREE.Mesh(new THREE.BoxGeometry(7, 5, 7), new THREE.MeshStandardMaterial({ color: adColors[i], metalness: 0.5, roughness: 0.2 }));
+                screen.position.y = 2.5 + (i * 6); towerG.add(screen);
+                
+                // Pantallas en las 4 caras
+                for(let j=0; j<4; j++) {
+                    const idTex = createSignTexture(adLogos[i], true);
+                    const p = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
+                    p.rotation.y = (Math.PI/2) * j;
+                    p.position.set(
+                        Math.sin((Math.PI/2)*j)*3.51, 
+                        2.5 + (i * 6), 
+                        Math.cos((Math.PI/2)*j)*3.51
+                    );
+                    towerG.add(p);
+                }
+            }
+            scene.add(towerG);
+            registerCollider(bX, bZ, 8, 8, 0, 30);
+
+            // 3. Mesas con Parasoles Azules (Food Court)
+            function createParasolSet(px, pz) {
+                const gr = new THREE.Group(); gr.position.set(px, 0.1, pz);
+                const table = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.1), whiteMat); table.position.y = 0.9; gr.add(table);
+                const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.5), darkMat); pole.position.y = 1.75; gr.add(pole);
+                const canopy = new THREE.Mesh(new THREE.CylinderGeometry(0, 3, 1, 16), new THREE.MeshStandardMaterial({color: 0x0000ff})); 
+                canopy.position.y = 3.5; gr.add(canopy);
+                scene.add(gr);
+                registerCollider(px, pz, 2.5, 2.5, 0, 5);
+            }
+            [[25, 140], [-25, 140], [25, 180], [-25, 180], [40, 160], [-40, 160]].forEach(p => createParasolSet(p[0], p[1]));
+
+            // 4. Tiendas del Boulevard (Colores Planos y Vivos como pidió el usuario)
+            const bLabels = ["BURGER", "TACO", "PIZZA", "SUSHI", "CAFE"];
+            const bCols = [0xff0055, 0x00ff77, 0x0088ff, 0xffaa00, 0x9955ff];
+            for (let i = -2; i <= 2; i++) {
+                const sX = i * 25; const sZ = 205;
+                const shop = new THREE.Group(); shop.position.set(sX, 0, sZ);
+                const box = new THREE.Mesh(new THREE.BoxGeometry(20, 10, 12), new THREE.MeshStandardMaterial({ color: bCols[i+2] }));
+                box.position.y = 5; shop.add(box);
+                
+                const sign = new THREE.Mesh(new THREE.PlaneGeometry(12, 3), new THREE.MeshBasicMaterial({ map: createSignTexture(bLabels[i+2]) }));
+                sign.position.set(0, 8, 6.01); shop.add(sign);
+                
+                scene.add(shop);
+                registerCollider(sX, sZ, 20, 12, 0, 10);
+            }
+        }
+        createBoulevardArea();
+
         // --- COLISIÓN TORRE CENTRAL Y FUENTE ---
-        registerCollider(0, 0, 6, 6, 0, 30); // El núcleo central es sólido
+        registerCollider(0, 0, 8, 8, 0, 30); // El núcleo central es sólido
 
         // --- MUEBLES PLAZA CENTRAL (Sólidos) ---
         function createTableSet(x, z) {
@@ -559,7 +626,7 @@
             scene.add(gr);
             registerCollider(x, z, 2.2, 2.2, 0, 3);
         }
-        createTableSet(8, 8); createTableSet(-8, 8); createTableSet(8, -8); createTableSet(-8, -8);
+        createTableSet(10, 10); createTableSet(-10, 10); createTableSet(10, -10); createTableSet(-10, -10);
 
         // --- URBANISMO Y PAISAJISMO EXTERIOR ---
         const grassMat = new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.8 }); // Verde pasto
