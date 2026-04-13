@@ -2254,6 +2254,22 @@
         function updateNPCs() {
             const now = Date.now();
             npcs.forEach(npc => {
+                // --- GRAVEDAD Y DETECCIÓN DE SUELO ---
+                const inAtrium = Math.abs(npc.mesh.position.x) < 11 && Math.abs(npc.mesh.position.z) < 11;
+                if (npc.mesh.position.y > 0.1 && inAtrium) {
+                    // Si está en el aire del atrio y no es la escalera, se cae
+                    let beingCarried = false;
+                    escalatorList.forEach(e => {
+                        const dx = Math.abs(npc.mesh.position.x - e.x);
+                        const dz = (npc.mesh.position.z >= e.zMin && npc.mesh.position.z <= e.zMax);
+                        if (dx < 1.5 && dz) beingCarried = true;
+                    });
+                    if (!beingCarried) {
+                        npc.mesh.position.y -= 0.15; // Gravedad: Se cae al piso 1
+                        if (npc.mesh.position.y < 0) npc.mesh.position.y = 0;
+                    }
+                }
+
                 // --- LÓGICA DE ESCALERA PARA BOTS ---
                 let onEscalator = false;
                 escalatorList.forEach(e => {
@@ -2271,7 +2287,6 @@
                         if (e.up && npc.mesh.position.y < targetHeight) npc.mesh.position.y += speedY;
                         else if (!e.up && npc.mesh.position.y > targetHeight) npc.mesh.position.y -= speedY;
                         
-                        // Mirar hacia adelante mientras sube
                         npc.mesh.rotation.y = distDir > 0 ? 0 : Math.PI;
                     }
                 });
