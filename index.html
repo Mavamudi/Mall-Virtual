@@ -366,23 +366,63 @@
             radius: getDomeRingRadiusForHeight(getVaultHeightForLevel(level))
         }));
 
-        // --- SUBMOTIVOS DE ARQUITECTURA PROTEGIDOS ---
+            function addArchitecturalShell(group, r, l, wingLabel) {
+            const innerSign = (wingLabel === 'N' || wingLabel === 'E') ? -1 : 1;
+            const outerZ = -innerSign * (l / 2);
+            
+            const segments = 16;
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            const indices = [];
+
+            // Generar vértices para el arco exterior (Z = outerZ, radio = 17) y el arco interior (conexión con domo)
+            for (let i = 0; i <= segments; i++) {
+                const anglePos = -16 + (32 * i / segments); // De -16 a 16 (niveles de fierros)
+                const angle = (anglePos / r) * (Math.PI / 2);
+                
+                // Punto Exterior
+                const xOut = Math.sin(angle) * r;
+                const yOut = Math.cos(angle) * r;
+                vertices.push(xOut, yOut, outerZ);
+
+                // Punto Interior (Cierre con anillos del domo)
+                const familyLevel = Math.abs(anglePos);
+                const ringTarget = DOME_RING_TARGETS.find(t => t.level === Math.round(familyLevel)) || DOME_RING_TARGETS[0];
+                const innerY = ringTarget.height - DOME_CENTER_Y;
+                const innerAxisAbs = Math.sqrt(Math.max((CENTRAL_DOME_RADIUS ** 2) - (xOut ** 2) - (innerY ** 2), 0));
+                const innerZ = innerSign * (VAULT_CENTER_OFFSET - innerAxisAbs);
+                vertices.push(xOut, innerY, innerZ);
+            }
+
+            // Crear caras (Quads as Triangles)
+            for (let i = 0; i < segments; i++) {
+                const v0 = i * 2;
+                const v1 = i * 2 + 1;
+                const v2 = (i + 1) * 2;
+                const v3 = (i + 1) * 2 + 1;
+                indices.push(v0, v2, v1);
+                indices.push(v1, v2, v3);
+            }
+            geometry.setIndex(indices);
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            geometry.computeVertexNormals();
+
+            const mesh = new THREE.Mesh(geometry, glassMat);
+            mesh.side = THREE.DoubleSide;
+            group.add(mesh);
+        }
+
         function addVaultShell(group, r, l) {
-            // Semicírculo perfecto (PI) comenzando desde la horizontal (0)
             const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 32, 1, true, 0, Math.PI), glassMat);
             m.rotation.x = Math.PI/2; m.rotation.z = -Math.PI/2; group.add(m);
         }
         function addTransverseRibs(group, r, l, wingLabel) {
-            const pillarH = DOME_CENTER_Y - 11.5; // Ajuste dinámico a la altura del domo
+            const pillarH = DOME_CENTER_Y - 11.5;
             for(let i = -l/2; i <= l/2; i += 4) {
-                // Arco de semicírculo perfecto - Grosor reducido a 0.10
                 const rib = new THREE.Mesh(new THREE.TorusGeometry(r, 0.10, 16, 64, Math.PI), darkMat);
-                rib.rotation.z = 0; 
                 let zPos = i;
                 if (wingLabel === 'N' || wingLabel === 'E') zPos = i + 2;
                 rib.position.z = zPos; group.add(rib);
-
-                // Soporte Vertical - Grosor reducido a 0.10
                 [r, -r].forEach(xSide => {
                     const p = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, pillarH), darkMat);
                     p.position.set(xSide, -pillarH/2, zPos); 
@@ -390,88 +430,52 @@
                 });
             }
         }
-
         function addLongitudinalGirders(group, r, l, wingLabel) {
             const innerSign = (wingLabel === 'N' || wingLabel === 'E') ? -1 : 1;
             const outerLocalZ = -innerSign * (l / 2);
-
             LONGITUDINAL_BEAM_LEVELS.forEach((anglePos, index) => {
                 const familyLevel = Math.abs(anglePos);
                 const ringTarget = DOME_RING_TARGETS.find((target) => target.level === familyLevel);
-                
                 const actualRingHeight = ringTarget.height; 
                 const innerY = actualRingHeight - DOME_CENTER_Y;
-
                 const angle = (anglePos / r) * (Math.PI / 2);
                 const xLocal = Math.sin(angle) * r;
                 const outerY = Math.cos(angle) * r;
-
                 const innerAxisAbs = Math.sqrt(Math.max((CENTRAL_DOME_RADIUS ** 2) - (xLocal ** 2) - (innerY ** 2), 0));
                 const innerLocalZ = innerSign * (VAULT_CENTER_OFFSET - innerAxisAbs);
-
                 const start = new THREE.Vector3(xLocal, outerY, outerLocalZ);
                 const end = new THREE.Vector3(xLocal, innerY, innerLocalZ);
-
                 const direction = new THREE.Vector3().subVectors(end, start);
                 const beamLen = direction.length();
                 const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-
                 const beam = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.10, beamLen), darkMat);
                 beam.position.copy(midPoint);
                 beam.lookAt(end);
-
-                beam.name = `Fierro_${wingLabel}_${index + 1}`;
-                beam.userData.familyLevel = familyLevel;
                 group.add(beam);
             });
         }
-
-
-
-
-
-
-
-
-
-
-
         function addEndCap(group, r, l, p, rx, ry, rz, wingLabel) {
-
             const capG = new THREE.Group(); 
             const innerSign = (wingLabel === 'N' || wingLabel === 'E') ? -1 : 1;
             const zStart = -innerSign * (l / 2);
             capG.position.set(0, 0, zStart);
-
-            // Centro de convergencia (Eje sobre el techo de la gran tienda)
-            // La tienda está en 100, el ala termina en 95.5. Distancia ~4.5
-            // Centro de convergencia ajustado a la nueva altura
             const convergeZ = -innerSign * 4.5; 
             const convergeY = 11.5 - DOME_CENTER_Y; 
             const targetPoint = new THREE.Vector3(0, convergeY, convergeZ);
-
             const beamLevels = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16];
-            
             beamLevels.forEach(anglePos => {
                 const angle = (anglePos / r) * (Math.PI / 2);
                 const xLocal = Math.sin(angle) * r;
                 const yLocal = Math.cos(angle) * r;
                 const startPoint = new THREE.Vector3(xLocal, yLocal, 0);
-
-                // Crear un arco (meridiano) usando QuadraticBezierCurve
-                // El punto de control lo elevamos para dar efecto de "cuarto de esfera"
                 const controlPoint = new THREE.Vector3(xLocal, yLocal, convergeZ);
                 const curve = new THREE.QuadraticBezierCurve3(startPoint, controlPoint, targetPoint);
-                
                 const points = curve.getPoints(20);
                 const geometry = new THREE.BufferGeometry().setFromPoints(points);
                 const meridian = new THREE.Line(geometry, darkMat);
                 capG.add(meridian);
-
-                // También agregamos un tubo o caja para el fierro con grosor
                 for (let j = 0; j < points.length - 1; j++) {
-                    const segStart = points[j];
-                    const segEnd = points[j+1];
+                    const segStart = points[j]; const segEnd = points[j+1];
                     const dist = segStart.distanceTo(segEnd);
                     const beamSeg = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, dist), darkMat);
                     beamSeg.position.copy(segStart).add(segEnd).multiplyScalar(0.5);
@@ -479,17 +483,17 @@
                     capG.add(beamSeg);
                 }
             });
-
-            // Shell de cristal del cuarto de esfera (Esquemático con Mesh)
-            const glassPoints = [];
-            // Aproximación de malla simple para el cristal
             group.add(capG);
         }
 
         function createVaultedRoof(x, z, length, wingLabel, rot = false, capPos = 1, capX = 0, capY = 0, capZ = 0, showCap = true) {
             const vaultG = new THREE.Group(); vaultG.position.set(x, DOME_CENTER_Y, z);
             if(rot) vaultG.rotation.y = Math.PI/2;
-            addVaultShell(vaultG, VAULT_RADIUS, length);
+            if (wingLabel === 'S') {
+                addArchitecturalShell(vaultG, VAULT_RADIUS, length, wingLabel);
+            } else {
+                addVaultShell(vaultG, VAULT_RADIUS, length);
+            }
             addTransverseRibs(vaultG, VAULT_RADIUS, length, wingLabel);
             addLongitudinalGirders(vaultG, VAULT_RADIUS, length, wingLabel);
             if (showCap) addEndCap(vaultG, 17, length, capPos, capX, capY, capZ, wingLabel); 
