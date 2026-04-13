@@ -673,11 +673,11 @@
             const h = 5.4; 
             let dist = zEnd - zStart;
             const flatLen = 4;
-            const gr = new THREE.Group(); gr.position.set(x, -0.65, zStart);
+            const gr = new THREE.Group(); gr.position.set(x, 0.35, zStart);
             const dir = Math.sign(dist);
 
-            // Guardar para colisiones
-            escalatorList.push({ x, zMin: Math.min(zStart, zEnd), zMax: Math.max(zStart, zEnd), up, yStart: -0.65, yEnd: h-0.65, zStart, zEnd });
+            // Guardar para colisiones (ajustado a la nueva altura base de 0.35)
+            escalatorList.push({ x, zMin: Math.min(zStart, zEnd), zMax: Math.max(zStart, zEnd), up, yStart: 0.35, yEnd: h+0.35, zStart, zEnd });
 
             const matGrey = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5 });
             const escText = createEscalatorTexture();
