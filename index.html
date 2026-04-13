@@ -907,23 +907,23 @@
         // --- TIENDAS ANCLA (RESTAURACIÓN ESTRUCTURAL CON SALIDAS) ---
         const sAnchor = createAnchorStore(0, -100, 70, 15, "MALL SUR", "S");
         scene.add(sAnchor);
-        registerCollider(-25, -125, 45, 1, 0, 15); // Lateral Izq
-        registerCollider(25, -125, 45, 1, 0, 15);  // Lateral Der
+        registerCollider(-20.5, -125, 29, 1, 0, 15); // Muro Frontal Izq (Sur)
+        registerCollider(20.5, -125, 29, 1, 0, 15);  // Muro Frontal Der (Sur)
 
         const nAnchor = createAnchorStore(0, 100, 70, 15, "MALL NORTE", "N");
         nAnchor.rotateY(Math.PI); scene.add(nAnchor);
-        registerCollider(-25, 125, 45, 1, 0, 15);
-        registerCollider(25, 125, 45, 1, 0, 15);
+        registerCollider(-20.5, 125, 29, 1, 0, 15); // Muro Frontal Izq (Norte - Puerta Boulevard)
+        registerCollider(20.5, 125, 29, 1, 0, 15);  // Muro Frontal Der (Norte - Puerta Boulevard)
 
         const eAnchor = createAnchorStore(100, 0, 70, 15, "MALL ESTE", "E");
         eAnchor.rotateY(-Math.PI / 2); scene.add(eAnchor);
-        registerCollider(125, -25, 1, 45, 0, 15);
-        registerCollider(125, 25, 1, 45, 0, 15);
+        registerCollider(125, -20.5, 1, 29, 0, 15); // Muro Frontal (Este)
+        registerCollider(125, 20.5, 1, 29, 0, 15);
 
         const wAnchor = createAnchorStore(-100, 0, 70, 15, "MALL OESTE", "O");
         wAnchor.rotateY(Math.PI / 2); scene.add(wAnchor);
-        registerCollider(-125, -25, 1, 45, 0, 15);
-        registerCollider(-125, 25, 1, 45, 0, 15);
+        registerCollider(-125, -20.5, 1, 29, 0, 15); // Muro Frontal (Oeste)
+        registerCollider(-125, 20.5, 1, 29, 0, 15);
 
         // --- ANEXO: BOULEVARD & FOOD COURT (ALA NORTE RE-VINCULADA) ---
         function createBoulevardArea() {
@@ -1255,13 +1255,32 @@
             }
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
 
-            // --- REGISTRO DE COLISIÓN (Paredes laterales y trasera) ---
+            // --- REGISTRO DE COLISIÓN (Paredes laterales, trasera y frontal con hueco de puerta) ---
             const cos = Math.cos(rotY); const sin = Math.sin(rotY);
             const yB = (posY > 5 ? 5.4 : 0);
-            // Pared Trasera y laterales para nivel correspondiente
-            registerCollider(posX + sin * 0, posZ + cos * (-9), 12, 0.5, yB, yB + 6);
-            registerCollider(posX + cos * (-6), posZ + sin * (6), 0.5, 18, yB, yB + 6);
-            registerCollider(posX + cos * (6), posZ + sin * (-6), 0.5, 18, yB, yB + 6);
+            
+            // 1. Pared Trasera (Fija en profundidad -8.75 para no sobresalir)
+            if (walls.back) {
+                const rx = posX + sin * (-8.75); const rz = posZ + cos * (-8.75);
+                registerCollider(rx, rz, Math.abs(12 * cos) + Math.abs(0.5 * sin), Math.abs(12 * sin) + Math.abs(0.5 * cos), yB, yB + 6);
+            }
+
+            // 2. Paredes Laterales (+/- 5.75)
+            if (walls.left !== false) {
+                const lx = posX + cos * (-5.75); const lz = posZ + sin * (5.75);
+                registerCollider(lx, lz, Math.abs(0.5 * cos) + Math.abs(18 * sin), Math.abs(0.5 * sin) + Math.abs(18 * cos), yB, yB + 6);
+            }
+            if (walls.right !== false) {
+                const rx = posX + cos * (5.75); const rz = posZ + sin * (-5.75);
+                registerCollider(rx, rz, Math.abs(0.5 * cos) + Math.abs(18 * sin), Math.abs(0.5 * sin) + Math.abs(18 * cos), yB, yB + 6);
+            }
+
+            // 3. Pared Frontal (Cristal con puerta de 6m, desplazada 0.25m hacia adentro: 8.75)
+            [4.5, -4.5].forEach(offX => {
+                const fx = posX + cos * offX + sin * 8.75;
+                const fz = posZ + sin * (-offX) + cos * 8.75;
+                registerCollider(fx, fz, Math.abs(3 * cos) + Math.abs(0.5 * sin), Math.abs(3 * sin) + Math.abs(0.5 * cos), yB, yB + 6);
+            });
 
             return sh;
         }
@@ -1505,7 +1524,8 @@
 
         const centralDome = new THREE.Mesh(new THREE.SphereGeometry(CENTRAL_DOME_RADIUS, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), glassMat);
         centralDome.position.set(0, DOME_CENTER_Y, 0); scene.add(centralDome);
-        const domeRibArc = Math.asin(17 / CENTRAL_DOME_RADIUS); // Ángulo para llegar al primer anillo (42.5 de altura)
+        const lastRingTarget = DOME_RING_TARGETS[DOME_RING_TARGETS.length - 1];
+        const domeRibArc = Math.acos((lastRingTarget.height - DOME_CENTER_Y) / CENTRAL_DOME_RADIUS); // Ángulo para llegar al último anillo
         for (let i = 0; i < 8; i++) {
             const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.10, 16, 64, domeRibArc), darkMat);
             rib.position.set(0, DOME_CENTER_Y, 0);
