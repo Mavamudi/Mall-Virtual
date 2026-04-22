@@ -2384,15 +2384,29 @@
                     }
                 }
 
-                // Actualizar etiquetas
+                // --- 3. ACTUALIZAR ETIQUETAS ---
                 const tempVec = npc.mesh.position.clone();
                 tempVec.y += 2.2;
                 tempVec.project(camera);
                 const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                 const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
                 npc.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                
                 const distToCam = camera.position.distanceTo(npc.mesh.position);
                 npc.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1 || distToCam > 35) ? 'none' : 'block';
+
+                // --- 4. SEGURIDAD: GRAVEDAD Y SUELO ---
+                if (!onEscalator) {
+                    const inAtrium = Math.abs(npc.mesh.position.x) < 11 && Math.abs(npc.mesh.position.z) < 11;
+                    const groundY = npc.mesh.position.y > 2.7 ? 5.4 : 0;
+                    if (inAtrium && npc.mesh.position.y > 0.1) {
+                        npc.mesh.position.y -= 0.2; // Caída si están sobre el vacío
+                        if (npc.mesh.position.y < 0) npc.mesh.position.y = 0;
+                    } else {
+                        // Snap suave al suelo para evitar que floten por errores de precisión
+                        npc.mesh.position.y = THREE.MathUtils.lerp(npc.mesh.position.y, groundY, 0.1);
+                    }
+                }
             });
         }
 
