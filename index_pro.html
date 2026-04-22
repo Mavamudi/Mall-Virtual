@@ -510,6 +510,11 @@
             </div>
             <button class="enter-btn" onclick="event.stopPropagation(); startMallExperience()">Entrar al Mall</button>
 
+            <!-- ACCESO LOCATARIOS RÁPIDO -->
+            <p style="margin-top: 15px; font-size: 10px; color: #888;">
+                ¿Eres locatario? <a href="#" onclick="toggleTenantLogin()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Inicia sesión aquí</a>
+            </p>
+
             <!-- SECCIÓN DE SOCIOS -->
             <div id="membership-section" style="margin-top: 25px; text-align: left; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 20px;">
                 <label style="display: flex; align-items: center; cursor: pointer; gap: 12px; margin-bottom: 15px; justify-content: center;">
@@ -565,7 +570,7 @@
         </div>
     </div>
 
-    <header class="fixed top-0 w-full p-8 flex justify-between items-start z-50 pointer-events-none">
+    <header class="fixed top-0 w-full p-8 flex justify-between items-start z-[2500] pointer-events-none">
         <div id="ui-overlay">
             <h1 class="text-4xl font-extralight luxury-gradient tracking-[10px]">MALL EMPRENDIMIENTOS</h1>
             <p style="margin: 5px 0; font-size: 14px; color: #888; letter-spacing: 1px;">ARQUITECTURA DE LUJO & NEGOCIOS PRO</p>
@@ -2221,6 +2226,13 @@
         let lastSentRot = 0;
         const POS_THRESHOLD = 0.3; // No enviar si se mueve menos de 30cm
         const ROT_THRESHOLD = 0.15; // No enviar si rota menos de ~8 grados
+        // Configuración de Supabase
+        const SB_URL = "https://kcfuixvrwbnizspgtmtr.supabase.co";
+        const SB_KEY = "sb_publishable_-H23KD1xJafE_DFpBFZlyA_CL9sNlpG";
+        if (typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        }
+
         window.startMallExperience = async function () {
             const nick = document.getElementById('nickname-input').value.trim();
             if (!nick) return alert("Por favor, ingresa tu nombre de visitante");
@@ -2247,41 +2259,25 @@
                 }
             }, 500);
 
-            // Configuración de Supabase
-            const SB_URL = "https://kcfuixvrwbnizspgtmtr.supabase.co";
-            const SB_KEY = "sb_publishable_-H23KD1xJafE_DFpBFZlyA_CL9sNlpG";
-
-            if (typeof supabase !== 'undefined') {
-                try {
-                    supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-                    console.log("🚀 Conexion exitosa con el Metaverso (Modo Ahorro)");
-                    
-                    // Registro de Socio (Si aplica)
-                    const isMember = document.getElementById('membership-checkbox').checked;
-                    if (isMember) {
-                        const email = document.getElementById('member-email').value.trim();
-                        const phone = document.getElementById('member-phone').value.trim();
-                        
-                        if (!email || !phone) {
-                            alert("Por favor, completa tu correo y celular para ser socio, o desmarca la opción.");
-                            document.getElementById('login-overlay').style.display = 'flex';
-                            document.getElementById('login-overlay').style.opacity = '1';
-                            return;
-                        }
-
-                        supabaseClient.from('mall_members').insert([
-                            { nickname: myNickname, email: email, phone: phone }
-                        ]).then(({ error }) => {
-                            if (error) console.error("Error al registrar socio:", error);
-                            else console.log("¡Nuevo socio registrado!");
-                        });
-                    }
-
-                    initPresence();
-                } catch (e) {
-                    console.error("❌ Error al conectar con Supabase:", e);
+            // Registro de Socio (Si aplica)
+            const isMember = document.getElementById('membership-checkbox').checked;
+            if (isMember && supabaseClient) {
+                const email = document.getElementById('member-email').value.trim();
+                const phone = document.getElementById('member-phone').value.trim();
+                
+                if (!email || !phone) {
+                    alert("Por favor, completa tu correo y celular para ser socio, o desmarca la opción.");
+                    document.getElementById('login-overlay').style.display = 'flex';
+                    document.getElementById('login-overlay').style.opacity = '1';
+                    return;
                 }
+
+                await supabaseClient.from('mall_members').insert([
+                    { nickname: myNickname, email: email, phone: phone }
+                ]);
             }
+            
+            initPresence();
         };
 
         const HEARTBEAT_LIMIT = 4000; // Enviar cada 4 seg aunque esté quieto
