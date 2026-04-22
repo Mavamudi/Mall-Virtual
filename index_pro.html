@@ -2122,11 +2122,6 @@
             modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
         }
 
-        window.toggleTenantApply = function() {
-            const modal = document.getElementById('tenant-apply-modal');
-            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-        }
-
         window.submitTenantApplication = async function() {
             if (!supabaseClient) return alert("Error de conexión con el mall.");
             
@@ -2136,6 +2131,9 @@
             const phone = document.getElementById('apply-phone').value.trim();
             const social = document.getElementById('apply-social').value.trim();
             
+            if(!brand || !email || !phone) return alert("Por favor completa los campos obligatorios.");
+
+            // 1. Guardar en Supabase (Registro histórico)
             const { error } = await supabaseClient.from('tenant_applications').insert([
                 { 
                     brand_name: brand, 
@@ -2149,14 +2147,43 @@
             
             if (error) {
                 console.error(error);
-                alert("Error al enviar postulación: " + error.message);
-            } else {
-                alert("¡Postulación enviada con éxito! Revisaremos tu propuesta y te contactaremos a la brevedad.");
+                return alert("Error al registrar en la base de datos: " + error.message);
+            }
+
+            // 2. Enviar Notificación por Email (vía Formspree)
+            try {
+                const response = await fetch("https://formspree.io/f/alanmauri4815@gmail.com", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        subject: "NUEVA POSTULACIÓN MALL: " + brand,
+                        Marca: brand,
+                        Giro: category,
+                        Email: email,
+                        Telefono: phone,
+                        Redes: social,
+                        _replyto: email
+                    })
+                });
+
+                if (response.ok) {
+                    alert("¡Postulación enviada con éxito! Revisaremos tu propuesta y te contactaremos por email.");
+                    toggleTenantApply();
+                } else {
+                    alert("Postulación guardada en sistema. (Notificación vía mail pendiente de activación)");
+                    toggleTenantApply();
+                }
+            } catch (e) {
+                console.error("Error envío mail:", e);
+                alert("Postulación recibida en base de datos. (Error en servidor de correos externo)");
                 toggleTenantApply();
             }
         }
 
-        window.tenantLogin = async function() {
+        window.toggleTenantApply = function() {
+            const modal = document.getElementById('tenant-apply-modal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
             const email = document.getElementById('tenant-email').value;
             const pass = document.getElementById('tenant-pass').value;
             
