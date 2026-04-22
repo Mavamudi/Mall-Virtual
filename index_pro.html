@@ -570,7 +570,7 @@
         </div>
     </div>
 
-    <header class="fixed top-0 w-full p-8 flex justify-between items-start z-[2500] pointer-events-none">
+    <header id="main-header" class="fixed top-0 w-full p-8 flex justify-between items-start pointer-events-none" style="z-index: 2500; display: none;">
         <div id="ui-overlay">
             <h1 class="text-4xl font-extralight luxury-gradient tracking-[10px]">MALL EMPRENDIMIENTOS</h1>
             <p style="margin: 5px 0; font-size: 14px; color: #888; letter-spacing: 1px;">ARQUITECTURA DE LUJO & NEGOCIOS PRO</p>
@@ -1927,7 +1927,7 @@
 
         // --- SISTEMA DE BÚSQUEDA Y MAPAS ---
         let fullStoreInventory = [];
-        function precalculateInventory() {
+        async function precalculateInventory() {
             // Recorre códigos posibles y precalcula para el buscador
             const codes = [];
             ['N', 'S', 'E', 'O'].forEach(w => {
@@ -1936,7 +1936,9 @@
                 });
             });
             ['N', 'S', 'E', 'O'].forEach(a => codes.push(a));
-            codes.forEach(c => fullStoreInventory.push(getStoreData(c)));
+            
+            const promises = codes.map(c => getStoreData(c));
+            fullStoreInventory = await Promise.all(promises);
         }
         precalculateInventory();
 
@@ -2249,6 +2251,7 @@
             document.getElementById('login-overlay').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-header').style.display = 'flex'; // Mostrar cabecera
                 // Forzar posición de inicio al entrar
                 if (!isWalking) {
                     window.toggleWalkMode();
