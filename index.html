@@ -1996,7 +1996,7 @@
         window.openSearch = function () { document.getElementById('search-modal').style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; };
         document.getElementById('search-close-btn').onclick = () => { document.getElementById('search-modal').style.display = 'none'; document.getElementById('modal-overlay').style.display = 'none'; };
 
-        window.addEventListener('click', (event) => {
+        window.addEventListener('click', async (event) => {
             // No interactuar con el mall si el login o el modal de búsqueda están abiertos
             if (document.getElementById('login-overlay').style.display !== 'none' ||
                 document.getElementById('search-modal').style.display === 'block') return;
