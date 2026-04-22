@@ -883,7 +883,7 @@
             }
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
-            m(width, 0.2, 30, 0, 0, -10, whiteMat); // Suelo extendido
+            m(width, 0.2, 30, 0, 0.02, -10, whiteMat); // Suelo elevado 2cm para evitar z-fighting
             m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo sólido
 
             // Paredes laterales
@@ -1221,7 +1221,7 @@
         function createBoutique(posX, posZ, rotY, walls, posY = 0, shopCode = "") {
             const sh = new THREE.Group(); sh.position.set(posX, posY, posZ); sh.rotation.y = rotY;
             sh.userData = { isBoutique: true, shopCode: shopCode };
-            const f = new THREE.Mesh(new THREE.BoxGeometry(12, 0.2, 18), new THREE.MeshPhongMaterial({ color: 0x003366 })); sh.add(f);
+            const f = new THREE.Mesh(new THREE.BoxGeometry(12, 0.2, 18), new THREE.MeshPhongMaterial({ color: 0x003366 })); f.position.y = 0.02; sh.add(f);
             const cw = (w, h, d, x, y, z, m) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); mw.position.set(x, y, z); sh.add(mw); };
 
             // Iluminación Techo (Interior)
