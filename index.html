@@ -2366,7 +2366,21 @@
                     } else {
                         const dir = currentMoveTarget.clone().sub(npc.mesh.position);
                         dir.y = 0; dir.normalize();
-                        npc.mesh.position.add(dir.multiplyScalar(npc.speed));
+                        
+                        // --- MOVIMIENTO CON COLISIONES ---
+                        const nextX = npc.mesh.position.x + dir.x * npc.speed;
+                        const nextZ = npc.mesh.position.z + dir.z * npc.speed;
+                        const bodyY = npc.mesh.position.y + 1.2; // Altura de colisión
+
+                        if (!checkCollision(nextX, bodyY, nextZ)) {
+                            npc.mesh.position.x = nextX;
+                            npc.mesh.position.z = nextZ;
+                        } else {
+                            // Si choca con algo (pared, barandilla, objeto), recalcular ruta
+                            npc.state = 'looking';
+                            npc.timer = now;
+                        }
+                        
                         const targetRot = Math.atan2(dir.x, dir.z);
                         let diff = targetRot - npc.mesh.rotation.y;
                         while(diff < -Math.PI) diff += Math.PI * 2;
@@ -2398,12 +2412,14 @@
                 // --- 4. SEGURIDAD: GRAVEDAD Y SUELO ---
                 if (!onEscalator) {
                     const inAtrium = Math.abs(npc.mesh.position.x) < 11 && Math.abs(npc.mesh.position.z) < 11;
-                    const groundY = npc.mesh.position.y > 2.7 ? 5.4 : 0;
-                    if (inAtrium && npc.mesh.position.y > 0.1) {
-                        npc.mesh.position.y -= 0.2; // Caída si están sobre el vacío
+                    const isPA = npc.mesh.position.y > 2.7;
+                    const groundY = isPA ? 5.4 : 0;
+                    
+                    if (isPA && inAtrium) {
+                        npc.mesh.position.y -= 0.2; // Caída libre si logran saltar la barandilla o aparecen en el aire
                         if (npc.mesh.position.y < 0) npc.mesh.position.y = 0;
                     } else {
-                        // Snap suave al suelo para evitar que floten por errores de precisión
+                        // Snap suave al suelo para evitar que floten por errores de precisión decimal
                         npc.mesh.position.y = THREE.MathUtils.lerp(npc.mesh.position.y, groundY, 0.1);
                     }
                 }
