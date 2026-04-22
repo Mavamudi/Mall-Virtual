@@ -2251,89 +2251,121 @@
             renderer.render(scene, camera); 
         }
 
-        // --- SISTEMA DE NPCs (MULTITUD ARTIFICIAL) ---
+        // --- SISTEMA DE NPCs (MULTITUD ARTIFICIAL CHILENA) ---
+        const CHILEAN_NAMES = [
+            "Mateo González", "Agustín Muñoz", "Benjamín Rojas", "Vicente Díaz", "Santiago Pérez",
+            "Matías Soto", "Joaquín Contreras", "Maximiliano Silva", "Nicolás Martínez", "Sebastián Sepúlveda",
+            "Sofía Morales", "Isabella Rodríguez", "Emilia López", "Martina Fuentes", "Lucía Hernández",
+            "Francisca Olave", "Catalina Tapia", "Valentina Carrasco", "Florencia Vera", "Isidora Castro",
+            "Lucas Herrera", "Felipe Medina", "Diego Castro", "Javier Muñoz", "Gabriel Palma",
+            "Paz Romero", "Antonella Silva", "Maite Araya", "Josefa Reyes", "Ignacia Pizarro",
+            "Daniela Soto", "Carolina Rojas", "Andrés Martínez", "Cristóbal Valenzuela", "Camila Bravo",
+            "Rodrigo Espinoza", "Bastián Tapia", "Javiera Torres", "Renato Vera", "Micaela Lagos",
+            "Tomás Castro", "Bárbara Peña", "Emanuel Vargas", "Julieta Miranda", "Pascal Cáceres"
+        ];
+
         const npcs = [];
-        const NPC_COUNT = 100;
+        const NPC_COUNT = 45; 
+
+        function getValidNPCPosition(y) {
+            const isPB = y < 3;
+            if (isPB) {
+                if (Math.random() > 0.5) {
+                    return { x: (Math.random() - 0.5) * 18, z: (Math.random() - 0.5) * 180, y: 0 };
+                } else {
+                    return { x: (Math.random() - 0.5) * 180, z: (Math.random() - 0.5) * 18, y: 0 };
+                }
+            } else {
+                const side = Math.floor(Math.random() * 4);
+                if (side === 0) return { x: 14 + (Math.random() - 0.5) * 4, z: (Math.random() - 0.5) * 180, y: 5.4 };
+                if (side === 1) return { x: -14 + (Math.random() - 0.5) * 4, z: (Math.random() - 0.5) * 180, y: 5.4 };
+                if (side === 2) return { x: (Math.random() - 0.5) * 180, z: 14 + (Math.random() - 0.5) * 4, y: 5.4 };
+                if (side === 3) return { x: (Math.random() - 0.5) * 180, z: -14 + (Math.random() - 0.5) * 4, y: 5.4 };
+            }
+        }
 
         function initNPCs() {
             for (let i = 0; i < NPC_COUNT; i++) {
+                const name = CHILEAN_NAMES[i % CHILEAN_NAMES.length];
                 const style = ["1", "2", "3"][Math.floor(Math.random() * 3)];
-                const npc = createAvatar(`Bot_${i}`, style);
+                const npcAvatar = createAvatar(name, style);
                 
-                // Algunos empiezan arriba, otros abajo
-                const startY = Math.random() > 0.5 ? 5.4 : 0;
-                const startX = (Math.random() - 0.5) * 160;
-                const startZ = (Math.random() - 0.5) * 160;
-                npc.mesh.position.set(startX, startY, startZ);
+                const startFloor = Math.random() > 0.5 ? 5.4 : 0;
+                const pos = getValidNPCPosition(startFloor);
+                npcAvatar.mesh.position.set(pos.x, pos.y, pos.z);
                 
                 npcs.push({
-                    mesh: npc.mesh,
-                    target: new THREE.Vector3(startX, startY, startZ),
+                    mesh: npcAvatar.mesh,
+                    label: npcAvatar.label,
+                    target: new THREE.Vector3(pos.x, pos.y, pos.z),
+                    intermediateTarget: null,
                     state: 'walking',
                     timer: 0,
-                    speed: 0.015 + Math.random() * 0.025
+                    speed: 0.012 + Math.random() * 0.015,
+                    name: name
                 });
-                npc.label.style.display = 'none';
+                npcAvatar.label.style.background = "rgba(0,0,0,0.4)";
+                npcAvatar.label.style.borderColor = "rgba(197, 160, 89, 0.3)";
+                npcAvatar.label.style.color = "#aaa";
+                npcAvatar.label.style.fontSize = "8px";
+                npcAvatar.label.style.padding = "2px 6px";
             }
         }
 
         function updateNPCs() {
             const now = Date.now();
             npcs.forEach(npc => {
-                // --- GRAVEDAD Y DETECCIÓN DE SUELO ---
-                const inAtrium = Math.abs(npc.mesh.position.x) < 11 && Math.abs(npc.mesh.position.z) < 11;
-                if (npc.mesh.position.y > 0.1 && inAtrium) {
-                    // Si está en el aire del atrio y no es la escalera, se cae
-                    let beingCarried = false;
-                    escalatorList.forEach(e => {
-                        const dx = Math.abs(npc.mesh.position.x - e.x);
-                        const dz = (npc.mesh.position.z >= e.zMin && npc.mesh.position.z <= e.zMax);
-                        if (dx < 1.5 && dz) beingCarried = true;
-                    });
-                    if (!beingCarried) {
-                        npc.mesh.position.y -= 0.15; // Gravedad: Se cae al piso 1
-                        if (npc.mesh.position.y < 0) npc.mesh.position.y = 0;
-                    }
-                }
-
-                // --- LÓGICA DE ESCALERA PARA BOTS ---
                 let onEscalator = false;
                 escalatorList.forEach(e => {
                     const dx = Math.abs(npc.mesh.position.x - e.x);
                     const dz = (npc.mesh.position.z >= e.zMin && npc.mesh.position.z <= e.zMax);
-                    
-                    if (dx < 1.5 && dz) {
+                    if (dx < 1.6 && dz) {
                         onEscalator = true;
                         const distDir = Math.sign(e.zEnd - e.zStart);
                         const speedZ = 0.08;
                         const speedY = 0.038;
                         const targetHeight = e.up ? 5.4 : 0;
-
                         npc.mesh.position.z += distDir * speedZ;
                         if (e.up && npc.mesh.position.y < targetHeight) npc.mesh.position.y += speedY;
                         else if (!e.up && npc.mesh.position.y > targetHeight) npc.mesh.position.y -= speedY;
-                        
                         npc.mesh.rotation.y = distDir > 0 ? 0 : Math.PI;
+                        npc.intermediateTarget = null;
                     }
                 });
 
-                if (onEscalator) return; // No hace nada más si está en la escalera
+                if (onEscalator) return;
 
                 if (npc.state === 'walking') {
-                    const dist = npc.mesh.position.distanceTo(npc.target);
-                    if (dist < 1.0) {
-                        npc.state = 'looking';
-                        npc.timer = now + (3000 + Math.random() * 6000);
-                    } else {
-                        const dir = npc.target.clone().sub(npc.mesh.position);
-                        // Si el target está en otro piso, caminar hacia el centro (escaleras)
-                        if (Math.abs(npc.target.y - npc.mesh.position.y) > 1) {
-                            // Caminar hacia X:0 Z: +/- 25 (área de escaleras)
-                            const escAreaZ = npc.target.y > npc.mesh.position.y ? -30 : -20; // Aproximación a las escaleras
-                            dir.set(0 - npc.mesh.position.x, 0, escAreaZ - npc.mesh.position.z);
+                    const needsFloorChange = Math.abs(npc.target.y - npc.mesh.position.y) > 1;
+                    let currentMoveTarget = npc.target;
+
+                    if (needsFloorChange) {
+                        if (!npc.intermediateTarget) {
+                            const isGoingUp = npc.target.y > npc.mesh.position.y;
+                            let bestEsc = null;
+                            let minDist = Infinity;
+                            escalatorList.forEach(e => {
+                                if (e.up === isGoingUp) {
+                                    const entX = e.x;
+                                    const entZ = isGoingUp ? e.zStart : e.zEnd;
+                                    const d = Math.hypot(npc.mesh.position.x - entX, npc.mesh.position.z - entZ);
+                                    if (d < minDist) { minDist = d; bestEsc = { x: entX, z: entZ, y: npc.mesh.position.y }; }
+                                }
+                            });
+                            if (bestEsc) npc.intermediateTarget = new THREE.Vector3(bestEsc.x, bestEsc.y, bestEsc.z);
                         }
+                        if (npc.intermediateTarget) currentMoveTarget = npc.intermediateTarget;
+                    }
+
+                    const dist = npc.mesh.position.distanceTo(currentMoveTarget);
+                    if (dist < 0.8) {
+                        if (!needsFloorChange) {
+                            npc.state = 'looking';
+                            npc.timer = now + (4000 + Math.random() * 8000);
+                        }
+                    } else {
+                        const dir = currentMoveTarget.clone().sub(npc.mesh.position);
                         dir.y = 0; dir.normalize();
-                        
                         npc.mesh.position.add(dir.multiplyScalar(npc.speed));
                         const targetRot = Math.atan2(dir.x, dir.z);
                         let diff = targetRot - npc.mesh.rotation.y;
@@ -2344,15 +2376,23 @@
                 } else if (npc.state === 'looking') {
                     if (now > npc.timer) {
                         npc.state = 'walking';
-                        const wing = Math.random();
-                        const targetY = Math.random() > 0.5 ? 5.4 : 0; // Puede elegir cualquier piso
-                        
-                        if (wing < 0.25) npc.target.set((Math.random()-0.5)*20, targetY, (Math.random()*80 + 20));
-                        else if (wing < 0.5) npc.target.set((Math.random()-0.5)*20, targetY, -(Math.random()*80 + 20));
-                        else if (wing < 0.75) npc.target.set((Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
-                        else npc.target.set(-(Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
+                        npc.intermediateTarget = null;
+                        const changeFloor = Math.random() > 0.85;
+                        const nextY = changeFloor ? (npc.mesh.position.y > 3 ? 0 : 5.4) : npc.mesh.position.y;
+                        const pos = getValidNPCPosition(nextY);
+                        npc.target.set(pos.x, pos.y, pos.z);
                     }
                 }
+
+                // Actualizar etiquetas
+                const tempVec = npc.mesh.position.clone();
+                tempVec.y += 2.2;
+                tempVec.project(camera);
+                const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
+                npc.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                const distToCam = camera.position.distanceTo(npc.mesh.position);
+                npc.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1 || distToCam > 35) ? 'none' : 'block';
             });
         }
 
