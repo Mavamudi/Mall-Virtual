@@ -511,8 +511,9 @@
             <button class="enter-btn" onclick="event.stopPropagation(); startMallExperience()">Entrar al Mall</button>
 
             <!-- ACCESO LOCATARIOS RÁPIDO -->
-            <p style="margin-top: 15px; font-size: 10px; color: #888;">
-                ¿Eres locatario? <a href="#" onclick="toggleTenantLogin()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Inicia sesión aquí</a>
+            <p style="margin-top: 15px; font-size: 10px; color: #888; display: flex; flex-direction: column; gap: 8px;">
+                <span>¿Eres locatario? <a href="#" onclick="toggleTenantLogin()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Inicia sesión aquí</a></span>
+                <span>¿Quieres vender aquí? <a href="#" onclick="toggleTenantApply()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Postula para una tienda</a></span>
             </p>
 
             <!-- SECCIÓN DE SOCIOS -->
@@ -650,6 +651,40 @@
         <input type="password" id="tenant-pass" placeholder="Contraseña" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: white; padding: 10px; margin-bottom: 25px; outline: none; text-align: center;">
         <button class="enter-btn" onclick="tenantLogin()" style="width: 100%;">Iniciar Sesión</button>
         <button style="background: none; border: none; color: #666; margin-top: 15px; cursor: pointer; font-size: 11px;" onclick="toggleTenantLogin()">Cancelar</button>
+    </div>
+
+    <!-- MODAL POSTULACIÓN DE NUEVOS LOCATARIOS -->
+    <div id="tenant-apply-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 1px solid #c5a059; z-index: 3000; width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
+        <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 10px;">Postulación Comercial</h2>
+        <p style="font-size: 11px; color: #888; margin-bottom: 25px;">Cuéntanos sobre tu negocio para formar parte del Mall.</p>
+        
+        <form onsubmit="event.preventDefault(); submitTenantApplication();" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+            <div>
+                <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Nombre del Negocio / Marca</label>
+                <input type="text" id="apply-brand" required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Giro / Categoría</label>
+                <input type="text" id="apply-category" placeholder="Ej: Ropa, Joyas, Café..." required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Email Contacto</label>
+                    <input type="email" id="apply-email" required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+                </div>
+                <div>
+                    <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">WhatsApp / Celular</label>
+                    <input type="tel" id="apply-phone" required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Link Instagram / Web (Opcional)</label>
+                <input type="text" id="apply-social" style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+            </div>
+            
+            <button type="submit" class="enter-btn" style="margin-top: 15px; width: 100%;">Enviar Postulación</button>
+            <button type="button" style="background: none; border: none; color: #666; cursor: pointer; font-size: 11px; margin-top: 5px; align-self: center;" onclick="toggleTenantApply()">Cerrar</button>
+        </form>
     </div>
 
     <!-- MODAL ADMINISTRACIÓN DE TIENDA (LOCATARIOS) -->
@@ -2085,6 +2120,40 @@
         window.toggleTenantLogin = function() {
             const modal = document.getElementById('tenant-login-modal');
             modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
+
+        window.toggleTenantApply = function() {
+            const modal = document.getElementById('tenant-apply-modal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
+
+        window.submitTenantApplication = async function() {
+            if (!supabaseClient) return alert("Error de conexión con el mall.");
+            
+            const brand = document.getElementById('apply-brand').value.trim();
+            const category = document.getElementById('apply-category').value.trim();
+            const email = document.getElementById('apply-email').value.trim();
+            const phone = document.getElementById('apply-phone').value.trim();
+            const social = document.getElementById('apply-social').value.trim();
+            
+            const { error } = await supabaseClient.from('tenant_applications').insert([
+                { 
+                    brand_name: brand, 
+                    category: category, 
+                    email: email, 
+                    phone: phone, 
+                    social_link: social,
+                    status: 'pending'
+                }
+            ]);
+            
+            if (error) {
+                console.error(error);
+                alert("Error al enviar postulación: " + error.message);
+            } else {
+                alert("¡Postulación enviada con éxito! Revisaremos tu propuesta y te contactaremos a la brevedad.");
+                toggleTenantApply();
+            }
         }
 
         window.tenantLogin = async function() {
