@@ -927,16 +927,16 @@
 
         // --- ANEXO: BOULEVARD & FOOD COURT (ALA NORTE RE-VINCULADA) ---
         function createBoulevardArea() {
-            const bX = 0, bZ = 165;
+            const bX = 0, bZ = 170;
             // 1. Suelo del Boulevard (Terracota)
-            const floorGeo = new THREE.PlaneGeometry(120, 100);
+            const floorGeo = new THREE.PlaneGeometry(120, 90);
             const floorMat = new THREE.MeshStandardMaterial({ color: 0xd2691e, roughness: 0.8 });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2; floor.position.set(bX, 0.1, bZ); scene.add(floor);
 
             // Conector con el Mall (Ajustado para atravesar la tienda norte)
             const conn = new THREE.Mesh(new THREE.PlaneGeometry(20, 30), floorMat);
-            conn.rotation.x = -Math.PI / 2; conn.position.set(0, 0.1, 115); scene.add(conn);
+            conn.rotation.x = -Math.PI / 2; conn.position.set(0, 0.1, 110); scene.add(conn);
 
             // 2. Torre de Publicidad Central PRO
             const towerG = new THREE.Group(); towerG.position.set(bX, 0, bZ);
