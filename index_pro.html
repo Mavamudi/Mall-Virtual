@@ -2072,6 +2072,15 @@
 
 
 
+        // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(
+                'https://kcfuixvrwbnizspgtmtr.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZnVpeHZyd2JuaXpzcGd0bXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2MTUzMTgsImV4cCI6MjAyODIwNzMxOH0.p-Bf_H23KD1xJafE_DFpBFZlyA_CL9sNlpG'
+            );
+        } catch(e) { console.error("Error inicializando Supabase:", e); }
+
         // --- LÓGICA DE GESTIÓN COMERCIAL (BASE DE DATOS DINÁMICA) ---
         const categoryData = {
             MODA: { giro: "Boutique de Alta Costura", products: [{ n: "Vestido Gala", p: "$1.850" }, { n: "Bolso de Cuero", p: "$2.200" }, { n: "Perfume Signature", p: "$450" }] },
@@ -2262,14 +2271,7 @@
             }
         });
 
-        // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
-        let supabaseClient = null;
-        try {
-            supabaseClient = supabase.createClient(
-                'https://kcfuixvrwbnizspgtmtr.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZnVpeHZyd2JuaXpzcGd0bXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2MTUzMTgsImV4cCI6MjAyODIwNzMxOH0.p-Bf_H23KD1xJafE_DFpBFZlyA_CL9sNlpG'
-            );
-        } catch(e) { console.error("Error inicializando Supabase:", e); }
+        // supabaseClient ya inicializado arriba (antes de getStoreData)
         let myNickname = "";
         let myAvatarStyle = "1";
 
