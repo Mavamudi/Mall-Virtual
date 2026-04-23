@@ -2274,9 +2274,14 @@
             if (myOwnedStore) loadTenantData();
         }
 
-        window.openSuperAdmin = async function() {
-            document.getElementById('super-admin-modal').style.display = 'block';
-            loadAdminData();
+        window.openSuperAdmin = function() {
+            const modal = document.getElementById('super-admin-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                loadAdminData();
+            } else {
+                alert("Error: Modal de administración no encontrado.");
+            }
         }
 
         window.loadAdminData = async function() {

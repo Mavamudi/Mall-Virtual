@@ -2240,13 +2240,31 @@
             if (error) return alert("Error: " + error.message);
             
             currentTenantUser = data.user;
+            
+            // Si es el admin (Alan), mostrar botones de Super Admin
+            if (email === 'alanmauri4815@gmail.com') {
+                document.getElementById('super-admin-btn').style.display = 'block';
+                document.getElementById('super-admin-btn-persistent').style.display = 'block';
+            }
+            
             toggleTenantLogin();
             
             // Buscar la tienda del dueño
             const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', data.user.id).maybeSingle();
             myOwnedStore = storeData;
             
-            alert("¡Bienvenido, locatario! Ahora puedes gestionar tu local.");
+            alert("¡Sesión iniciada con éxito!");
+            if (myOwnedStore) loadTenantData();
+        }
+
+        window.openSuperAdmin = function() {
+            const modal = document.getElementById('super-admin-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                loadAdminData();
+            } else {
+                alert("Error: Modal de administración no encontrado.");
+            }
         }
 
         window.openTenantAdmin = async function() {
