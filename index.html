@@ -521,6 +521,8 @@
             
             <!-- BOTÓN ADMIN PERSISTENTE (DENTRO DEL MALL) -->
             <button id="super-admin-btn-persistent" onclick="openSuperAdmin()" style="display: none; position: fixed; top: 110px; left: 20px; background: #c5a059; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 2000; font-size: 11px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">⚙️ ADMIN MALL</button>
+            
+            <!-- SECCIÓN DE SOCIOS -->
             <div id="membership-section" style="margin-top: 25px; text-align: left; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 20px;">
                 <label style="display: flex; align-items: center; cursor: pointer; gap: 12px; margin-bottom: 15px; justify-content: center;">
                     <input type="checkbox" id="membership-checkbox" onchange="toggleMembershipFields()" style="accent-color: #c5a059; width: 18px; height: 18px;">
@@ -731,9 +733,20 @@
                 <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Giro del Negocio</label>
                 <input type="text" id="edit-store-category" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
             </div>
-            <div style="grid-column: span 2;">
+            <div>
                 <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Email para Consultas (Dropi / Directo)</label>
                 <input type="email" id="edit-store-email" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">URL Logo Vitrina (Link de imagen)</label>
+                <input type="text" id="edit-store-logo" placeholder="Ej: https://miweb.com/logo.png" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div style="grid-column: span 2; background: rgba(197, 160, 89, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2);">
+                <label style="font-size: 10px; color: #c5a059; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Seguridad: Cambiar mi Contraseña</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="password" id="new-tenant-pass" placeholder="Nueva contraseña (mín 6 caracteres)" style="flex-grow: 1; background: #000; border: 1px solid #444; padding: 8px; color: #fff; border-radius: 4px; outline: none;">
+                    <button onclick="updateTenantPassword()" style="background: #c5a059; color: black; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">Actualizar Clave</button>
+                </div>
             </div>
         </div>
 
@@ -2154,6 +2167,7 @@
 
         // --- DETECTOR AUTOMÁTICO DE SESIÓN ADMIN ---
         document.addEventListener('DOMContentLoaded', async () => {
+            // Esperar un poco a que Supabase se inicialice
             setTimeout(async () => {
                 if (!supabaseClient) return;
                 const { data: { user } } = await supabaseClient.auth.getUser();
@@ -2163,14 +2177,13 @@
                     const btnP = document.getElementById('super-admin-btn-persistent');
                     if (btn) btn.style.display = 'block';
                     if (btnP) btnP.style.display = 'block';
+                    
+                    // Cargar su tienda si tiene una
+                    const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
+                    myOwnedStore = storeData;
                 }
             }, 1500);
         });
-
-        window.toggleTenantApply = function() {
-            const modal = document.getElementById('tenant-apply-modal');
-            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-        }
 
         window.submitTenantApplication = async function() {
             if (!supabaseClient) return alert("Error de conexión con el mall.");
@@ -2230,6 +2243,10 @@
             }
         }
 
+        window.toggleTenantApply = function() {
+            const modal = document.getElementById('tenant-apply-modal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
         window.tenantLogin = async function() {
             const email = document.getElementById('tenant-email').value;
             const pass = document.getElementById('tenant-pass').value;
@@ -2267,12 +2284,63 @@
             }
         }
 
+        window.loadAdminData = async function() {
+            // 1. Cargar Postulaciones
+            const { data: apps } = await supabaseClient.from('tenant_applications').select('*').order('created_at', { ascending: false });
+            const listDiv = document.getElementById('admin-apps-list');
+            listDiv.innerHTML = "";
+            
+            apps.forEach(app => {
+                const div = document.createElement('div');
+                div.style.background = "rgba(255,255,255,0.03)";
+                div.style.padding = "15px";
+                div.style.borderRadius = "8px";
+                div.style.marginBottom = "10px";
+                div.style.borderLeft = "4px solid " + (app.status === 'pending' ? '#c5a059' : '#4CAF50');
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="color:#fff;">${app.brand_name}</strong> <span style="font-size:10px; color:#888;">(${app.category})</span>
+                            <div style="font-size:11px; color:#666;">${app.email} | ${app.phone}</div>
+                        </div>
+                        <button onclick="assignStorePrompt('${app.email}')" style="background:#c5a059; color:black; border:none; padding:5px 10px; border-radius:3px; font-size:10px; cursor:pointer;">Asignar Local</button>
+                    </div>
+                `;
+                listDiv.appendChild(div);
+            });
+
+            // 2. Cargar Estadísticas de Locales
+            const { data: stores } = await supabaseClient.from('stores').select('id, owner_id');
+            const total = stores.length;
+            const occupied = stores.filter(s => s.owner_id).length;
+            const free = total - occupied;
+            
+            document.getElementById('stat-total-stores').innerText = total;
+            document.getElementById('stat-occupied-stores').innerText = occupied;
+            document.getElementById('stat-free-stores').innerText = free;
+        }
+
+        window.assignStorePrompt = async function(email) {
+            const uid = prompt("Ingresa el UID del usuario (copiado de Supabase Auth) para asignar al local:");
+            if (!uid) return;
+            const code = prompt("Ingresa el CÓDIGO del local (ej: N101):");
+            if (!code) return;
+            
+            const { error } = await supabaseClient.from('stores').update({ owner_id: uid }).eq('id', code);
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("¡Local asignado con éxito!");
+                loadAdminData();
+            }
+        }
+
         window.openTenantAdmin = async function() {
             if (!myOwnedStore) return alert("No tienes un local asignado.");
             
             document.getElementById('edit-store-name').value = myOwnedStore.name;
             document.getElementById('edit-store-category').value = myOwnedStore.category || "";
             document.getElementById('edit-store-email').value = myOwnedStore.contact_email || "";
+            document.getElementById('edit-store-logo').value = myOwnedStore.logo_url || "";
             
             // Cargar productos
             const { data: products } = await supabaseClient.from('store_products').select('*').eq('local_code', myOwnedStore.local_code).limit(10);
@@ -2328,12 +2396,14 @@
             const newName = document.getElementById('edit-store-name').value;
             const newCat = document.getElementById('edit-store-category').value;
             const newEmail = document.getElementById('edit-store-email').value;
+            const newLogo = document.getElementById('edit-store-logo').value;
             
             // 1. Actualizar tienda
             await supabaseClient.from('stores').update({
                 name: newName,
                 category: newCat,
-                contact_email: newEmail
+                contact_email: newEmail,
+                logo_url: newLogo
             }).eq('local_code', myOwnedStore.local_code);
             
             // 2. Actualizar productos (limpiar y re-insertar)
@@ -2356,9 +2426,22 @@
             myOwnedStore.name = newName;
             myOwnedStore.category = newCat;
             myOwnedStore.contact_email = newEmail;
+            myOwnedStore.logo_url = newLogo;
             
             alert("¡Cambios guardados con éxito!");
             closeTenantAdmin();
+        }
+
+        window.updateTenantPassword = async function() {
+            const newPass = document.getElementById('new-tenant-pass').value;
+            if (newPass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+            
+            const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("Contraseña actualizada con éxito.");
+                document.getElementById('new-tenant-pass').value = "";
+            }
         }
 
         window.sendStoreMessage = async function() {
@@ -2583,54 +2666,125 @@
         function createAvatar(nickname, styleCode = "1") {
             const group = new THREE.Group();
 
-            // Colores por clase
-            let skinColor = 0xffcc99; // base
-            let shirtColor = 0x222222; // formal
-            let pantsColor = 0x111111;
+            // --- CONFIGURACIÓN DE ESTILO Y COLORES ---
+            let skinColor = 0xffdbac;
+            let clothColor = 0x333333;
+            let accentColor = 0x555555;
+            let hairColor = 0x221100;
+            
+            // Tonos de piel variados para realismo
+            const skinTones = [0xffdbac, 0xf1c27d, 0xe0ac69, 0x8d5524];
+            skinColor = skinTones[Math.abs(nickname.split("").reduce((a, b) => a + b.charCodeAt(0), 0)) % skinTones.length];
 
-            if (styleCode === "2") { shirtColor = 0xffd700; pantsColor = 0x3344cc; } // deportivo
-            if (styleCode === "3") { shirtColor = 0xaa4455; pantsColor = 0x556677; } // casual urbano
+            if (styleCode === "1") { // Formal
+                clothColor = 0x1a1a1a; 
+                accentColor = 0x2a2a2a; 
+                hairColor = 0x111111;
+            } else if (styleCode === "2") { // Deportivo
+                clothColor = 0x0066cc; 
+                accentColor = 0x3344cc; 
+                hairColor = 0x442211;
+            } else if (styleCode === "3") { // Urbano
+                clothColor = 0xaa4455; 
+                accentColor = 0x444444; 
+                hairColor = 0x221100;
+            }
 
-            const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.6 });
-            const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.8 });
-            const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.9 });
+            const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.7 });
+            const clothMat = new THREE.MeshStandardMaterial({ color: clothColor, roughness: 0.8 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.8 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.9 });
             const blackMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+            const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
 
-            // Torso (0.6x0.8x0.3) centro en Y=1.1
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.3), shirtMat);
-            body.position.set(0, 1.1, 0);
-            group.add(body);
-            body.userData.playerId = nickname;
+            // --- CUERPO ---
+            // Torso (Trapezoide con cilindro de 8 caras)
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.18, 0.65, 8), clothMat);
+            torso.name = "torso";
+            torso.position.set(0, 1.15, 0);
+            group.add(torso);
 
-            // Cabeza (0.5x0.5x0.5) centro en Y=1.75
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.4), skinMat);
-            head.position.set(0, 1.75, 0);
+            // Cuello
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.1, 8), skinMat);
+            neck.name = "neck";
+            neck.position.set(0, 1.48, 0);
+            group.add(neck);
+
+            // Cabeza (Esférica)
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), skinMat);
+            head.name = "head";
+            head.position.set(0, 1.68, 0);
             group.add(head);
-            head.userData.playerId = nickname;
 
-            // Gafas o visor (para saber hacia dónde mira) (frontal en el eje Z positivo)
-            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.1, 0.15), blackMat);
-            visor.position.set(0, 1.75, 0.22);
-            group.add(visor);
-            visor.userData.playerId = nickname;
+            // Cara: Ojos (Añade expresividad humana)
+            const createEye = (xOffset) => {
+                const eyeGroup = new THREE.Group();
+                eyeGroup.name = "eyes";
+                const eyeball = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), whiteMat);
+                const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), blackMat);
+                pupil.position.z = 0.035;
+                eyeGroup.add(eyeball);
+                eyeGroup.add(pupil);
+                eyeGroup.position.set(xOffset, 1.72, 0.16);
+                return eyeGroup;
+            };
+            group.add(createEye(-0.08));
+            group.add(createEye(0.08));
+
+            // Pelo / Sombrero
+            let hairGeom;
+            if (styleCode === "1") {
+                hairGeom = new THREE.SphereGeometry(0.21, 16, 16, 0, Math.PI * 2, 0, Math.PI / 1.8);
+            } else if (styleCode === "2") {
+                hairGeom = new THREE.BoxGeometry(0.25, 0.1, 0.4); // Gorra deportiva
+            } else {
+                hairGeom = new THREE.SphereGeometry(0.22, 16, 16); // Beanie/Gorro urbano
+            }
+            const hair = new THREE.Mesh(hairGeom, hairMat);
+            hair.name = "hair";
+            hair.position.set(0, 1.75, 0);
+            if(styleCode === "2") hair.position.z = 0.05;
+            group.add(hair);
+
+            // --- EXTREMIDADES ---
+            const createSegment = (w, h, mat) => new THREE.Mesh(new THREE.CylinderGeometry(w, w*0.9, h, 8), mat);
 
             // Brazos
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), skinMat);
-            armL.position.set(-0.45, 1.15, 0); group.add(armL);
-            armL.userData.playerId = nickname;
+            const armL = createSegment(0.07, 0.6, clothMat);
+            armL.position.set(-0.35, 1.2, 0);
+            group.add(armL);
+            const handL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
+            handL.position.set(-0.35, 0.9, 0);
+            group.add(handL);
 
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), skinMat);
-            armR.position.set(0.45, 1.15, 0); group.add(armR);
-            armR.userData.playerId = nickname;
+            const armR = createSegment(0.07, 0.6, clothMat);
+            armR.position.set(0.35, 1.2, 0);
+            group.add(armR);
+            const handR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
+            handR.position.set(0.35, 0.9, 0);
+            group.add(handR);
 
             // Piernas
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.7, 0.25), pantsMat);
-            legL.position.set(-0.15, 0.35, 0); group.add(legL);
-            legL.userData.playerId = nickname;
+            const legL = createSegment(0.09, 0.7, accentMat);
+            legL.position.set(-0.14, 0.45, 0);
+            group.add(legL);
+            const legR = createSegment(0.09, 0.7, accentMat);
+            legR.position.set(0.14, 0.45, 0);
+            group.add(legR);
 
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.7, 0.25), pantsMat);
-            legR.position.set(0.15, 0.35, 0); group.add(legR);
-            legR.userData.playerId = nickname;
+            // Pies
+            const footL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
+            footL.position.set(-0.14, 0.1, 0.06);
+            group.add(footL);
+            const footR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
+            footR.position.set(0.14, 0.1, 0.06);
+            group.add(footR);
+
+            // Vincular metadatos para interacción
+            group.children.forEach(c => {
+                c.userData.playerId = nickname;
+                if(c.children) c.children.forEach(cc => cc.userData.playerId = nickname);
+            });
 
             scene.add(group);
 
@@ -2664,13 +2818,28 @@
                 if (p.mesh) {
                     p.mesh.position.lerp(p.targetPos, 0.08); // Suavizado mayor para compensar saltos
                     p.mesh.rotation.y = p.targetRot;
+                    const isMoving = p.mesh.position.distanceTo(p.targetPos) > 0.05;
+                    const bob = isMoving ? Math.abs(Math.sin(Date.now() * 0.01)) * 0.08 : 0;
+                    
+                    p.mesh.position.lerp(p.targetPos, 0.08);
+                    p.mesh.rotation.y = p.targetRot;
+                    
                     const tempVec = p.mesh.position.clone();
-                    tempVec.y += 2.0;
+                    tempVec.y += 2.0 + bob;
                     tempVec.project(camera);
                     const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                     const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
                     p.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
                     p.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1) ? 'none' : 'block';
+                    
+                    // Aplicar bobbing visual a las partes superiores
+                    p.mesh.children.forEach(c => {
+                        if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
+                            const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
+                            const base = bases[c.name] || 0;
+                            c.position.y = base + bob;
+                        }
+                    });
                 }
             });
         }
@@ -2832,6 +3001,16 @@
                         while(diff < -Math.PI) diff += Math.PI * 2;
                         while(diff > Math.PI) diff -= Math.PI * 2;
                         npc.mesh.rotation.y += diff * 0.05;
+
+                        // Bobbing al caminar
+                        const bob = Math.abs(Math.sin(Date.now() * 0.01)) * 0.08;
+                        npc.mesh.children.forEach(c => {
+                            if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
+                                const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
+                                const base = bases[c.name] || 0;
+                                c.position.y = base + bob;
+                            }
+                        });
                     }
                 } else if (npc.state === 'looking') {
                     if (now > npc.timer) {
