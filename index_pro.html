@@ -516,6 +516,12 @@
                 <span>¿Quieres vender aquí? <a href="#" onclick="toggleTenantApply()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Postula para una tienda</a></span>
             </p>
 
+            <!-- BOTÓN ADMIN (SOLO VISIBLE PARA ALAN) -->
+            <button id="super-admin-btn" onclick="openSuperAdmin()" style="display: none; margin-top: 20px; background: #c5a059; color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 11px;">⚙️ PANEL DE CONTROL MALL</button>
+            
+            <!-- BOTÓN ADMIN PERSISTENTE (DENTRO DEL MALL) -->
+            <button id="super-admin-btn-persistent" onclick="openSuperAdmin()" style="display: none; position: fixed; top: 110px; left: 20px; background: #c5a059; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 2000; font-size: 11px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">⚙️ ADMIN MALL</button>
+            
             <!-- SECCIÓN DE SOCIOS -->
             <div id="membership-section" style="margin-top: 25px; text-align: left; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 20px;">
                 <label style="display: flex; align-items: center; cursor: pointer; gap: 12px; margin-bottom: 15px; justify-content: center;">
@@ -653,6 +659,32 @@
         <button style="background: none; border: none; color: #666; margin-top: 15px; cursor: pointer; font-size: 11px;" onclick="toggleTenantLogin()">Cancelar</button>
     </div>
 
+    <!-- MODAL SUPER ADMIN (SOLO PARA EL DUEÑO DEL MALL) -->
+    <div id="super-admin-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 2px solid #c5a059; z-index: 4000; width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 100px rgba(197, 160, 89, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 28px; margin: 0;">Panel de Control Maestro</h2>
+            <button onclick="document.getElementById('super-admin-modal').style.display='none'" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">&times;</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #c5a059; text-transform: uppercase; margin-bottom: 15px;">Postulaciones Recientes</h3>
+                <div id="admin-apps-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <p style="color: #666; font-size: 12px;">Cargando postulaciones...</p>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #c5a059; text-transform: uppercase; margin-bottom: 15px;">Resumen Mall</h3>
+                <div id="admin-stats" style="font-size: 12px; line-height: 1.8;">
+                    <p>Locales Totales: <span id="stat-total-stores">-</span></p>
+                    <p>Locales Ocupados: <span id="stat-occupied-stores">-</span></p>
+                    <p>Locales Disponibles: <span id="stat-free-stores" style="color: #4CAF50;">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL POSTULACIÓN DE NUEVOS LOCATARIOS -->
     <div id="tenant-apply-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 1px solid #c5a059; z-index: 3000; width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
         <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 10px;">Postulación Comercial</h2>
@@ -701,9 +733,20 @@
                 <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Giro del Negocio</label>
                 <input type="text" id="edit-store-category" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
             </div>
-            <div style="grid-column: span 2;">
+            <div>
                 <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Email para Consultas (Dropi / Directo)</label>
                 <input type="email" id="edit-store-email" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">URL Logo Vitrina (Link de imagen)</label>
+                <input type="text" id="edit-store-logo" placeholder="Ej: https://miweb.com/logo.png" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div style="grid-column: span 2; background: rgba(197, 160, 89, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2);">
+                <label style="font-size: 10px; color: #c5a059; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Seguridad: Cambiar mi Contraseña</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="password" id="new-tenant-pass" placeholder="Nueva contraseña (mín 6 caracteres)" style="flex-grow: 1; background: #000; border: 1px solid #444; padding: 8px; color: #fff; border-radius: 4px; outline: none;">
+                    <button onclick="updateTenantPassword()" style="background: #c5a059; color: black; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">Actualizar Clave</button>
+                </div>
             </div>
         </div>
 
@@ -2184,6 +2227,7 @@
             const modal = document.getElementById('tenant-apply-modal');
             modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
         }
+        window.tenantLogin = async function() {
             const email = document.getElementById('tenant-email').value;
             const pass = document.getElementById('tenant-pass').value;
             
@@ -2193,13 +2237,76 @@
             if (error) return alert("Error: " + error.message);
             
             currentTenantUser = data.user;
+            
+            // Si es el admin (Alan), mostrar botones de Super Admin
+            if (email === 'alanmauri4815@gmail.com') {
+                document.getElementById('super-admin-btn').style.display = 'block';
+                document.getElementById('super-admin-btn-persistent').style.display = 'block';
+            }
+            
             toggleTenantLogin();
             
             // Buscar la tienda del dueño
             const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', data.user.id).maybeSingle();
             myOwnedStore = storeData;
             
-            alert("¡Bienvenido, locatario! Ahora puedes gestionar tu local.");
+            alert("¡Sesión iniciada con éxito!");
+            if (myOwnedStore) loadTenantData();
+        }
+
+        window.openSuperAdmin = async function() {
+            document.getElementById('super-admin-modal').style.display = 'block';
+            loadAdminData();
+        }
+
+        window.loadAdminData = async function() {
+            // 1. Cargar Postulaciones
+            const { data: apps } = await supabaseClient.from('tenant_applications').select('*').order('created_at', { ascending: false });
+            const listDiv = document.getElementById('admin-apps-list');
+            listDiv.innerHTML = "";
+            
+            apps.forEach(app => {
+                const div = document.createElement('div');
+                div.style.background = "rgba(255,255,255,0.03)";
+                div.style.padding = "15px";
+                div.style.borderRadius = "8px";
+                div.style.marginBottom = "10px";
+                div.style.borderLeft = "4px solid " + (app.status === 'pending' ? '#c5a059' : '#4CAF50');
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="color:#fff;">${app.brand_name}</strong> <span style="font-size:10px; color:#888;">(${app.category})</span>
+                            <div style="font-size:11px; color:#666;">${app.email} | ${app.phone}</div>
+                        </div>
+                        <button onclick="assignStorePrompt('${app.email}')" style="background:#c5a059; color:black; border:none; padding:5px 10px; border-radius:3px; font-size:10px; cursor:pointer;">Asignar Local</button>
+                    </div>
+                `;
+                listDiv.appendChild(div);
+            });
+
+            // 2. Cargar Estadísticas de Locales
+            const { data: stores } = await supabaseClient.from('stores').select('id, owner_id');
+            const total = stores.length;
+            const occupied = stores.filter(s => s.owner_id).length;
+            const free = total - occupied;
+            
+            document.getElementById('stat-total-stores').innerText = total;
+            document.getElementById('stat-occupied-stores').innerText = occupied;
+            document.getElementById('stat-free-stores').innerText = free;
+        }
+
+        window.assignStorePrompt = async function(email) {
+            const uid = prompt("Ingresa el UID del usuario (copiado de Supabase Auth) para asignar al local:");
+            if (!uid) return;
+            const code = prompt("Ingresa el CÓDIGO del local (ej: N101):");
+            if (!code) return;
+            
+            const { error } = await supabaseClient.from('stores').update({ owner_id: uid }).eq('id', code);
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("¡Local asignado con éxito!");
+                loadAdminData();
+            }
         }
 
         window.openTenantAdmin = async function() {
@@ -2208,6 +2315,7 @@
             document.getElementById('edit-store-name').value = myOwnedStore.name;
             document.getElementById('edit-store-category').value = myOwnedStore.category || "";
             document.getElementById('edit-store-email').value = myOwnedStore.contact_email || "";
+            document.getElementById('edit-store-logo').value = myOwnedStore.logo_url || "";
             
             // Cargar productos
             const { data: products } = await supabaseClient.from('store_products').select('*').eq('local_code', myOwnedStore.local_code).limit(10);
@@ -2263,12 +2371,14 @@
             const newName = document.getElementById('edit-store-name').value;
             const newCat = document.getElementById('edit-store-category').value;
             const newEmail = document.getElementById('edit-store-email').value;
+            const newLogo = document.getElementById('edit-store-logo').value;
             
             // 1. Actualizar tienda
             await supabaseClient.from('stores').update({
                 name: newName,
                 category: newCat,
-                contact_email: newEmail
+                contact_email: newEmail,
+                logo_url: newLogo
             }).eq('local_code', myOwnedStore.local_code);
             
             // 2. Actualizar productos (limpiar y re-insertar)
@@ -2291,9 +2401,22 @@
             myOwnedStore.name = newName;
             myOwnedStore.category = newCat;
             myOwnedStore.contact_email = newEmail;
+            myOwnedStore.logo_url = newLogo;
             
             alert("¡Cambios guardados con éxito!");
             closeTenantAdmin();
+        }
+
+        window.updateTenantPassword = async function() {
+            const newPass = document.getElementById('new-tenant-pass').value;
+            if (newPass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+            
+            const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("Contraseña actualizada con éxito.");
+                document.getElementById('new-tenant-pass').value = "";
+            }
         }
 
         window.sendStoreMessage = async function() {
