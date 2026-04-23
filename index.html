@@ -2824,8 +2824,8 @@
                     p.mesh.position.lerp(p.targetPos, 0.08); // Suavizado mayor para compensar saltos
                     p.mesh.rotation.y = p.targetRot;
                     const isMoving = p.mesh.position.distanceTo(p.targetPos) > 0.05;
-                    const bob = isMoving ? Math.abs(Math.sin(Date.now() * 0.01)) * 0.08 : 0;
-                    const swing = isMoving ? Math.sin(Date.now() * 0.01) * 0.5 : 0;
+                    const bob = isMoving ? Math.abs(Math.sin(Date.now() * 0.005)) * 0.08 : 0;
+                    const swing = isMoving ? Math.sin(Date.now() * 0.005) * 0.5 : 0;
                     
                     p.mesh.position.lerp(p.targetPos, 0.08);
                     p.mesh.rotation.y = p.targetRot;
@@ -3012,8 +3012,8 @@
                         npc.mesh.rotation.y += diff * 0.05;
 
                         // Bobbing y pasos al caminar
-                        const bob = Math.abs(Math.sin(Date.now() * 0.01)) * 0.08;
-                        const swing = Math.sin(Date.now() * 0.01) * 0.5;
+                        const bob = Math.abs(Math.sin(Date.now() * 0.005)) * 0.08;
+                        const swing = Math.sin(Date.now() * 0.005) * 0.5;
                         npc.mesh.children.forEach(c => {
                             if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
                                 const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
