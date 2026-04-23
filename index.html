@@ -516,7 +516,11 @@
                 <span>¿Quieres vender aquí? <a href="#" onclick="toggleTenantApply()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Postula para una tienda</a></span>
             </p>
 
-            <!-- SECCIÓN DE SOCIOS -->
+            <!-- BOTÓN ADMIN (SOLO VISIBLE PARA ALAN) -->
+            <button id="super-admin-btn" onclick="openSuperAdmin()" style="display: none; margin-top: 20px; background: #c5a059; color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 11px;">⚙️ PANEL DE CONTROL MALL</button>
+            
+            <!-- BOTÓN ADMIN PERSISTENTE (DENTRO DEL MALL) -->
+            <button id="super-admin-btn-persistent" onclick="openSuperAdmin()" style="display: none; position: fixed; top: 110px; left: 20px; background: #c5a059; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 2000; font-size: 11px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">⚙️ ADMIN MALL</button>
             <div id="membership-section" style="margin-top: 25px; text-align: left; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 20px;">
                 <label style="display: flex; align-items: center; cursor: pointer; gap: 12px; margin-bottom: 15px; justify-content: center;">
                     <input type="checkbox" id="membership-checkbox" onchange="toggleMembershipFields()" style="accent-color: #c5a059; width: 18px; height: 18px;">
@@ -2121,6 +2125,21 @@
             const modal = document.getElementById('tenant-login-modal');
             modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
         }
+
+        // --- DETECTOR AUTOMÁTICO DE SESIÓN ADMIN ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            setTimeout(async () => {
+                if (!supabaseClient) return;
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user && user.email === 'alanmauri4815@gmail.com') {
+                    currentTenantUser = user;
+                    const btn = document.getElementById('super-admin-btn');
+                    const btnP = document.getElementById('super-admin-btn-persistent');
+                    if (btn) btn.style.display = 'block';
+                    if (btnP) btnP.style.display = 'block';
+                }
+            }, 1500);
+        });
 
         window.toggleTenantApply = function() {
             const modal = document.getElementById('tenant-apply-modal');
