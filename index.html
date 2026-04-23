@@ -2823,14 +2823,14 @@
 
             // Brazos (Hombros en Y=1.45)
             const armL = createLimb(0.06, 0.6, clothMat, "armL");
-            armL.position.set(-0.35, 1.45, 0);
+            armL.position.set(-0.27, 1.45, 0);
             const handL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
             handL.position.set(0, -0.33, 0); // Posición relativa al final del antebrazo
             armL.children[0].children[1].add(handL); // Añadir a la parte inferior (antebrazo)
             group.add(armL);
 
             const armR = createLimb(0.06, 0.6, clothMat, "armR");
-            armR.position.set(0.35, 1.45, 0);
+            armR.position.set(0.27, 1.45, 0);
             const handR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
             handR.position.set(0, -0.33, 0);
             armR.children[0].children[1].add(handR);
@@ -2838,14 +2838,14 @@
 
             // Piernas (Caderas en Y=0.8)
             const legL = createLimb(0.08, 0.75, accentMat, "legL");
-            legL.position.set(-0.14, 0.8, 0);
+            legL.position.set(-0.10, 0.8, 0);
             const footL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
             footL.position.set(0, -0.4, 0.06);
             legL.children[0].children[1].add(footL); // Añadir a la parte inferior
             group.add(legL);
 
             const legR = createLimb(0.08, 0.75, accentMat, "legR");
-            legR.position.set(0.14, 0.8, 0);
+            legR.position.set(0.10, 0.8, 0);
             const footR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
             footR.position.set(0, -0.4, 0.06);
             legR.children[0].children[1].add(footR);
