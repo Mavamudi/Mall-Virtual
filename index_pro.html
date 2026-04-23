@@ -2262,11 +2262,35 @@
             }
         });
 
-        // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
         // --- CONEXIÓN SUPABASE ---
         const supabaseUrl = 'https://kcfuixvrwbnizspgtmtr.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZnVpeHZyd2JuaXpzcGd0bXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2MTUzMTgsImV4cCI6MjAyODIwNzMxOH0.p-Bf_H23KD1xJafE_DFpBFZlyA_CL9sNlpG';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        var supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        } catch(e) {
+            console.error("Error crítico de inicialización Supabase:", e);
+        }
+
+        // --- DEFINICIÓN GLOBAL DE FUNCIONES (PARA EVITAR ReferenceError) ---
+        window.toggleTenantLogin = function() {
+            const modal = document.getElementById('tenant-login-modal');
+            if(modal) modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        };
+
+        window.toggleTenantApply = function() {
+            const modal = document.getElementById('tenant-apply-modal');
+            if(modal) modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        };
+
+        window.openSuperAdmin = function() {
+            const modal = document.getElementById('super-admin-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                if(typeof loadAdminData === 'function') loadAdminData();
+            }
+        };
+
         let myNickname = "";
         let myAvatarStyle = "1";
 
@@ -2319,10 +2343,7 @@
         let currentTenantUser = null;
         let myOwnedStore = null; // Información de la tienda del locatario logueado
 
-        window.toggleTenantLogin = function() {
-            const modal = document.getElementById('tenant-login-modal');
-            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-        }
+        window.toggleTenantLogin = window.toggleTenantLogin; // Ya definida arriba
 
         // --- DETECTOR AUTOMÁTICO DE SESIÓN ADMIN ---
         document.addEventListener('DOMContentLoaded', async () => {
@@ -2408,10 +2429,7 @@
             }
         }
 
-        window.toggleTenantApply = function() {
-            const modal = document.getElementById('tenant-apply-modal');
-            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-        }
+        window.toggleTenantApply = window.toggleTenantApply; // Ya definida arriba
         window.tenantLogin = async function() {
             const email = document.getElementById('tenant-email').value;
             const pass = document.getElementById('tenant-pass').value;
