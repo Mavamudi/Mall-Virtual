@@ -2746,43 +2746,65 @@
             if(styleCode === "2") hair.position.z = 0.05;
             group.add(hair);
 
-            // --- EXTREMIDADES ---
+            // --- EXTREMIDADES ARTICULADAS (CODOS Y RODILLAS) ---
             const createLimb = (w, h, mat, name) => {
-                const geom = new THREE.CylinderGeometry(w, w*0.9, h, 8);
-                geom.translate(0, -h/2, 0); // Mover el centro al tope para rotar desde ahí
-                const m = new THREE.Mesh(geom, mat);
-                m.name = name;
-                return m;
+                const limbGroup = new THREE.Group();
+                limbGroup.name = name;
+                
+                const upperH = h * 0.45;
+                const lowerH = h * 0.55;
+                
+                // Parte Superior
+                const upperGeom = new THREE.CylinderGeometry(w, w*0.9, upperH, 8);
+                upperGeom.translate(0, -upperH/2, 0);
+                const upper = new THREE.Mesh(upperGeom, mat);
+                upper.name = name + "_upper";
+                limbGroup.add(upper);
+                
+                // Articulación (Codo/Rodilla)
+                const joint = new THREE.Mesh(new THREE.SphereGeometry(w*1.05, 8, 8), mat);
+                joint.position.set(0, -upperH, 0);
+                upper.add(joint);
+                
+                // Parte Inferior
+                const lowerGeom = new THREE.CylinderGeometry(w*0.9, w*0.8, lowerH, 8);
+                lowerGeom.translate(0, -lowerH/2, 0);
+                const lower = new THREE.Mesh(lowerGeom, mat);
+                lower.name = name + "_lower";
+                lower.position.set(0, -upperH, 0);
+                upper.add(lower);
+
+                return limbGroup;
             };
 
             // Brazos (Hombros en Y=1.45)
-            const armL = createLimb(0.07, 0.6, clothMat, "armL");
+            const armL = createLimb(0.06, 0.6, clothMat, "armL");
             armL.position.set(-0.35, 1.45, 0);
             const handL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
-            handL.position.set(0, -0.6, 0);
-            armL.add(handL);
+            handL.position.set(0, -0.33, 0); // Posición relativa al final del antebrazo
+            armL.children[0].children[1].add(handL); // Añadir a la parte inferior (antebrazo)
             group.add(armL);
 
-            const armR = createLimb(0.07, 0.6, clothMat, "armR");
+            const armR = createLimb(0.06, 0.6, clothMat, "armR");
             armR.position.set(0.35, 1.45, 0);
             const handR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
-            handR.position.set(0, -0.6, 0);
-            armR.add(handR);
+            handR.position.set(0, -0.33, 0);
+            armR.children[0].children[1].add(handR);
             group.add(armR);
 
             // Piernas (Caderas en Y=0.8)
-            const legL = createLimb(0.09, 0.7, accentMat, "legL");
+            const legL = createLimb(0.08, 0.75, accentMat, "legL");
             legL.position.set(-0.14, 0.8, 0);
             const footL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
-            footL.position.set(0, -0.7, 0.06);
-            legL.add(footL);
+            footL.position.set(0, -0.4, 0.06);
+            legL.children[0].children[1].add(footL); // Añadir a la parte inferior
             group.add(legL);
 
-            const legR = createLimb(0.09, 0.7, accentMat, "legR");
+            const legR = createLimb(0.08, 0.75, accentMat, "legR");
             legR.position.set(0.14, 0.8, 0);
             const footR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
-            footR.position.set(0, -0.7, 0.06);
-            legR.add(footR);
+            footR.position.set(0, -0.4, 0.06);
+            legR.children[0].children[1].add(footR);
             group.add(legR);
 
             // Vincular metadatos para interacción
@@ -2845,9 +2867,19 @@
                             const base = bases[c.name] || 0;
                             c.position.y = base + bob;
                         }
-                        // Oscilación de brazos y piernas (opuestos)
-                        if (c.name === "armL" || c.name === "legR") c.rotation.x = swing;
-                        if (c.name === "armR" || c.name === "legL") c.rotation.x = -swing;
+                        // Oscilación de brazos y piernas con articulación
+                        if (["armL", "armR", "legL", "legR"].includes(c.name)) {
+                            const upper = c.children[0];
+                            const lower = upper.children[1];
+                            const s = (c.name === "armL" || c.name === "legR") ? swing : -swing;
+                            
+                            upper.rotation.x = s;
+                            if (c.name.startsWith("leg")) {
+                                lower.rotation.x = s < 0 ? -s * 1.1 : 0; // Doblar rodilla al ir atrás
+                            } else {
+                                lower.rotation.x = s > 0 ? s * 0.6 : 0; // Doblar codo al ir adelante
+                            }
+                        }
                     });
                 }
             });
@@ -3020,14 +3052,29 @@
                                 const base = bases[c.name] || 0;
                                 c.position.y = base + bob;
                             }
-                            if (c.name === "armL" || c.name === "legR") c.rotation.x = swing;
-                            if (c.name === "armR" || c.name === "legL") c.rotation.x = -swing;
+                            if (["armL", "armR", "legL", "legR"].includes(c.name)) {
+                                const upper = c.children[0];
+                                const lower = upper.children[1];
+                                const s = (c.name === "armL" || c.name === "legR") ? swing : -swing;
+                                
+                                upper.rotation.x = s;
+                                if (c.name.startsWith("leg")) {
+                                    lower.rotation.x = s < 0 ? -s * 1.1 : 0;
+                                } else {
+                                    lower.rotation.x = s > 0 ? s * 0.6 : 0;
+                                }
+                            }
                         });
                     }
                 } else if (npc.state === 'looking') {
                     // Resetear postura al estar quieto
                     npc.mesh.children.forEach(c => {
-                        if (["armL", "armR", "legL", "legR"].includes(c.name)) c.rotation.x = 0;
+                        if (["armL", "armR", "legL", "legR"].includes(c.name)) {
+                            if (c.children[0]) {
+                                c.children[0].rotation.x = 0;
+                                if (c.children[0].children[1]) c.children[0].children[1].rotation.x = 0;
+                            }
+                        }
                         if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
                              const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
                              c.position.y = bases[c.name];
