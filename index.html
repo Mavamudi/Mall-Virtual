@@ -663,7 +663,10 @@
     <div id="super-admin-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 2px solid #c5a059; z-index: 4000; width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 100px rgba(197, 160, 89, 0.3);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 28px; margin: 0;">Panel de Control Maestro</h2>
-            <button onclick="document.getElementById('super-admin-modal').style.display='none'" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">&times;</button>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button onclick="adminLogout()" style="background: rgba(255,0,0,0.1); border: 1px solid #ff4444; color: #ff4444; padding: 5px 10px; border-radius: 4px; font-size: 10px; cursor: pointer; text-transform: uppercase;">Cerrar Sesión</button>
+                <button onclick="document.getElementById('super-admin-modal').style.display='none'" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">&times;</button>
+            </div>
         </div>
         
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
@@ -2211,23 +2214,33 @@
 
         // --- DETECTOR AUTOMÁTICO DE SESIÓN ADMIN ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // Esperar un poco a que Supabase se inicialice
             setTimeout(async () => {
                 if (!supabaseClient) return;
                 const { data: { user } } = await supabaseClient.auth.getUser();
+                const btn = document.getElementById('super-admin-btn');
+                const btnP = document.getElementById('super-admin-btn-persistent');
+                
                 if (user && user.email === 'alanmauri4815@gmail.com') {
                     currentTenantUser = user;
-                    const btn = document.getElementById('super-admin-btn');
-                    const btnP = document.getElementById('super-admin-btn-persistent');
                     if (btn) btn.style.display = 'block';
                     if (btnP) btnP.style.display = 'block';
                     
-                    // Cargar su tienda si tiene una
                     const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
                     myOwnedStore = storeData;
+                } else {
+                    if (btn) btn.style.display = 'none';
+                    if (btnP) btnP.style.display = 'none';
                 }
             }, 1500);
         });
+
+        window.adminLogout = async function() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+                alert("Sesión cerrada correctamente.");
+                location.reload(); // Recargar para limpiar estado
+            }
+        }
 
         window.submitTenantApplication = async function() {
             if (!supabaseClient) return alert("Error de conexión con el mall.");
@@ -2302,10 +2315,15 @@
             
             currentTenantUser = data.user;
             
-            // Si es el admin (Alan), mostrar botones de Super Admin
+            // Si es el admin (Alan), mostrar botones de Super Admin, de lo contrario ocultar
+            const btn = document.getElementById('super-admin-btn');
+            const btnP = document.getElementById('super-admin-btn-persistent');
             if (email === 'alanmauri4815@gmail.com') {
-                document.getElementById('super-admin-btn').style.display = 'block';
-                document.getElementById('super-admin-btn-persistent').style.display = 'block';
+                if(btn) btn.style.display = 'block';
+                if(btnP) btnP.style.display = 'block';
+            } else {
+                if(btn) btn.style.display = 'none';
+                if(btnP) btnP.style.display = 'none';
             }
             
             toggleTenantLogin();
