@@ -657,6 +657,32 @@
         <button style="background: none; border: none; color: #666; margin-top: 15px; cursor: pointer; font-size: 11px;" onclick="toggleTenantLogin()">Cancelar</button>
     </div>
 
+    <!-- MODAL SUPER ADMIN (SOLO PARA EL DUEÑO DEL MALL) -->
+    <div id="super-admin-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 2px solid #c5a059; z-index: 4000; width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 100px rgba(197, 160, 89, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 28px; margin: 0;">Panel de Control Maestro</h2>
+            <button onclick="document.getElementById('super-admin-modal').style.display='none'" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">&times;</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #c5a059; text-transform: uppercase; margin-bottom: 15px;">Postulaciones Recientes</h3>
+                <div id="admin-apps-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <p style="color: #666; font-size: 12px;">Cargando postulaciones...</p>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #c5a059; text-transform: uppercase; margin-bottom: 15px;">Resumen Mall</h3>
+                <div id="admin-stats" style="font-size: 12px; line-height: 1.8;">
+                    <p>Locales Totales: <span id="stat-total-stores">-</span></p>
+                    <p>Locales Ocupados: <span id="stat-occupied-stores">-</span></p>
+                    <p>Locales Disponibles: <span id="stat-free-stores" style="color: #4CAF50;">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL POSTULACIÓN DE NUEVOS LOCATARIOS -->
     <div id="tenant-apply-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 1px solid #c5a059; z-index: 3000; width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
         <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 10px;">Postulación Comercial</h2>
