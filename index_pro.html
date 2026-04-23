@@ -2747,38 +2747,43 @@
             group.add(hair);
 
             // --- EXTREMIDADES ---
-            const createSegment = (w, h, mat) => new THREE.Mesh(new THREE.CylinderGeometry(w, w*0.9, h, 8), mat);
+            const createLimb = (w, h, mat, name) => {
+                const geom = new THREE.CylinderGeometry(w, w*0.9, h, 8);
+                geom.translate(0, -h/2, 0); // Mover el centro al tope para rotar desde ahí
+                const m = new THREE.Mesh(geom, mat);
+                m.name = name;
+                return m;
+            };
 
-            // Brazos
-            const armL = createSegment(0.07, 0.6, clothMat);
-            armL.position.set(-0.35, 1.2, 0);
-            group.add(armL);
+            // Brazos (Hombros en Y=1.45)
+            const armL = createLimb(0.07, 0.6, clothMat, "armL");
+            armL.position.set(-0.35, 1.45, 0);
             const handL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
-            handL.position.set(-0.35, 0.9, 0);
-            group.add(handL);
+            handL.position.set(0, -0.6, 0);
+            armL.add(handL);
+            group.add(armL);
 
-            const armR = createSegment(0.07, 0.6, clothMat);
-            armR.position.set(0.35, 1.2, 0);
-            group.add(armR);
+            const armR = createLimb(0.07, 0.6, clothMat, "armR");
+            armR.position.set(0.35, 1.45, 0);
             const handR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), skinMat);
-            handR.position.set(0.35, 0.9, 0);
-            group.add(handR);
+            handR.position.set(0, -0.6, 0);
+            armR.add(handR);
+            group.add(armR);
 
-            // Piernas
-            const legL = createSegment(0.09, 0.7, accentMat);
-            legL.position.set(-0.14, 0.45, 0);
-            group.add(legL);
-            const legR = createSegment(0.09, 0.7, accentMat);
-            legR.position.set(0.14, 0.45, 0);
-            group.add(legR);
-
-            // Pies
+            // Piernas (Caderas en Y=0.8)
+            const legL = createLimb(0.09, 0.7, accentMat, "legL");
+            legL.position.set(-0.14, 0.8, 0);
             const footL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
-            footL.position.set(-0.14, 0.1, 0.06);
-            group.add(footL);
+            footL.position.set(0, -0.7, 0.06);
+            legL.add(footL);
+            group.add(legL);
+
+            const legR = createLimb(0.09, 0.7, accentMat, "legR");
+            legR.position.set(0.14, 0.8, 0);
             const footR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.28), blackMat);
-            footR.position.set(0.14, 0.1, 0.06);
-            group.add(footR);
+            footR.position.set(0, -0.7, 0.06);
+            legR.add(footR);
+            group.add(legR);
 
             // Vincular metadatos para interacción
             group.children.forEach(c => {
@@ -2820,6 +2825,7 @@
                     p.mesh.rotation.y = p.targetRot;
                     const isMoving = p.mesh.position.distanceTo(p.targetPos) > 0.05;
                     const bob = isMoving ? Math.abs(Math.sin(Date.now() * 0.01)) * 0.08 : 0;
+                    const swing = isMoving ? Math.sin(Date.now() * 0.01) * 0.5 : 0;
                     
                     p.mesh.position.lerp(p.targetPos, 0.08);
                     p.mesh.rotation.y = p.targetRot;
@@ -2832,13 +2838,16 @@
                     p.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
                     p.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1) ? 'none' : 'block';
                     
-                    // Aplicar bobbing visual a las partes superiores
+                    // Aplicar bobbing visual a las partes superiores y oscilación a extremidades
                     p.mesh.children.forEach(c => {
                         if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
                             const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
                             const base = bases[c.name] || 0;
                             c.position.y = base + bob;
                         }
+                        // Oscilación de brazos y piernas (opuestos)
+                        if (c.name === "armL" || c.name === "legR") c.rotation.x = swing;
+                        if (c.name === "armR" || c.name === "legL") c.rotation.x = -swing;
                     });
                 }
             });
@@ -3002,17 +3011,28 @@
                         while(diff > Math.PI) diff -= Math.PI * 2;
                         npc.mesh.rotation.y += diff * 0.05;
 
-                        // Bobbing al caminar
+                        // Bobbing y pasos al caminar
                         const bob = Math.abs(Math.sin(Date.now() * 0.01)) * 0.08;
+                        const swing = Math.sin(Date.now() * 0.01) * 0.5;
                         npc.mesh.children.forEach(c => {
                             if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
                                 const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
                                 const base = bases[c.name] || 0;
                                 c.position.y = base + bob;
                             }
+                            if (c.name === "armL" || c.name === "legR") c.rotation.x = swing;
+                            if (c.name === "armR" || c.name === "legL") c.rotation.x = -swing;
                         });
                     }
                 } else if (npc.state === 'looking') {
+                    // Resetear postura al estar quieto
+                    npc.mesh.children.forEach(c => {
+                        if (["armL", "armR", "legL", "legR"].includes(c.name)) c.rotation.x = 0;
+                        if (["torso", "neck", "head", "hair", "eyes"].includes(c.name)) {
+                             const bases = { torso: 1.15, neck: 1.48, head: 1.68, hair: 1.75, eyes: 1.72 };
+                             c.position.y = bases[c.name];
+                        }
+                    });
                     if (now > npc.timer) {
                         npc.state = 'walking';
                         npc.intermediateTarget = null;
