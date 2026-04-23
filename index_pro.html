@@ -2263,7 +2263,10 @@
         });
 
         // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
-        let supabaseClient = null;
+        // --- CONEXIÓN SUPABASE ---
+        const supabaseUrl = 'https://kcfuixvrwbnizspgtmtr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZnVpeHZyd2JuaXpzcGd0bXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2MTUzMTgsImV4cCI6MjAyODIwNzMxOH0.p-Bf_H23KD1xJafE_DFpBFZlyA_CL9sNlpG';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
         let myNickname = "";
         let myAvatarStyle = "1";
 
@@ -2326,31 +2329,17 @@
             setTimeout(async () => {
                 if (!supabaseClient) return;
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                const btn = document.getElementById('super-admin-btn');
-                const btnP = document.getElementById('super-admin-btn-persistent');
-                
                 if (user && user.email === 'alanmauri4815@gmail.com') {
                     currentTenantUser = user;
+                    const btn = document.getElementById('super-admin-btn');
+                    const btnP = document.getElementById('super-admin-btn-persistent');
                     if (btn) btn.style.display = 'block';
                     if (btnP) btnP.style.display = 'block';
                     
                     const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
                     myOwnedStore = storeData;
-                } else {
-                    if (btn) btn.style.display = 'none';
-                    if (btnP) btnP.style.display = 'none';
                 }
-
-                // CARGAR VISUALES DE TODAS LAS TIENDAS AL INICIO
-                const { data: allStores } = await supabaseClient.from('stores').select('*');
-                if(allStores) {
-                    for(const s of allStores) {
-                        const sCode = s.local_code || s.id;
-                        const { data: prods } = await supabaseClient.from('store_products').select('*').eq('local_code', sCode);
-                        updateStoreVisuals(sCode, s, prods || []);
-                    }
-                }
-            }, 1500);
+            }, 500); // Reducido a 500ms
         });
 
         window.adminLogout = async function() {
