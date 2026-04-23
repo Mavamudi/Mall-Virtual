@@ -1044,6 +1044,7 @@
             if (idLetter !== "") {
                 const idTex = createSignTexture(idLetter, true);
                 const idM = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
+                idM.userData.isSign = true;
                 idM.position.set(0, height + 0.1, -14); idM.rotation.x = -Math.PI / 2; g.add(idM);
             }
 
@@ -1460,6 +1461,7 @@
             if (shopCode !== "") {
                 const idTex = createSmallIDTexture(shopCode);
                 const idPlaque = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
+                idPlaque.userData.isSign = true;
                 idPlaque.position.set(-5.0, 4.4, 9.15); sh.add(idPlaque);
             }
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
@@ -2131,7 +2133,15 @@
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children, true);
             if (intersects.length > 0) {
-                let obj = intersects[0].object;
+                let initialObj = intersects[0].object;
+                let isSign = false;
+                let testSign = initialObj;
+                while(testSign) {
+                    if(testSign.userData.isSign) { isSign = true; break; }
+                    testSign = testSign.parent;
+                }
+
+                let obj = initialObj;
                 let foundStore = null, foundTotem = null, foundPlayer = null;
                 while (obj.parent) {
                     if (obj.userData.shopCode) foundStore = obj;
@@ -2145,7 +2155,7 @@
                     return;
                 }
                 if (foundTotem) openSearch();
-                else if (foundStore) {
+                else if (foundStore && isSign) {
                     const data = await getStoreData(foundStore.userData.shopCode);
                     if (foundStore.userData.isAnchor) data.name = foundStore.userData.name;
                     openModal(data);
