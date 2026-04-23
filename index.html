@@ -744,6 +744,14 @@
                 <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">URL Logo Vitrina (Link de imagen)</label>
                 <input type="text" id="edit-store-logo" placeholder="Ej: https://miweb.com/logo.png" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
             </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Estilo de Estantería</label>
+                <select id="edit-store-shelf-style" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+                    <option value="madera">Madera Clásica</option>
+                    <option value="minimalista">Minimalista Blanco</option>
+                    <option value="cristal">Cristal y Oro</option>
+                </select>
+            </div>
             <div style="grid-column: span 2; background: rgba(197, 160, 89, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2);">
                 <label style="font-size: 10px; color: #c5a059; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Seguridad: Cambiar mi Contraseña</label>
                 <div style="display: flex; gap: 10px;">
@@ -1072,21 +1080,25 @@
         }
         // --- TIENDAS ANCLA (RESTAURACIÓN ESTRUCTURAL CON SALIDAS) ---
         const sAnchor = createAnchorStore(0, -100, 70, 15, "MALL SUR", "S");
+        storeGroups["S"] = sAnchor;
         scene.add(sAnchor);
         registerCollider(-20.5, -125, 29, 1, 0, 15); // Muro Frontal Izq (Sur)
         registerCollider(20.5, -125, 29, 1, 0, 15);  // Muro Frontal Der (Sur)
 
         const nAnchor = createAnchorStore(0, 100, 70, 15, "MALL NORTE", "N");
+        storeGroups["N"] = nAnchor;
         nAnchor.rotateY(Math.PI); scene.add(nAnchor);
         registerCollider(-20.5, 125, 29, 1, 0, 15); // Muro Frontal Izq (Norte - Puerta Boulevard)
         registerCollider(20.5, 125, 29, 1, 0, 15);  // Muro Frontal Der (Norte - Puerta Boulevard)
 
         const eAnchor = createAnchorStore(100, 0, 70, 15, "MALL ESTE", "E");
+        storeGroups["E"] = eAnchor;
         eAnchor.rotateY(-Math.PI / 2); scene.add(eAnchor);
         registerCollider(125, -20.5, 1, 29, 0, 15); // Muro Frontal (Este)
         registerCollider(125, 20.5, 1, 29, 0, 15);
 
         const wAnchor = createAnchorStore(-100, 0, 70, 15, "MALL OESTE", "O");
+        storeGroups["O"] = wAnchor;
         wAnchor.rotateY(Math.PI / 2); scene.add(wAnchor);
         registerCollider(-125, -20.5, 1, 29, 0, 15); // Muro Frontal (Oeste)
         registerCollider(-125, 20.5, 1, 29, 0, 15);
@@ -1495,6 +1507,88 @@
 
             return sh;
         }
+        
+        // --- LÓGICA DE MOBILIARIO Y PRODUCTOS 3D ---
+        const textureLoader = new THREE.TextureLoader();
+        const storeGroups = {}; // Registro de grupos de tienda por código
+
+        async function updateStoreVisuals(code, storeData, products) {
+            const sh = storeGroups[code];
+            if (!sh) return;
+
+            // Asegurarnos que tenga un contenedor de interior
+            let interior = sh.getObjectByName("interior");
+            if (!interior) {
+                interior = new THREE.Group();
+                interior.name = "interior";
+                sh.add(interior);
+            }
+
+            // Limpiar interior actual
+            while(interior.children.length > 0) interior.remove(interior.children[0]);
+
+            // Definir Material según Estilo
+            let frameMat = darkMat;
+            let shelfMat = glassMat;
+            const style = storeData.shelf_style || 'madera';
+
+            if (style === 'madera') {
+                frameMat = new THREE.MeshStandardMaterial({ color: 0x3d2b1f, roughness: 0.8 });
+                shelfMat = new THREE.MeshStandardMaterial({ color: 0x4e3629, roughness: 0.7 });
+            } else if (style === 'minimalista') {
+                frameMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.3 });
+                shelfMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+            } else if (style === 'cristal') {
+                frameMat = goldMat;
+                shelfMat = glassMat;
+            }
+
+            // Crear Estantes (Dos filas laterales)
+            const createShelfUnit = (posX) => {
+                const unit = new THREE.Group();
+                unit.position.set(posX, 0, 0);
+                
+                // Estructura (Postes)
+                [-4, 4].forEach(pz => {
+                    const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4.8, 0.2), frameMat);
+                    post.position.set(0, 2.4, pz); unit.add(post);
+                });
+
+                // Repisas (3 niveles)
+                [1.2, 2.6, 4.0].forEach((py, level) => {
+                    const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 8), shelfMat);
+                    shelf.position.set(0, py, 0); unit.add(shelf);
+
+                    // Colocar productos en esta repisa (máx 2 por repisa por lado)
+                    const pIndexStart = (posX < 0 ? 0 : 5) + (level * 2);
+                    for(let i=0; i<2; i++) {
+                        const p = products[pIndexStart + i];
+                        if (p && p.image_url) {
+                            textureLoader.load(p.image_url, (tex) => {
+                                const pMesh = new THREE.Mesh(
+                                    new THREE.BoxGeometry(0.1, 0.8, 0.8),
+                                    new THREE.MeshStandardMaterial({ map: tex })
+                                );
+                                pMesh.position.set(posX < 0 ? 0.3 : -0.3, py + 0.45, (i === 0 ? -1.5 : 1.5));
+                                unit.add(pMesh);
+                            });
+                        }
+                    }
+                });
+                interior.add(unit);
+            };
+
+            createShelfUnit(-5.5); // Izquierda
+            createShelfUnit(5.5);  // Derecha
+
+            // Actualizar Letrero si hay Logo
+            if (storeData.logo_url) {
+                textureLoader.load(storeData.logo_url, (tex) => {
+                    const sign = sh.children.find(c => c.userData.isSign);
+                    if (sign) sign.material.map = tex;
+                });
+            }
+        }
 
         // 🏛️ TÓTEMS DE INFORMACIÓN Y BÚSQUEDA
         function createInfoTexture() {
@@ -1553,11 +1647,17 @@
 
             oRows.forEach((o, i) => {
                 const code = `${wingH}${floorNum}${String(i + 1).padStart(2, '0')}`;
-                gr.add(createBoutique(o * sx, 26 * sz, sz > 0 ? Math.PI : 0, { back: true, left: i === 0 ? 'glass' : true, right: i === 0 ? false : true }, y, code));
+                const b = createBoutique(o * sx, 26 * sz, sz > 0 ? Math.PI : 0, { back: true, left: i === 0 ? 'glass' : true, right: i === 0 ? false : true }, y, code);
+                storeGroups[code] = b;
+                gr.add(b);
             });
+>>>>
+<<<<
             sideRows.forEach((o, i) => {
                 const code = `${wingV}${floorNum}${String(i + 1).padStart(2, '0')}`;
-                gr.add(createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true }, y, code));
+                const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true }, y, code);
+                storeGroups[code] = b;
+                gr.add(b);
             });
 
             // --- MURO PERIMETRAL EXTERIOR (CIERRA HUECOS CENTRALES, DEJA ENTRADAS LIBRES) ---
@@ -2241,6 +2341,16 @@
                     if (btn) btn.style.display = 'none';
                     if (btnP) btnP.style.display = 'none';
                 }
+
+                // CARGAR VISUALES DE TODAS LAS TIENDAS AL INICIO
+                const { data: allStores } = await supabaseClient.from('stores').select('*');
+                if(allStores) {
+                    for(const s of allStores) {
+                        const sCode = s.local_code || s.id;
+                        const { data: prods } = await supabaseClient.from('store_products').select('*').eq('local_code', sCode);
+                        updateStoreVisuals(sCode, s, prods || []);
+                    }
+                }
             }, 1500);
         });
 
@@ -2413,6 +2523,7 @@
             document.getElementById('edit-store-category').value = myOwnedStore.category || "";
             document.getElementById('edit-store-email').value = myOwnedStore.contact_email || "";
             document.getElementById('edit-store-logo').value = myOwnedStore.logo_url || "";
+            document.getElementById('edit-store-shelf-style').value = myOwnedStore.shelf_style || "madera";
             
             // Cargar productos
             const { data: products } = await supabaseClient.from('store_products').select('*').eq('local_code', myOwnedStore.local_code).limit(10);
@@ -2469,13 +2580,15 @@
             const newCat = document.getElementById('edit-store-category').value;
             const newEmail = document.getElementById('edit-store-email').value;
             const newLogo = document.getElementById('edit-store-logo').value;
+            const newStyle = document.getElementById('edit-store-shelf-style').value;
             
             // 1. Actualizar tienda
             await supabaseClient.from('stores').update({
                 name: newName,
                 category: newCat,
                 contact_email: newEmail,
-                logo_url: newLogo
+                logo_url: newLogo,
+                shelf_style: newStyle
             }).eq('local_code', myOwnedStore.local_code);
             
             // 2. Actualizar productos (limpiar y re-insertar)
@@ -2499,6 +2612,11 @@
             myOwnedStore.category = newCat;
             myOwnedStore.contact_email = newEmail;
             myOwnedStore.logo_url = newLogo;
+            myOwnedStore.shelf_style = newStyle;
+
+            // 4. Actualizar visuales 3D inmediatamente
+            const { data: updatedProds } = await supabaseClient.from('store_products').select('*').eq('local_code', myOwnedStore.local_code);
+            updateStoreVisuals(myOwnedStore.local_code, myOwnedStore, updatedProds || []);
             
             alert("¡Cambios guardados con éxito!");
             closeTenantAdmin();
