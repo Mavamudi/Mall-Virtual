@@ -2165,6 +2165,26 @@
             modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
         }
 
+        // --- DETECTOR AUTOMÁTICO DE SESIÓN ADMIN ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Esperar un poco a que Supabase se inicialice
+            setTimeout(async () => {
+                if (!supabaseClient) return;
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user && user.email === 'alanmauri4815@gmail.com') {
+                    currentTenantUser = user;
+                    const btn = document.getElementById('super-admin-btn');
+                    const btnP = document.getElementById('super-admin-btn-persistent');
+                    if (btn) btn.style.display = 'block';
+                    if (btnP) btnP.style.display = 'block';
+                    
+                    // Cargar su tienda si tiene una
+                    const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
+                    myOwnedStore = storeData;
+                }
+            }, 1500);
+        });
+
         window.submitTenantApplication = async function() {
             if (!supabaseClient) return alert("Error de conexión con el mall.");
             
