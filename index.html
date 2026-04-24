@@ -883,7 +883,7 @@
             }
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
-            m(width, 0.2, 30, 0, 0.02, -10, whiteMat); // Suelo elevado 2cm para evitar z-fighting
+            m(width, 0.2, 30, 0, 0.12, -10, marbleMat); // Suelo elevado y con material de mármol para evitar contaminación
             m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo sólido
 
             // Paredes laterales
@@ -1009,6 +1009,7 @@
         const grassMat = new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.8 }); // Verde pasto
         const asphaltMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 }); // Gris asfalto
         const roadLineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const marbleMat = new THREE.MeshStandardMaterial({ color: 0xb0b0b0, roughness: 0.1, metalness: 0.1 }); // Mármol Mall
 
         function createExterior() {
             // Plano de Pasto General
@@ -1437,7 +1438,6 @@
         createDigitalScreen(-17, 22.0, 0, Math.PI / 2);
 
         function createInteriorFloors() {
-            const marbleMat = new THREE.MeshStandardMaterial({ color: 0xb0b0b0, roughness: 0.1, metalness: 0.1 });
             const bronzeMat = new THREE.MeshStandardMaterial({ color: 0x332211, roughness: 0.2 });
 
             const drawFloorWithGrid = (w, d, x, y, z) => {
