@@ -598,6 +598,13 @@
                 <!-- Dinámico -->
             </tbody>
         </table>
+        <div id="store-contact-form" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p style="font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Contactar al Locatario</p>
+            <input type="text" id="contact-name" placeholder="Tu Nombre" style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+            <input type="email" id="contact-email" placeholder="Tu Email / Celular" style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+            <textarea id="contact-message" placeholder="¿En qué podemos ayudarte?" style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; height: 60px;"></textarea>
+            <button onclick="sendStoreMessage()" style="width: 100%; background: #c5a059; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 12px; letter-spacing: 1px; transition: background 0.3s;">ENVIAR MENSAJE</button>
+        </div>
         <div style="margin-top: 30px; font-size: 11px; color: #555; text-align: center; letter-spacing: 1px;">SISTEMA DE
             GESTIÓN COMERCIAL - MALL EMPRENDIMIENTOS PRO</div>
     </div>
@@ -699,6 +706,7 @@
         const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
         const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9a66b, metalness: 0.9, roughness: 0.1 });
         const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
+        var storeGroups = {}; // Registro global de tiendas para mobiliario 3D
 
 
         function createSignTexture(text, isID = false) {
@@ -879,8 +887,10 @@
             if (idLetter !== "") {
                 const idTex = createSignTexture(idLetter, true);
                 const idM = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
+                idM.userData.isSign = true; // Solo el letrero abre el catálogo
                 idM.position.set(0, height + 0.1, -14); idM.rotation.x = -Math.PI / 2; g.add(idM);
             }
+            if(idLetter) storeGroups[idLetter] = g;
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
             m(width, 0.2, 30, 0, 0.15, -10, whiteMat); // Suelo elevado (0.15) y blanco puro por petición del usuario
@@ -1297,8 +1307,10 @@
             if (shopCode !== "") {
                 const idTex = createSmallIDTexture(shopCode);
                 const idPlaque = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
+                idPlaque.userData.isSign = true; // Solo el letrero abre el catálogo
                 idPlaque.position.set(-5.0, 4.4, 9.15); sh.add(idPlaque);
             }
+            if(shopCode) storeGroups[shopCode] = sh;
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
 
             // --- REGISTRO DE COLISIÓN (Paredes laterales, trasera y frontal con hueco de puerta) ---
@@ -1848,6 +1860,26 @@
             document.getElementById('store-modal').style.display = 'block';
         }
 
+        window.sendStoreMessage = function() {
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const msg = document.getElementById('contact-message').value;
+            const shopCode = document.getElementById('modal-code').innerText;
+            
+            if(!name || !email || !msg) {
+                alert("Por favor completa todos los campos para contactar a la tienda.");
+                return;
+            }
+            
+            // Simulación de envío (luego conectaremos con Supabase si el locatario está registrado)
+            alert(`¡Mensaje enviado a ${shopCode}!\n\nPronto el locatario se pondrá en contacto contigo.`);
+            
+            // Limpiar campos
+            document.getElementById('contact-name').value = '';
+            document.getElementById('contact-email').value = '';
+            document.getElementById('contact-message').value = '';
+        };
+
         // --- SISTEMA DE INTERACCIÓN (RAYCASTING) ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -1931,7 +1963,12 @@
                 let obj = intersects[0].object;
                 let foundStore = null, foundTotem = null, foundPlayer = null;
                 while (obj.parent) {
-                    if (obj.userData.shopCode) foundStore = obj;
+                    if (obj.userData.isSign) {
+                        // Encontrar la tienda padre
+                        let storeObj = obj;
+                        while(storeObj.parent && !storeObj.userData.shopCode) storeObj = storeObj.parent;
+                        foundStore = storeObj;
+                    }
                     if (obj.userData.isTotem) foundTotem = obj;
                     if (obj.userData.playerId) foundPlayer = obj.userData.playerId;
                     if (foundStore || foundTotem || foundPlayer) break;
