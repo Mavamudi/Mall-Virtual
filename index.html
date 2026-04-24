@@ -883,7 +883,7 @@
             }
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
-            m(width, 0.2, 30, 0, 0.12, -10, marbleMat); // Suelo elevado y con material de mármol para evitar contaminación
+            m(width, 0.2, 30, 0, 0.15, -10, whiteMat); // Suelo elevado (0.15) y blanco puro por petición del usuario
             m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo sólido
 
             // Paredes laterales
