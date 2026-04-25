@@ -1482,6 +1482,7 @@
         const ESCALATOR_FLAT_LEN = 4;
         const ESCALATOR_RIDE_Y_BOTTOM = 0.1;
         const ESCALATOR_RIDE_Y_TOP = 5.4;
+        const ESCALATOR_EXIT_BLEND_DISTANCE = 3.4;
         const PLAYER_EYE_HEIGHT = 1.7;
         function createEscalator(x, zStart, zEnd, up = true) {
             const h = 5.4;
@@ -1505,6 +1506,7 @@
                 yEnd: h - 0.53,
                 zStart,
                 zEnd,
+                axis: 'z',
                 dir,
                 flatLen,
                 pathLenZ,
@@ -1598,13 +1600,122 @@
         function advanceAlongEscalator(point, escalator, progress, travelStep, eyeOffset = 0, snapX = 0.35) {
             const nextProgress = THREE.MathUtils.clamp(progress + travelStep, 0, escalator.pathLenZ);
             const ridePos = getEscalatorRidePosition(escalator, nextProgress, eyeOffset);
+            let landing = null;
+
+            if (escalator.pathEndY > escalator.pathStartY) {
+                const blendStart = Math.max(escalator.flatLen, escalator.pathLenZ - ESCALATOR_EXIT_BLEND_DISTANCE);
+                const blendT = THREE.MathUtils.clamp(
+                    (nextProgress - blendStart) / Math.max(0.001, escalator.pathLenZ - blendStart),
+                    0,
+                    1
+                );
+
+                if (blendT > 0) {
+                    landing = getEscalatorLandingTransform(escalator, eyeOffset);
+                    const easedBlend = blendT * blendT * (3 - 2 * blendT);
+                    ridePos.lerp(landing.position, easedBlend);
+                }
+            }
+
             point.x = THREE.MathUtils.lerp(point.x, ridePos.x, snapX);
             point.y = ridePos.y;
             point.z = ridePos.z;
             return {
                 progress: nextProgress,
                 ridePos,
+                landing,
                 done: nextProgress >= escalator.pathLenZ - 0.02
+            };
+        }
+
+        function getEscalatorExitPosition(escalator, eyeOffset = 0, extraForward = 2.6) {
+            const exitPos = getEscalatorRidePosition(escalator, escalator.pathLenZ, eyeOffset);
+            exitPos.z += escalator.dir * extraForward;
+            return exitPos;
+        }
+
+        function getEscalatorLandingTransform(escalator, eyeOffset = 0) {
+            const exitsOnUpperFloor = escalator.pathEndY > escalator.pathStartY;
+            if (exitsOnUpperFloor) {
+                const sideDir = escalator.x >= 0 ? 1 : -1;
+                const upperLaneX = escalator.x + sideDir * 2.65;
+                const upperLaneZ = escalator.zEnd + escalator.dir * 2.8;
+                const position = new THREE.Vector3(
+                    upperLaneX,
+                    ESCALATOR_RIDE_Y_TOP + eyeOffset,
+                    upperLaneZ
+                );
+                return {
+                    position,
+                    target: new THREE.Vector3(
+                        upperLaneX + sideDir * 8,
+                        position.y + 0.05,
+                        upperLaneZ
+                    ),
+                    exitAxis: 'x',
+                    exitDir: sideDir
+                };
+            }
+
+            const isNorthSouthRide = escalator.axis !== 'x';
+            const preferredSide = isNorthSouthRide
+                ? (escalator.x >= 0 ? 1 : -1)
+                : (escalator.z >= 0 ? 1 : -1);
+            const sideOptions = [preferredSide, -preferredSide];
+            const forwardOffsets = [3.2, 2.7];
+            const lateralOffsets = [5.2, 4.3, 3.4];
+
+            for (const forwardOffset of forwardOffsets) {
+                for (const sideDir of sideOptions) {
+                    for (const lateralOffset of lateralOffsets) {
+                        const position = getEscalatorExitPosition(escalator, eyeOffset, forwardOffset);
+                        let target;
+                        let exitAxis;
+
+                        if (isNorthSouthRide) {
+                            position.x += sideDir * lateralOffset;
+                            target = new THREE.Vector3(position.x + sideDir * 8.5, position.y + 0.05, position.z);
+                            exitAxis = 'x';
+                        } else {
+                            position.z += sideDir * lateralOffset;
+                            target = new THREE.Vector3(position.x, position.y + 0.05, position.z + sideDir * 8.5);
+                            exitAxis = 'z';
+                        }
+
+                        const landingBlocked = checkCollision(position.x, position.y, position.z);
+                        const aheadBlocked = exitAxis === 'x'
+                            ? checkCollision(position.x + sideDir * 1.4, position.y, position.z)
+                            : checkCollision(position.x, position.y, position.z + sideDir * 1.4);
+
+                        if (!landingBlocked && !aheadBlocked) {
+                            return {
+                                position,
+                                target,
+                                exitAxis,
+                                exitDir: sideDir
+                            };
+                        }
+                    }
+                }
+            }
+
+            const fallbackPos = getEscalatorExitPosition(escalator, eyeOffset, 2.6);
+            if (isNorthSouthRide) {
+                fallbackPos.x += preferredSide * 5.2;
+                return {
+                    position: fallbackPos,
+                    target: new THREE.Vector3(fallbackPos.x + preferredSide * 8.5, fallbackPos.y + 0.05, fallbackPos.z),
+                    exitAxis: 'x',
+                    exitDir: preferredSide
+                };
+            }
+
+            fallbackPos.z += preferredSide * 5.2;
+            return {
+                position: fallbackPos,
+                target: new THREE.Vector3(fallbackPos.x, fallbackPos.y + 0.05, fallbackPos.z + preferredSide * 8.5),
+                exitAxis: 'z',
+                exitDir: preferredSide
             };
         }
 
@@ -2221,12 +2332,19 @@
             // --- MOTOR DE ESCALERAS MEC├üNICAS (TRAYECTORIA REAL) ---
             let onEscalator = false;
             currentEscalatorState = null;
-            const activeEscalator = findActiveEscalator(
+            const nowMs = performance.now();
+            if (escalatorExitCooldown && nowMs > escalatorExitCooldown.until) {
+                escalatorExitCooldown = null;
+            }
+            let activeEscalator = findActiveEscalator(
                 camera.position.x,
                 camera.position.y,
                 camera.position.z,
                 PLAYER_EYE_HEIGHT
             );
+            if (activeEscalator && escalatorExitCooldown && activeEscalator.escalator.id === escalatorExitCooldown.id) {
+                activeEscalator = null;
+            }
             if (activeEscalator) {
                 const prevCamPos = camera.position.clone();
                 const ride = advanceAlongEscalator(
@@ -2240,10 +2358,22 @@
                 const delta = camera.position.clone().sub(prevCamPos);
                 controls.target.add(delta);
                 onEscalator = true;
-                currentEscalatorState = {
-                    id: activeEscalator.escalator.id,
-                    t: activeEscalator.escalator.pathLenZ > 0 ? (ride.progress / activeEscalator.escalator.pathLenZ) : 0
-                };
+                if (ride.done) {
+                    if (ride.landing) {
+                        controls.target.copy(ride.landing.target);
+                    }
+                    currentEscalatorState = null;
+                    escalatorExitCooldown = {
+                        id: activeEscalator.escalator.id,
+                        until: nowMs + 850
+                    };
+                    onEscalator = false;
+                } else {
+                    currentEscalatorState = {
+                        id: activeEscalator.escalator.id,
+                        t: activeEscalator.escalator.pathLenZ > 0 ? (ride.progress / activeEscalator.escalator.pathLenZ) : 0
+                    };
+                }
             }
 
             // BLOQUEO DE ALTURA (SOLO FUERA DE ESCALERAS)
@@ -2260,9 +2390,11 @@
         // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
         let supabaseClient = null;
         let currentEscalatorState = null;
+        let escalatorExitCooldown = null;
         let avatarLabelMode = 'far';
         const AVATAR_LABEL_NEAR_DISTANCE = 18;
         const AVATAR_LABEL_NPC_FAR_DISTANCE = 35;
+        const AVATAR_CAMERA_HIDE_DISTANCE = 3.2;
 
         function syncAvatarLabelModeButton() {
             const btn = document.getElementById('avatar-label-mode-btn');
@@ -3369,6 +3501,8 @@
 
                     const stepDistance = prevPos.distanceTo(p.mesh.position);
                     applyAvatarPose(p, stepDistance, performance.now());
+                    const distToCam = camera.position.distanceTo(p.mesh.position);
+                    p.mesh.visible = distToCam > AVATAR_CAMERA_HIDE_DISTANCE;
                     
                     const tempVec = p.mesh.position.clone();
                     tempVec.y += 2.15;
@@ -3376,7 +3510,7 @@
                     const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                     const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
                     p.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                    p.label.style.display = shouldShowAvatarLabel(p.mesh.position, tempVec) ? 'block' : 'none';
+                    p.label.style.display = (p.mesh.visible && shouldShowAvatarLabel(p.mesh.position, tempVec)) ? 'block' : 'none';
                 }
             });
         }
@@ -3480,7 +3614,7 @@
                 );
                 if (activeEscalator) {
                     onEscalator = true;
-                    advanceAlongEscalator(
+                    const ride = advanceAlongEscalator(
                         npc.mesh.position,
                         activeEscalator.escalator,
                         activeEscalator.progress,
@@ -3490,6 +3624,14 @@
                     );
                     npc.mesh.rotation.y = activeEscalator.escalator.dir > 0 ? 0 : Math.PI;
                     npc.intermediateTarget = null;
+                    if (ride.done) {
+                        if (ride.landing) {
+                            npc.mesh.rotation.y = ride.landing.exitAxis === 'x'
+                                ? (ride.landing.exitDir > 0 ? Math.PI / 2 : -Math.PI / 2)
+                                : (ride.landing.exitDir > 0 ? 0 : Math.PI);
+                        }
+                        onEscalator = false;
+                    }
                 }
 
                 if (!onEscalator && npc.state === 'walking') {
@@ -3559,6 +3701,8 @@
 
                 const movedAmount = prevPos.distanceTo(npc.mesh.position);
                 applyAvatarPose(npc, movedAmount, performance.now());
+                const npcDistToCam = camera.position.distanceTo(npc.mesh.position);
+                npc.mesh.visible = npcDistToCam > AVATAR_CAMERA_HIDE_DISTANCE;
 
                 // --- 3. ACTUALIZAR ETIQUETAS ---
                 const tempVec = npc.mesh.position.clone();
@@ -3567,7 +3711,7 @@
                 const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                 const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
                 npc.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                npc.label.style.display = shouldShowAvatarLabel(npc.mesh.position, tempVec, AVATAR_LABEL_NPC_FAR_DISTANCE) ? 'block' : 'none';
+                npc.label.style.display = (npc.mesh.visible && shouldShowAvatarLabel(npc.mesh.position, tempVec, AVATAR_LABEL_NPC_FAR_DISTANCE)) ? 'block' : 'none';
 
                 // --- 4. SEGURIDAD: GRAVEDAD Y SUELO ---
                 if (!onEscalator) {
