@@ -1127,7 +1127,7 @@
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xaabbcc);
         const IS_COARSE_POINTER = window.matchMedia('(pointer: coarse)').matches;
-        scene.fog = new THREE.Fog(0xaabbcc, IS_COARSE_POINTER ? 34 : 40, IS_COARSE_POINTER ? 280 : 420);
+        scene.fog = new THREE.Fog(0xaabbcc, IS_COARSE_POINTER ? 28 : 34, IS_COARSE_POINTER ? 220 : 340);
 
         const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1500);
         camera.position.set(45, 45, 45);
