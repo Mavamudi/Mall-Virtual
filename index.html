@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -181,7 +181,7 @@
             pointer-events: none;
         }
 
-        /* BOTÓN MODO PASEO */
+        /* BOT├ôN MODO PASEO */
         .walk-btn {
             position: fixed;
             top: 30px;
@@ -208,7 +208,7 @@
             box-shadow: 0 0 20px rgba(197, 160, 89, 0.4);
         }
 
-        /* ESTILOS DE BÚSQUEDA Y MAPA */
+        /* ESTILOS DE B├ÜSQUEDA Y MAPA */
         #search-modal {
             display: none;
             position: fixed;
@@ -459,7 +459,7 @@
             pointer-events: none;
         }
 
-        /* BOTONES DE ROTACIÓN */
+        /* BOTONES DE ROTACI├ôN */
         .rotation-controls {
             display: grid;
             grid-template-columns: 50px 50px;
@@ -503,12 +503,40 @@
             <p class="text-[10px] text-gray-500 tracking-[3px] uppercase">Acceso al Centro Comercial 3D</p>
             <input type="text" id="nickname-input" placeholder="Tu nombre o apodo" maxlength="50">
             <div id="avatar-selection" style="margin: 15px 0;">
-                <p style="font-size: 10px; color: #888; margin-bottom: 8px;">Elige tu Tu Aspecto:</p>
+                <p style="font-size: 10px; color: #888; margin-bottom: 8px;">Elige tu aspecto:</p>
                 <div class="avatar-opt selected" onclick="selectAvatar('1', this)">👔 Formal</div>
                 <div class="avatar-opt" onclick="selectAvatar('2', this)">🏃 Deportivo</div>
-                <div class="avatar-opt" onclick="selectAvatar('3', this)">🧑‍🎨 Urbano</div>
+                <div class="avatar-opt" onclick="selectAvatar('3', this)">🧢 Urbano</div>
             </div>
             <button class="enter-btn" onclick="event.stopPropagation(); startMallExperience()">Entrar al Mall</button>
+
+            <!-- ACCESO RÁPIDO LOCATARIOS -->
+            <p style="margin-top: 15px; font-size: 10px; color: #888; display: flex; flex-direction: column; gap: 8px;">
+                <span>¿Eres locatario? <a href="#" onclick="toggleTenantLogin()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Inicia sesión aquí</a></span>
+                <span>¿Quieres vender aquí? <a href="#" onclick="toggleTenantApply()" style="color: #c5a059; text-decoration: underline; cursor: pointer;">Postula para una tienda</a></span>
+            </p>
+
+            <!-- BOT├ôN ADMIN (SOLO VISIBLE PARA ALAN) -->
+            <button id="super-admin-btn" onclick="openSuperAdmin()" style="display: none; margin-top: 20px; background: #c5a059; color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 11px;">ÔÜÖ´©Å PANEL DE CONTROL MALL</button>
+            
+            <!-- BOT├ôN ADMIN PERSISTENTE (DENTRO DEL MALL) -->
+            <button id="super-admin-btn-persistent" onclick="openSuperAdmin()" style="display: none; position: fixed; top: 110px; left: 20px; background: #c5a059; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 2000; font-size: 11px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">ÔÜÖ´©Å ADMIN MALL</button>
+            
+            <!-- SECCIÓN DE SOCIOS -->
+            <div id="membership-section" style="margin-top: 25px; text-align: left; border-top: 1px solid rgba(197, 160, 89, 0.2); padding-top: 20px;">
+                <label style="display: flex; align-items: center; cursor: pointer; gap: 12px; margin-bottom: 15px; justify-content: center;">
+                    <input type="checkbox" id="membership-checkbox" onchange="toggleMembershipFields()" style="accent-color: #c5a059; width: 18px; height: 18px;">
+                    <span style="font-size: 11px; color: #c5a059; letter-spacing: 1px; text-transform: uppercase; font-weight: bold;">Hazte socio y recibirás descuentos exclusivos</span>
+                </label>
+                
+                <div id="membership-fields" style="display: none; flex-direction: column; gap: 12px; animation: fadeIn 0.3s ease-out;">
+                    <input type="email" id="member-email" placeholder="Correo electrónico" 
+                        style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 12px; color: #fff; border-radius: 8px; font-size: 13px; outline: none; transition: border-color 0.3s; text-align: center;">
+                    <input type="tel" id="member-phone" placeholder="Celular (ej: +569...)" 
+                        style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 12px; color: #fff; border-radius: 8px; font-size: 13px; outline: none; transition: border-color 0.3s; text-align: center;">
+                </div>
+            </div>
+
             <p class="mt-8 text-[9px] text-gray-600 tracking-widest uppercase">Experiencia Multijugador Sincronizada</p>
         </div>
     </div>
@@ -516,7 +544,7 @@
     <!-- Chat Icon (Minimized state) -->
     <div id="chat-minimized-btn" onclick="toggleChat()"
         style="display: none; position: fixed; bottom: 20px; left: 20px; width: 50px; height: 50px; background: rgba(10, 15, 20, 0.85); border: 2px solid #c5a059; border-radius: 50%; z-index: 1000; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(5px);">
-        <span style="font-size: 20px; line-height: 1;">💬</span>
+        <span style="font-size: 20px; line-height: 1;">­ƒÆ¼</span>
         <div id="chat-badge"
             style="display: none; position: absolute; top: -5px; right: -5px; background: #ff3b30; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; font-weight: bold; align-items: center; justify-content: center; border: 2px solid #0a0f14;">
             0</div>
@@ -545,15 +573,18 @@
             <input type="text" id="chat-input" placeholder="Escribe para el chat..." maxlength="100" autocomplete="off"
                 style="flex: 1; background: rgba(0,0,0,0.5); border: 1px solid rgba(197, 160, 89, 0.5); color: #fff; padding: 8px 12px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 13px; outline: none;">
             <button id="chat-send"
-                style="background: #c5a059; color: #000; border: none; border-radius: 4px; margin-left: 8px; padding: 0 12px; cursor: pointer; font-weight: bold; transition: 0.2s;">▶</button>
+                style="background: #c5a059; color: #000; border: none; border-radius: 4px; margin-left: 8px; padding: 0 12px; cursor: pointer; font-weight: bold; transition: 0.2s;">ÔûÂ</button>
         </div>
     </div>
 
-    <header class="fixed top-0 w-full p-8 flex justify-between items-start z-50 pointer-events-none">
+    <header id="main-header" class="fixed top-0 w-full p-8 flex justify-between items-start pointer-events-none" style="z-index: 2500; display: none;">
         <div id="ui-overlay">
             <h1 class="text-4xl font-extralight luxury-gradient tracking-[10px]">MALL EMPRENDIMIENTOS</h1>
-            <p style="margin: 5px 0; font-size: 14px; color: #888; letter-spacing: 1px;">ARQUITECTURA DE LUJO & NEGOCIOS
-                PRO</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #888; letter-spacing: 1px;">ARQUITECTURA DE LUJO & NEGOCIOS PRO</p>
+        </div>
+        <div class="flex gap-4 pointer-events-auto">
+            <button class="walk-btn" onclick="toggleTenantLogin()" style="background: rgba(197, 160, 89, 0.1); border-color: rgba(197, 160, 89, 0.3);">­ƒöæ Locatarios</button>
+            <button class="walk-btn" id="walk-btn-ctrl" onclick="toggleWalkMode()">Modo Paseo</button>
         </div>
     </header>
 
@@ -563,19 +594,19 @@
     <div class="view-indicator" id="view-indicator">VISTA SUR</div>
     <div class="interaction-hint">Haz clic en un local para ver su ficha comercial</div>
 
-    <!-- JOYSTICK Y CONTROLES MÓVILES -->
+    <!-- JOYSTICK Y CONTROLES M├ôVILES -->
     <div id="mobile-controls-container">
         <!-- Joystick Izquierdo (Desplazamiento) -->
         <div class="joystick-container" id="joystick-zone">
             <div class="joystick-knob" id="joystick-knob"></div>
         </div>
 
-        <!-- Botones Derecha (Rotación) -->
+        <!-- Botones Derecha (Rotaci├│n) -->
         <div class="rotation-controls">
-            <div class="dpad-btn" id="btn-rotate-left">↺</div>
-            <div class="dpad-btn" id="btn-rotate-right">↻</div>
-            <div class="dpad-btn" id="btn-look-up">▲</div>
-            <div class="dpad-btn" id="btn-look-down">▼</div>
+            <div class="dpad-btn" id="btn-rotate-left">Ôå║</div>
+            <div class="dpad-btn" id="btn-rotate-right">Ôå╗</div>
+            <div class="dpad-btn" id="btn-look-up">Ôû▓</div>
+            <div class="dpad-btn" id="btn-look-down">Ôû╝</div>
         </div>
     </div>
 
@@ -587,29 +618,164 @@
         <h2 id="modal-title" style="margin-right: 40px;">Nombre del Local</h2>
         <div class="code" id="modal-code">LOCAL N101</div>
         <div class="category" id="modal-category">Giro: Boutique de Lujo</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto Estrella</th>
-                    <th>Precio Est.</th>
-                </tr>
-            </thead>
-            <tbody id="modal-products">
-                <!-- Dinámico -->
-            </tbody>
-        </table>
-        <div id="store-contact-form" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
-            <p style="font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Contactar al Locatario</p>
-            <input type="text" id="contact-name" placeholder="Tu Nombre" style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
-            <input type="email" id="contact-email" placeholder="Tu Email / Celular" style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
-            <textarea id="contact-message" placeholder="¿En qué podemos ayudarte?" style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; height: 60px;"></textarea>
-            <button onclick="sendStoreMessage()" style="width: 100%; background: #c5a059; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 12px; letter-spacing: 1px; transition: background 0.3s;">ENVIAR MENSAJE</button>
+        <div id="modal-products-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto Estrella</th>
+                        <th>Precio Est.</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-products">
+                    <!-- Din├ímico -->
+                </tbody>
+            </table>
         </div>
-        <div style="margin-top: 30px; font-size: 11px; color: #555; text-align: center; letter-spacing: 1px;">SISTEMA DE
-            GESTIÓN COMERCIAL - MALL EMPRENDIMIENTOS PRO</div>
+        
+        <div id="modal-contact-section" style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">
+            <h3 style="color: #c5a059; font-size: 14px; margin-bottom: 12px; font-family: 'Cormorant Garamond', serif; text-transform: uppercase; letter-spacing: 1px;">Contactar Local</h3>
+            <form id="store-contact-form" onsubmit="event.preventDefault(); sendStoreMessage()">
+                <input type="text" id="store-contact-name" placeholder="Tu Nombre" required style="width: 100%; background: #111; border: 1px solid #333; padding: 8px; color: #fff; border-radius: 4px; margin-bottom: 8px; font-size: 12px;">
+                <input type="email" id="store-contact-email" placeholder="Tu Correo" required style="width: 100%; background: #111; border: 1px solid #333; padding: 8px; color: #fff; border-radius: 4px; margin-bottom: 8px; font-size: 12px;">
+                <textarea id="store-contact-msg" placeholder="Consulta o pedido..." required style="width: 100%; background: #111; border: 1px solid #333; padding: 8px; color: #fff; border-radius: 4px; margin-bottom: 12px; font-size: 12px; height: 60px; resize: none;"></textarea>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="enter-btn" style="flex: 1; padding: 10px; font-size: 9px; letter-spacing: 1px;">Enviar</button>
+                    <a id="store-mailto-btn" href="#" class="enter-btn" style="flex: 1; padding: 10px; font-size: 9px; text-align: center; background: transparent; border: 1px solid #c5a059; color: #c5a059; letter-spacing: 1px;">Email Directo</a>
+                </div>
+            </form>
+        </div>
+
+        <button id="btn-manage-store" class="enter-btn" style="display: none; width: 100%; margin-top: 20px; background: #c5a059; color: black; font-weight: bold;" onclick="openTenantAdmin()">ÔÜÖ´©Å GESTIONAR MI TIENDA</button>
+        
+        <div style="margin-top: 30px; font-size: 10px; color: #444; text-align: center; letter-spacing: 1px;">SISTEMA DE GESTI├ôN COMERCIAL PRO</div>
     </div>
 
-    <!-- MODAL DE BÚSQUEDA Y MAPA (TÓTEM) -->
+    <!-- MODAL LOGIN LOCATARIOS -->
+    <div id="tenant-login-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 40px; border-radius: 20px; border: 1px solid #c5a059; z-index: 3000; width: 350px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
+        <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 20px;">Acceso Locatarios</h2>
+        <input type="email" id="tenant-email" placeholder="Correo electrónico" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: white; padding: 10px; margin-bottom: 15px; outline: none; text-align: center;">
+        <input type="password" id="tenant-pass" placeholder="Contraseña" style="width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: white; padding: 10px; margin-bottom: 25px; outline: none; text-align: center;">
+        <button class="enter-btn" onclick="tenantLogin()" style="width: 100%;">Iniciar sesión</button>
+        <button style="background: none; border: none; color: #666; margin-top: 15px; cursor: pointer; font-size: 11px;" onclick="toggleTenantLogin()">Cancelar</button>
+    </div>
+
+    <!-- MODAL SUPER ADMIN (SOLO PARA EL DUE├æO DEL MALL) -->
+    <div id="super-admin-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 2px solid #c5a059; z-index: 4000; width: 900px; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 100px rgba(197, 160, 89, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 28px; margin: 0;">Panel de Control Maestro</h2>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button onclick="adminLogout()" style="background: rgba(255,0,0,0.1); border: 1px solid #ff4444; color: #ff4444; padding: 5px 10px; border-radius: 4px; font-size: 10px; cursor: pointer; text-transform: uppercase;">Cerrar Sesi├│n</button>
+                <button onclick="document.getElementById('super-admin-modal').style.display='none'" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">&times;</button>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #c5a059; text-transform: uppercase; margin-bottom: 15px;">Postulaciones Recientes</h3>
+                <div id="admin-apps-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <p style="color: #666; font-size: 12px;">Cargando postulaciones...</p>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+                <h3 style="font-size: 14px; color: #c5a059; text-transform: uppercase; margin-bottom: 15px;">Resumen Mall</h3>
+                <div id="admin-stats" style="font-size: 12px; line-height: 1.8;">
+                    <p>Locales Totales: <span id="stat-total-stores">-</span></p>
+                    <p>Locales Ocupados: <span id="stat-occupied-stores">-</span></p>
+                    <p>Locales Disponibles: <span id="stat-free-stores" style="color: #4CAF50;">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POSTULACI├ôN DE NUEVOS LOCATARIOS -->
+    <div id="tenant-apply-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 1px solid #c5a059; z-index: 3000; width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
+        <h2 style="color: #c5a059; font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 10px;">Postulaci├│n Comercial</h2>
+        <p style="font-size: 11px; color: #888; margin-bottom: 25px;">Cu├®ntanos sobre tu negocio para formar parte del Mall.</p>
+        
+        <form onsubmit="event.preventDefault(); submitTenantApplication();" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+            <div>
+                <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Nombre del Negocio / Marca</label>
+                <input type="text" id="apply-brand" required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Giro / Categor├¡a</label>
+                <input type="text" id="apply-category" placeholder="Ej: Ropa, Joyas, Caf├®..." required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Email Contacto</label>
+                    <input type="email" id="apply-email" required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+                </div>
+                <div>
+                    <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">WhatsApp / Celular</label>
+                    <input type="tel" id="apply-phone" required style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 9px; color: #c5a059; text-transform: uppercase;">Link Instagram / Web (Opcional)</label>
+                <input type="text" id="apply-social" style="width: 100%; background: #111; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; outline: none;">
+            </div>
+            
+            <button type="submit" class="enter-btn" style="margin-top: 15px; width: 100%;">Enviar Postulaci├│n</button>
+            <button type="button" style="background: none; border: none; color: #666; cursor: pointer; font-size: 11px; margin-top: 5px; align-self: center;" onclick="toggleTenantApply()">Cerrar</button>
+        </form>
+    </div>
+
+    <!-- MODAL ADMINISTRACI├ôN DE TIENDA (LOCATARIOS) -->
+    <div id="tenant-admin-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.98); color: white; padding: 30px; border-radius: 15px; border: 2px solid #c5a059; box-shadow: 0 0 80px rgba(0, 0, 0, 0.9); z-index: 3001; width: 750px; max-height: 85vh; overflow-y: auto; font-family: 'Inter', sans-serif;">
+        <h2 style="color:#c5a059; font-family:'Cormorant Garamond', serif; font-weight:300; margin-bottom:20px; display:flex; justify-content:space-between; align-items: center;">
+            CONFIGURACI├ôN DEL LOCAL <span class="close-btn" style="cursor:pointer" onclick="closeTenantAdmin()">&times;</span></h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; border-bottom: 1px solid #222; padding-bottom: 20px;">
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Nombre Comercial</label>
+                <input type="text" id="edit-store-name" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none; focus: border-color: #c5a059;">
+            </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Giro del Negocio</label>
+                <input type="text" id="edit-store-category" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Email para Consultas (Dropi / Directo)</label>
+                <input type="email" id="edit-store-email" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">URL Logo Vitrina (Link de imagen)</label>
+                <input type="text" id="edit-store-logo" placeholder="Ej: https://miweb.com/logo.png" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Estilo de Estanter├¡a</label>
+                <select id="edit-store-shelf-style" style="width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; border-radius: 6px; margin-top: 5px; outline: none;">
+                    <option value="madera">Madera Cl├ísica</option>
+                    <option value="minimalista">Minimalista Blanco</option>
+                    <option value="cristal">Cristal y Oro</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2; background: rgba(197, 160, 89, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(197, 160, 89, 0.2);">
+                <label style="font-size: 10px; color: #c5a059; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Seguridad: Cambiar mi Contrase├▒a</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="password" id="new-tenant-pass" placeholder="Nueva contrase├▒a (m├¡n 6 caracteres)" style="flex-grow: 1; background: #000; border: 1px solid #444; padding: 8px; color: #fff; border-radius: 4px; outline: none;">
+                    <button onclick="updateTenantPassword()" style="background: #c5a059; color: black; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">Actualizar Clave</button>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color: #c5a059; font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px;">Gesti├│n de Inventario (M├íx 10 productos)</h3>
+        <div id="edit-products-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <!-- Generado din├ímicamente -->
+        </div>
+
+        <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; padding-top: 20px;">
+            <p style="font-size: 10px; color: #555;">Los cambios se ver├ín reflejados inmediatamente en el Mall.</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="enter-btn" style="background: transparent; border: 1px solid #c5a059; color: #c5a059;" onclick="previewTenantStore()">­ƒæü´©Å Previsualizar</button>
+                <button class="enter-btn" onclick="saveTenantData()">­ƒÆ¥ Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE B├ÜSQUEDA Y MAPA (T├ôTEM) -->
     <div id="search-modal">
         <h2
             style="color:#c5a059; font-family:'Cormorant Garamond', serif; font-weight:300; margin-bottom:20px; display:flex; justify-content:space-between;">
@@ -625,7 +791,7 @@
 
         <div id="mall-map-container">
             <svg id="mall-svg-map" viewBox="0 0 100 100">
-                <!-- Esquema dinámico -->
+                <!-- Esquema din├ímico -->
                 <rect x="42" y="5" width="16" height="90" fill="#222" rx="2" />
                 <rect x="5" y="42" width="90" height="16" fill="#222" rx="2" />
                 <circle cx="50" cy="50" r="8" stroke="#c5a059" stroke-width="0.5" fill="none" />
@@ -673,8 +839,8 @@
             const btn = document.getElementById('walk-btn-ctrl');
             if (isWalking) {
                 btn.innerText = "Modo Aéreo";
-                camera.position.set(0, 1.7, -82); // Entrada Sur (Frente al Tótem)
-                controls.target.set(0, 1.80, -78); // Mirando al Tótem (Un pelito arriba)
+                camera.position.set(0, 1.7, -82); // Entrada Sur (Frente al T├│tem)
+                controls.target.set(0, 1.80, -78); // Mirando al T├│tem (Un pelito arriba)
                 controls.enablePan = false;
                 controls.minPolarAngle = Math.PI / 2 - 0.7;
                 controls.maxPolarAngle = Math.PI / 2 + 0.5;
@@ -694,7 +860,7 @@
             }
         };
 
-        console.log("🎮 Controles de órbita...");
+        console.log("­ƒÄ« Controles de ├│rbita...");
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
@@ -706,7 +872,7 @@
         const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
         const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9a66b, metalness: 0.9, roughness: 0.1 });
         const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
-        var storeGroups = {}; // Registro global de tiendas para mobiliario 3D
+        var storeGroups = {}; // Registro global de tiendas y anclas para mobiliario 3D
 
 
         function createSignTexture(text, isID = false) {
@@ -728,7 +894,7 @@
         const VAULT_CENTER_OFFSET = 56.5;
         const DOME_CENTER_Y = 25.5; // Elevado para mayor lujo y espacio
         const CENTRAL_DOME_RADIUS = 28.0;
-        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16]; // Añadido el 0 para el cenit
+        const LONGITUDINAL_BEAM_LEVELS = [-16, -13, -10, -7, -4, 0, 4, 7, 10, 13, 16]; // A├▒adido el 0 para el cenit
         const RING_FAMILY_LEVELS = [0, 4, 7, 10, 13, 16];
 
         function getVaultAngleForLevel(level) {
@@ -759,7 +925,7 @@
             const vertices = [];
             const indices = [];
 
-            // Generar vértices para el arco exterior (Z = outerZ, radio = 17) y el arco interior (conexión con domo)
+            // Generar v├®rtices para el arco exterior (Z = outerZ, radio = 17) y el arco interior (conexi├│n con domo)
             for (let i = 0; i <= segments; i++) {
                 const anglePos = -16 + (32 * i / segments); // De -16 a 16 (niveles de fierros)
                 const angle = (anglePos / r) * (Math.PI / 2);
@@ -887,14 +1053,13 @@
             if (idLetter !== "") {
                 const idTex = createSignTexture(idLetter, true);
                 const idM = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
-                idM.userData.isSign = true; // Solo el letrero abre el catálogo
+                idM.userData.isSign = true;
                 idM.position.set(0, height + 0.1, -14); idM.rotation.x = -Math.PI / 2; g.add(idM);
             }
-            if(idLetter) storeGroups[idLetter] = g;
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
-            m(width, 0.2, 30, 0, 0.15, -10, whiteMat); // Suelo elevado (0.15) y blanco puro por petición del usuario
-            m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo sólido
+            m(width, 0.2, 30, 0, 0.02, -10, whiteMat); // Suelo elevado 2cm para evitar z-fighting
+            m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo s├│lido
 
             // Paredes laterales
             m(0.2, height, 30, -width / 2, height / 2, -10, whiteMat);
@@ -914,23 +1079,27 @@
             sM.position.set(0, height + 1.25, 5.45); g.add(sM);
             return g;
         }
-        // --- TIENDAS ANCLA (RESTAURACIÓN ESTRUCTURAL CON SALIDAS) ---
+        // --- TIENDAS ANCLA (RESTAURACI├ôN ESTRUCTURAL CON SALIDAS) ---
         const sAnchor = createAnchorStore(0, -100, 70, 15, "MALL SUR", "S");
+        storeGroups["S"] = sAnchor;
         scene.add(sAnchor);
         registerCollider(-20.5, -125, 29, 1, 0, 15); // Muro Frontal Izq (Sur)
         registerCollider(20.5, -125, 29, 1, 0, 15);  // Muro Frontal Der (Sur)
 
         const nAnchor = createAnchorStore(0, 100, 70, 15, "MALL NORTE", "N");
+        storeGroups["N"] = nAnchor;
         nAnchor.rotateY(Math.PI); scene.add(nAnchor);
         registerCollider(-20.5, 125, 29, 1, 0, 15); // Muro Frontal Izq (Norte - Puerta Boulevard)
         registerCollider(20.5, 125, 29, 1, 0, 15);  // Muro Frontal Der (Norte - Puerta Boulevard)
 
         const eAnchor = createAnchorStore(100, 0, 70, 15, "MALL ESTE", "E");
+        storeGroups["E"] = eAnchor;
         eAnchor.rotateY(-Math.PI / 2); scene.add(eAnchor);
         registerCollider(125, -20.5, 1, 29, 0, 15); // Muro Frontal (Este)
         registerCollider(125, 20.5, 1, 29, 0, 15);
 
         const wAnchor = createAnchorStore(-100, 0, 70, 15, "MALL OESTE", "O");
+        storeGroups["O"] = wAnchor;
         wAnchor.rotateY(Math.PI / 2); scene.add(wAnchor);
         registerCollider(-125, -20.5, 1, 29, 0, 15); // Muro Frontal (Oeste)
         registerCollider(-125, 20.5, 1, 29, 0, 15);
@@ -984,7 +1153,7 @@
             }
             [[25, 140], [-25, 140], [25, 180], [-25, 180], [40, 160], [-40, 160]].forEach(p => createParasolSet(p[0], p[1]));
 
-            // 4. Tiendas del Boulevard (Colores Planos y Vivos como pidió el usuario)
+            // 4. Tiendas del Boulevard (Colores Planos y Vivos como pidi├│ el usuario)
             const bLabels = ["BURGER", "TACO", "PIZZA", "SUSHI", "CAFE"];
             const bCols = [0xff0055, 0x00ff77, 0x0088ff, 0xffaa00, 0x9955ff];
             for (let i = -2; i <= 2; i++) {
@@ -1002,10 +1171,10 @@
         }
         createBoulevardArea();
 
-        // --- COLISIÓN TORRE CENTRAL Y FUENTE ---
-        registerCollider(0, 0, 8, 8, 0, 30); // El núcleo central es sólido
+        // --- COLISI├ôN TORRE CENTRAL Y FUENTE ---
+        registerCollider(0, 0, 8, 8, 0, 30); // El n├║cleo central es s├│lido
 
-        // --- MUEBLES PLAZA CENTRAL (Sólidos) ---
+        // --- MUEBLES PLAZA CENTRAL (S├│lidos) ---
         function createTableSet(x, z) {
             const gr = new THREE.Group(); gr.position.set(x, 0.1, z);
             const table = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.1), whiteMat); table.position.y = 1.0; gr.add(table);
@@ -1019,7 +1188,6 @@
         const grassMat = new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.8 }); // Verde pasto
         const asphaltMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 }); // Gris asfalto
         const roadLineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const marbleMat = new THREE.MeshStandardMaterial({ color: 0xb0b0b0, roughness: 0.1, metalness: 0.1 }); // Mármol Mall
 
         function createExterior() {
             // Plano de Pasto General
@@ -1041,14 +1209,14 @@
                 const pkg = new THREE.Mesh(new THREE.BoxGeometry(60, 0.2, 60), asphaltMat);
                 pkg.position.set(p[0] * 1.8, 0, p[1] * 1.8);
                 scene.add(pkg);
-                // Líneas de parqueo básicas
+                // L├¡neas de parqueo b├ísicas
                 for (let i = -25; i <= 25; i += 5) {
                     const line = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 10), roadLineMat);
                     line.position.set(pkg.position.x + i, 0.15, pkg.position.z); scene.add(line);
                 }
             });
 
-            // Palmas Tropicales
+            // --- PALMAS TROPICALES EXTERIORES ---
             const createPalm = (x, z) => {
                 const p = new THREE.Group(); p.position.set(x, 0, z);
                 
@@ -1078,7 +1246,7 @@
                 scene.add(p);
             };
 
-            // Plantación simétrica de Palmas
+            // Plantaci├│n sim├®trica de Palmas
             for (let i = -120; i <= 120; i += 40) {
                 if (Math.abs(i) < 20) continue;
                 createPalm(i, 130); createPalm(i, -130);
@@ -1086,7 +1254,6 @@
             }
         }
         createExterior();
-        createBoulevardArea();
 
         function createSmallIDTexture(text) {
             const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 128;
@@ -1099,11 +1266,11 @@
             return new THREE.CanvasTexture(canvas);
         }
 
-        // 🏺 URBANISMO INTERIOR: Maceteros con Árboles Estilizados
+        // ­ƒÅ║ URBANISMO INTERIOR: Maceteros con ├ürboles Estilizados
         function createPlanter(x, z) {
             const gr = new THREE.Group(); gr.position.set(x, 0.1, z);
             
-            // Maceteros de Lujo
+            // Macetero de Lujo
             const box = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.8, 2.5), goldMat); 
             box.position.y = 0.4; gr.add(box);
             
@@ -1116,7 +1283,7 @@
             const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.15, 3, 8), trunkMat); 
             trunk.position.y = 2.2; gr.add(trunk);
 
-            // Follaje Orgánico (Agrupación de esferas)
+            // Follaje Org├ínico (Agrupaci├│n de esferas)
             const leafMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27, roughness: 0.8 });
             const leafMatDark = new THREE.MeshStandardMaterial({ color: 0x1a3a16, roughness: 0.8 });
             
@@ -1131,7 +1298,7 @@
             foliageConfig.forEach((f, idx) => {
                 const blob = new THREE.Mesh(new THREE.SphereGeometry(f.s, 12, 12), idx % 2 === 0 ? leafMat : leafMatDark);
                 blob.position.set(f.p[0], f.p[1], f.p[2]);
-                blob.scale.set(1, 0.8, 1); // Ligeramente achatadas para look más arbóreo
+                blob.scale.set(1, 0.8, 1); // Ligeramente achatadas para look m├ís arb├│reo
                 gr.add(blob);
             });
 
@@ -1145,7 +1312,7 @@
             scene.add(gr);
         }
 
-        // ⛲ FUENTE CENTRAL
+        // Ôø▓ FUENTE CENTRAL
         function createCentralFountain() {
             const gr = new THREE.Group(); gr.position.set(0, 0.1, 0);
             const basin = new THREE.Mesh(new THREE.CylinderGeometry(7, 7.5, 0.8, 32), new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5 })); gr.add(basin);
@@ -1155,7 +1322,7 @@
             scene.add(gr);
         }
 
-        // 📺 PANTALLAS DIGITALES LED CON ROTACIÓN
+        // ­ƒô║ PANTALLAS DIGITALES LED CON ROTACI├ôN
         const adTexts = [
             { t: "ROLEX: EXCELLENCE", c: "#000000", tc: "#c9a66b" },
             { t: "GUCCI: SPRING 2026", c: "#4a148c", tc: "#ffffff" },
@@ -1186,17 +1353,17 @@
         function createEscalatorTexture() {
             const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#888888'; ctx.fillRect(0, 0, 128, 128); // Base metálica
+            ctx.fillStyle = '#888888'; ctx.fillRect(0, 0, 128, 128); // Base met├ílica
             ctx.fillStyle = '#111111';
             // Franjas longitudinales (ranuras dentadas)
             for (let i = 0; i < 128; i += 6) {
                 ctx.fillRect(i, 0, 2, 128);
             }
-            // Bordes amarillos de seguridad (típicos)
+            // Bordes amarillos de seguridad (t├¡picos)
             ctx.fillStyle = '#ffcc00'; ctx.fillRect(0, 0, 5, 128); ctx.fillRect(123, 0, 5, 128);
             const tex = new THREE.CanvasTexture(canvas);
             tex.wrapT = tex.wrapS = THREE.RepeatWrapping;
-            tex.repeat.set(1, 15); // Repetición a lo largo de la rampa
+            tex.repeat.set(1, 15); // Repetici├│n a lo largo de la rampa
             return tex;
         }
 
@@ -1242,8 +1409,8 @@
             cw(2.5, 0.1, diagLenH, 0, h / 2 + 0.65, (flatLen + diagLenZ / 2) * dir, matStep, -ang * dir);
             cw(2.5, 0.1, flatLen, 0, h + 0.65, (flatLen + diagLenZ + flatLen / 2) * dir, matStep);
 
-            // Indicador de dirección
-            const signTex = createEscalatorSign(up ? '↑' : '↓', up ? '#00ff44' : '#ff4400');
+            // Indicador de direcci├│n
+            const signTex = createEscalatorSign(up ? 'Ôåæ' : 'Ôåô', up ? '#00ff44' : '#ff4400');
             const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), new THREE.MeshBasicMaterial({ map: signTex }));
             sign.position.set(0, 1.5, (dir > 0 ? 0 : -0.2)); gr.add(sign);
 
@@ -1260,13 +1427,13 @@
 
         function createGlassElevator(x, z) {
             const gr = new THREE.Group(); gr.position.set(x, 0.1, z);
-            // Columnas Guía (Oro)
+            // Columnas Gu├¡a (Oro)
             [2.5, -2.5].forEach(px => [2.5, -2.5].forEach(pz => {
                 const col = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 22.0), goldMat);
                 col.position.set(px, 11.0, pz); gr.add(col);
             }));
-            // Cápsula de Cristal
-            const cab = new THREE.Group(); cab.position.y = 2.7; // Posición estática elegante
+            // C├ípsula de Cristal
+            const cab = new THREE.Group(); cab.position.y = 2.7; // Posici├│n est├ítica elegante
             const body = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 4.5, 16, 1, true), glassMat); cab.add(body);
             const cap = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 0.4), goldMat); cap.position.y = 2.25; cab.add(cap);
             const base = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 0.4), goldMat); base.position.y = -2.25; cab.add(base);
@@ -1280,7 +1447,7 @@
             const f = new THREE.Mesh(new THREE.BoxGeometry(12, 0.2, 18), new THREE.MeshPhongMaterial({ color: 0x003366 })); f.position.y = 0.02; sh.add(f);
             const cw = (w, h, d, x, y, z, m) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); mw.position.set(x, y, z); sh.add(mw); };
 
-            // Iluminación Techo (Interior)
+            // Iluminaci├│n Techo (Interior)
             const lightStrip = new THREE.Mesh(new THREE.PlaneGeometry(10, 16), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 }));
             lightStrip.rotation.x = Math.PI / 2; lightStrip.position.y = 4.75; sh.add(lightStrip);
 
@@ -1307,13 +1474,12 @@
             if (shopCode !== "") {
                 const idTex = createSmallIDTexture(shopCode);
                 const idPlaque = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
-                idPlaque.userData.isSign = true; // Solo el letrero abre el catálogo
+                idPlaque.userData.isSign = true;
                 idPlaque.position.set(-5.0, 4.4, 9.15); sh.add(idPlaque);
             }
-            if(shopCode) storeGroups[shopCode] = sh;
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
 
-            // --- REGISTRO DE COLISIÓN (Paredes laterales, trasera y frontal con hueco de puerta) ---
+            // --- REGISTRO DE COLISI├ôN (Paredes laterales, trasera y frontal con hueco de puerta) ---
             const cos = Math.cos(rotY); const sin = Math.sin(rotY);
             const yB = (posY > 5 ? 5.4 : 0);
             
@@ -1342,8 +1508,89 @@
 
             return sh;
         }
+        
+        // --- L├ôGICA DE MOBILIARIO Y PRODUCTOS 3D ---
+        const textureLoader = new THREE.TextureLoader();
 
-        // 🏛️ TÓTEMS DE INFORMACIÓN Y BÚSQUEDA
+        async function updateStoreVisuals(code, storeData, products) {
+            const sh = storeGroups[code];
+            if (!sh) return;
+
+            // Asegurarnos que tenga un contenedor de interior
+            let interior = sh.getObjectByName("interior");
+            if (!interior) {
+                interior = new THREE.Group();
+                interior.name = "interior";
+                sh.add(interior);
+            }
+
+            // Limpiar interior actual
+            while(interior.children.length > 0) interior.remove(interior.children[0]);
+
+            // Definir Material seg├║n Estilo
+            let frameMat = darkMat;
+            let shelfMat = glassMat;
+            const style = storeData.shelf_style || 'madera';
+
+            if (style === 'madera') {
+                frameMat = new THREE.MeshStandardMaterial({ color: 0x3d2b1f, roughness: 0.8 });
+                shelfMat = new THREE.MeshStandardMaterial({ color: 0x4e3629, roughness: 0.7 });
+            } else if (style === 'minimalista') {
+                frameMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.3 });
+                shelfMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+            } else if (style === 'cristal') {
+                frameMat = goldMat;
+                shelfMat = glassMat;
+            }
+
+            // Crear Estantes (Dos filas laterales)
+            const createShelfUnit = (posX) => {
+                const unit = new THREE.Group();
+                unit.position.set(posX, 0, 0);
+                
+                // Estructura (Postes)
+                [-4, 4].forEach(pz => {
+                    const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4.8, 0.2), frameMat);
+                    post.position.set(0, 2.4, pz); unit.add(post);
+                });
+
+                // Repisas (3 niveles)
+                [1.2, 2.6, 4.0].forEach((py, level) => {
+                    const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 8), shelfMat);
+                    shelf.position.set(0, py, 0); unit.add(shelf);
+
+                    // Colocar productos en esta repisa (m├íx 2 por repisa por lado)
+                    const pIndexStart = (posX < 0 ? 0 : 5) + (level * 2);
+                    for(let i=0; i<2; i++) {
+                        const p = products[pIndexStart + i];
+                        if (p && p.image_url) {
+                            textureLoader.load(p.image_url, (tex) => {
+                                const pMesh = new THREE.Mesh(
+                                    new THREE.BoxGeometry(0.1, 0.8, 0.8),
+                                    new THREE.MeshStandardMaterial({ map: tex })
+                                );
+                                pMesh.position.set(posX < 0 ? 0.3 : -0.3, py + 0.45, (i === 0 ? -1.5 : 1.5));
+                                unit.add(pMesh);
+                            });
+                        }
+                    }
+                });
+                interior.add(unit);
+            };
+
+            createShelfUnit(-5.5); // Izquierda
+            createShelfUnit(5.5);  // Derecha
+
+            // Actualizar Letrero si hay Logo
+            if (storeData.logo_url) {
+                textureLoader.load(storeData.logo_url, (tex) => {
+                    const sign = sh.children.find(c => c.userData.isSign);
+                    if (sign) sign.material.map = tex;
+                });
+            }
+        }
+
+        // ­ƒÅø´©Å T├ôTEMS DE INFORMACI├ôN Y B├ÜSQUEDA
         function createInfoTexture() {
             const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d');
@@ -1371,7 +1618,7 @@
             registerCollider(x, z, 2, 2, 0, 5);
         }
 
-        // --- POBLAR TÓTEMS ---
+        // --- POBLAR T├ôTEMS ---
         createInfoTotem(0, 10);   // Centro Atrio
         createInfoTotem(0, 80);   // Ala Norte
         createInfoTotem(0, -80);  // Ala Sur
@@ -1385,11 +1632,11 @@
             const wingH = (sz > 0) ? 'N' : 'S';
             const wingV = (sx > 0) ? 'E' : 'O';
 
-            // CORRECCIÓN "MORDIDA DE RATÓN": Iniciamos en 23 para cerrar esquinas del atrio
+            // CORRECCI├ôN "MORDIDA DE RAT├ôN": Iniciamos en 23 para cerrar esquinas del atrio
             let oRows, sideRows;
             if (y === 0) {
                 // Planta Baja: 5 tiendas, terminan en 83 (71+6 es 77... no, 71+6=77). 
-                // Para GAP 12: última debe ser 77.
+                // Para GAP 12: ├║ltima debe ser 77.
                 oRows = [23, 35, 47, 59, 77];
                 sideRows = [23, 35, 47, 59, 77];
             } else {
@@ -1400,11 +1647,16 @@
 
             oRows.forEach((o, i) => {
                 const code = `${wingH}${floorNum}${String(i + 1).padStart(2, '0')}`;
-                gr.add(createBoutique(o * sx, 26 * sz, sz > 0 ? Math.PI : 0, { back: true, left: i === 0 ? 'glass' : true, right: i === 0 ? false : true }, y, code));
+                const b = createBoutique(o * sx, 26 * sz, sz > 0 ? Math.PI : 0, { back: true, left: i === 0 ? 'glass' : true, right: i === 0 ? false : true }, y, code);
+                storeGroups[code] = b;
+                gr.add(b);
             });
+
             sideRows.forEach((o, i) => {
                 const code = `${wingV}${floorNum}${String(i + 1).padStart(2, '0')}`;
-                gr.add(createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true }, y, code));
+                const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true }, y, code);
+                storeGroups[code] = b;
+                gr.add(b);
             });
 
             // --- MURO PERIMETRAL EXTERIOR (CIERRA HUECOS CENTRALES, DEJA ENTRADAS LIBRES) ---
@@ -1412,11 +1664,11 @@
             const h = 5.2; const thickness = 0.2;
             const corridorLen = 48; // Recortado para no sobresalir al pasillo central
 
-            // Muro para oRows (atrás de las tiendas en el eje horizontal)
+            // Muro para oRows (atr├ís de las tiendas en el eje horizontal)
             const w1 = new THREE.Mesh(new THREE.BoxGeometry(corridorLen, h, thickness), wallM);
             w1.position.set(59 * sx, y + h / 2, 35 * sz); gr.add(w1);
 
-            // Muro para sideRows (atrás de las tiendas en el eje vertical)
+            // Muro para sideRows (atr├ís de las tiendas en el eje vertical)
             const w2 = new THREE.Mesh(new THREE.BoxGeometry(thickness, h, corridorLen), wallM);
             w2.position.set(35 * sx, y + h / 2, 59 * sz); gr.add(w2);
 
@@ -1432,8 +1684,8 @@
         createEscalator(-3, -30, -17, true); // Derecha: SUBIDA (Viene del pasillo al atrio)
         createEscalator(3, -30, -17, false); // Izquierda: BAJADA (Viene del pasillo al atrio)
 
-        // Registro de escaleras (para depuración y lógica)
-        // [Las coordenadas ya están sincronizadas en la lista interna]
+        // Registro de escaleras (para depuraci├│n y l├│gica)
+        // [Las coordenadas ya est├ín sincronizadas en la lista interna]
 
 
 
@@ -1450,15 +1702,16 @@
         createDigitalScreen(-17, 22.0, 0, Math.PI / 2);
 
         function createInteriorFloors() {
+            const marbleMat = new THREE.MeshStandardMaterial({ color: 0xb0b0b0, roughness: 0.1, metalness: 0.1 });
             const bronzeMat = new THREE.MeshStandardMaterial({ color: 0x332211, roughness: 0.2 });
 
             const drawFloorWithGrid = (w, d, x, y, z) => {
                 const thickness = 0.6; // Grosor estructural de "concreto"
                 const f = new THREE.Mesh(new THREE.BoxGeometry(w, thickness, d), marbleMat);
-                // Ajustamos para que la superficie superior esté en 'y'
+                // Ajustamos para que la superficie superior est├® en 'y'
                 f.position.set(x, y - thickness / 2, z); scene.add(f);
 
-                // DISEÑO DE LUJO: Doble línea (Architectural Grid)
+                // DISE├æO DE LUJO: Doble l├¡nea (Architectural Grid)
                 const step = 8;
                 const gap = 0.8;
 
@@ -1492,7 +1745,7 @@
             drawFloorWithGrid(190, 6, 0, 5.4, 14);  // NORTE
             drawFloorWithGrid(190, 6, 0, 5.4, -14); // SUR
 
-            // PLATAFORMAS DE ACCESO (Vestíbulos de 12 de ancho que unen las pasarelas en las entradas a Tiendas Ancla)
+            // PLATAFORMAS DE ACCESO (Vest├¡bulos de 12 de ancho que unen las pasarelas en las entradas a Tiendas Ancla)
             drawFloorWithGrid(34, 12, 0, 5.4, 89);  // Acceso Norte
             drawFloorWithGrid(34, 12, 0, 5.4, -89); // Acceso Sur
             drawFloorWithGrid(12, 34, 89, 5.4, 0);  // Acceso Este
@@ -1582,7 +1835,7 @@
         const centralDome = new THREE.Mesh(new THREE.SphereGeometry(CENTRAL_DOME_RADIUS, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), glassMat);
         centralDome.position.set(0, DOME_CENTER_Y, 0); scene.add(centralDome);
         const lastRingTarget = DOME_RING_TARGETS[DOME_RING_TARGETS.length - 1];
-        const domeRibArc = Math.acos((lastRingTarget.height - DOME_CENTER_Y) / CENTRAL_DOME_RADIUS); // Ángulo para llegar al último anillo
+        const domeRibArc = Math.acos((lastRingTarget.height - DOME_CENTER_Y) / CENTRAL_DOME_RADIUS); // ├üngulo para llegar al ├║ltimo anillo
         for (let i = 0; i < 8; i++) {
             const rib = new THREE.Mesh(new THREE.TorusGeometry(CENTRAL_DOME_RADIUS, 0.10, 16, 64, domeRibArc), darkMat);
             rib.position.set(0, DOME_CENTER_Y, 0);
@@ -1591,7 +1844,7 @@
             scene.add(rib);
         }
         // Rebuild de anillos desde cero (7 niveles):
-        // 1) fierro más alto (0), 2..7) pares siguientes por altura (±4, ±7, ±10, ±13, ±16, ±19).
+        // 1) fierro m├ís alto (0), 2..7) pares siguientes por altura (┬▒4, ┬▒7, ┬▒10, ┬▒13, ┬▒16, ┬▒19).
         DOME_RING_TARGETS.forEach((target) => {
             const ring = new THREE.Mesh(new THREE.TorusGeometry(target.radius, 0.10, 16, 128), darkMat);
             const ringHeight = target.height;
@@ -1602,12 +1855,12 @@
         });
 
 
-        // --- SISTEMA DE NAVEGACIÓN REFORZADO (TECLADO + JOYSTICK) ---
+        // --- SISTEMA DE NAVEGACI├ôN REFORZADO (TECLADO + JOYSTICK) ---
         const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false, ControlLeft: false, ControlRight: false };
         window.addEventListener('keydown', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = true; });
         window.addEventListener('keyup', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
 
-        // --- LÓGICA DE JOYSTICK VIRTUAL ---
+        // --- L├ôGICA DE JOYSTICK VIRTUAL ---
         let joystickActive = false;
         let joystickDir = { x: 0, y: 0 };
         const joyZone = document.getElementById('joystick-zone');
@@ -1646,7 +1899,7 @@
             joyKnob.style.transform = `translate(-50%, -50%)`;
         });
 
-        // Touch simulador de teclado para botones de rotación
+        // Touch simulador de teclado para botones de rotaci├│n
         const bindKey = (id, key) => {
             const el = document.getElementById(id);
             if (!el) return;
@@ -1657,10 +1910,10 @@
         };
         bindKey('btn-rotate-left', 'ArrowLeft');
         bindKey('btn-rotate-right', 'ArrowRight');
-        bindKey('btn-look-up', 'ArrowUp'); // En modo paseo ArrowUp rota hacia arriba si Control está presionado, pero aquí daremos movilidad total
+        bindKey('btn-look-up', 'ArrowUp'); // En modo paseo ArrowUp rota hacia arriba si Control est├í presionado, pero aqu├¡ daremos movilidad total
         bindKey('btn-look-down', 'ArrowDown');
 
-        // Lógica de Look Up/Down para botones específicos
+        // L├│gica de Look Up/Down para botones espec├¡ficos
         let isBtnLookUp = false;
         let isBtnLookDown = false;
         document.getElementById('btn-look-up').onpointerdown = () => isBtnLookUp = true;
@@ -1718,7 +1971,7 @@
                     moveAccumZ -= walkDir.z * moveSpeed;
                 }
 
-                // Rotación Horizontal
+                // Rotaci├│n Horizontal
                 if (keys.ArrowLeft) {
                     const relativeTarget = controls.target.clone().sub(camera.position);
                     relativeTarget.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotSpeed);
@@ -1753,18 +2006,18 @@
                 if (keys.KeyS) { moveAccumX -= walkDir.x * moveSpeed; moveAccumZ -= walkDir.z * moveSpeed; }
             }
 
-            // --- APLICACIÓN DE MOVIMIENTO CON MOTOR DE COLISIONES ---
+            // --- APLICACI├ôN DE MOVIMIENTO CON MOTOR DE COLISIONES ---
             if (Math.abs(moveAccumX) > 0.0001 || Math.abs(moveAccumZ) > 0.0001) {
                 const nx = camera.position.x + moveAccumX;
                 const ny = camera.position.y;
                 const nz = camera.position.z + moveAccumZ;
 
-                // Colisión Eje X (deslizamiento)
+                // Colisi├│n Eje X (deslizamiento)
                 if (!checkCollision(nx, ny, camera.position.z)) {
                     camera.position.x = nx;
                     controls.target.x += moveAccumX;
                 }
-                // Colisión Eje Z (deslizamiento)
+                // Colisi├│n Eje Z (deslizamiento)
                 if (!checkCollision(camera.position.x, ny, nz)) {
                     camera.position.z = nz;
                     controls.target.z += moveAccumZ;
@@ -1779,7 +2032,7 @@
             if (keys.KeyD) { camera.position.addScaledVector(right, moveSpeed); controls.target.addScaledVector(right, moveSpeed); }
 
 
-            // --- MOTOR DE ESCALERAS MECÁNICAS (V3 GEOMÉTRICA) ---
+            // --- MOTOR DE ESCALERAS MEC├üNICAS (V3 GEOM├ëTRICA) ---
             let onEscalator = false;
             escalatorList.forEach(e => {
                 const dx = Math.abs(camera.position.x - e.x);
@@ -1788,13 +2041,13 @@
                 if (dx < 1.8 && dz) {
                     onEscalator = true;
 
-                    // 1. Tracción Horizontal (Z)
+                    // 1. Tracci├│n Horizontal (Z)
                     const distDir = Math.sign(e.zEnd - e.zStart);
                     const speedZ = 0.09;
                     camera.position.z += distDir * speedZ;
                     controls.target.z += distDir * speedZ;
 
-                    // 2. Empuje Vertical Constante (Y) - Según sugerencia del usuario
+                    // 2. Empuje Vertical Constante (Y) - Seg├║n sugerencia del usuario
                     const speedY = 0.04; // Velocidad de ascenso/descenso
                     const targetHeight = e.up ? 7.1 : 1.8; // Piso 2 o PB
 
@@ -1819,24 +2072,48 @@
 
 
 
-        // --- LÓGICA DE GESTIÓN COMERCIAL (BASE DE DATOS DINÁMICA) ---
+        // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(
+                'https://kcfuixvrwbnizspgtmtr.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZnVpeHZyd2JuaXpzcGd0bXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTI2MTUzMTgsImV4cCI6MjAyODIwNzMxOH0.p-Bf_H23KD1xJafE_DFpBFZlyA_CL9sNlpG'
+            );
+        } catch(e) { console.error("Error inicializando Supabase:", e); }
+
+        // --- L├ôGICA DE GESTI├ôN COMERCIAL (BASE DE DATOS DIN├üMICA) ---
         const categoryData = {
             MODA: { giro: "Boutique de Alta Costura", products: [{ n: "Vestido Gala", p: "$1.850" }, { n: "Bolso de Cuero", p: "$2.200" }, { n: "Perfume Signature", p: "$450" }] },
-            TECH: { giro: "Tecnología e Innovación", products: [{ n: "Smartphone PRO Max", p: "$1.299" }, { n: "Laptop Ultraliviana", p: "$2.450" }, { n: "Reloj Inteligente", p: "$590" }] },
-            JOYERIA: { giro: "Alta Joyería y Relojería", products: [{ n: "Anillo Diamante", p: "$12.500" }, { n: "Collar Oro 18K", p: "$7.200" }, { n: "Reloj Platino", p: "$18.900" }] },
-            CAFE: { giro: "Café de Especialidad y Bistro", products: [{ n: "Pack Café de Origen", p: "$28" }, { n: "Taza Cerámica Autor", p: "$35" }, { n: "Degustación Gourmet", p: "$65" }] },
-            DEPORTES: { giro: "Equipamiento Deportivo Pro", products: [{ n: "Zapatillas Carbono", p: "$280" }, { n: "Camiseta Técnica", p: "$85" }, { n: "Bolso Gym Premium", p: "$145" }] }
+            TECH: { giro: "Tecnolog├¡a e Innovaci├│n", products: [{ n: "Smartphone PRO Max", p: "$1.299" }, { n: "Laptop Ultraliviana", p: "$2.450" }, { n: "Reloj Inteligente", p: "$590" }] },
+            JOYERIA: { giro: "Alta Joyer├¡a y Relojer├¡a", products: [{ n: "Anillo Diamante", p: "$12.500" }, { n: "Collar Oro 18K", p: "$7.200" }, { n: "Reloj Platino", p: "$18.900" }] },
+            CAFE: { giro: "Caf├® de Especialidad y Bistro", products: [{ n: "Pack Caf├® de Origen", p: "$28" }, { n: "Taza Cer├ímica Autor", p: "$35" }, { n: "Degustaci├│n Gourmet", p: "$65" }] },
+            DEPORTES: { giro: "Equipamiento Deportivo Pro", products: [{ n: "Zapatillas Carbono", p: "$280" }, { n: "Camiseta T├®cnica", p: "$85" }, { n: "Bolso Gym Premium", p: "$145" }] }
         };
 
-        function getStoreData(code) {
-            // Generador consistente basado en el código
+        async function getStoreData(code) {
+            // 1. Intentar cargar desde Supabase
+            if (supabaseClient) {
+                const { data: dbStore } = await supabaseClient.from('stores').select('*').eq('local_code', code).maybeSingle();
+                if (dbStore) {
+                    const { data: dbProducts } = await supabaseClient.from('store_products').select('*').eq('local_code', code).limit(10);
+                    const mappedProducts = (dbProducts || []).map(p => ({ n: p.name, p: p.price }));
+                    return { 
+                        shopCode: code, 
+                        name: dbStore.name, 
+                        category: dbStore.category || "Comercio", 
+                        products: mappedProducts.length > 0 ? mappedProducts : [{n: "Consultar cat├ílogo", p: "-"}],
+                        contactEmail: dbStore.contact_email
+                    };
+                }
+            }
+
+            // 2. Fallback a generador aleatorio si no est├í en DB
             const hash = code.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
             const categories = Object.keys(categoryData);
             const catKey = categories[hash % categories.length];
             const data = categoryData[catKey];
 
             let name = "Boutique " + (code.length > 2 ? code.substring(0, 2) : "Premium");
-            // Nombres especiales para anclas
             if (code === "N") name = "Nordic Emporium";
             if (code === "S") name = "Southern Luxury";
             if (code === "E") name = "Eastern Gate Mall";
@@ -1846,6 +2123,7 @@
         }
 
         function openModal(data) {
+            currentModalStoreCode = data.shopCode;
             document.getElementById('modal-title').innerText = data.name;
             document.getElementById('modal-code').innerText = `LOCAL ${data.shopCode}`;
             document.getElementById('modal-category').innerText = `Giro Comercial: ${data.category}`;
@@ -1856,38 +2134,36 @@
                 tr.innerHTML = `<td>${p.n}</td><td class="price">${p.p}</td>`;
                 tbody.appendChild(tr);
             });
+
+            // Mostrar bot├│n de gesti├│n solo si el usuario logueado es el due├▒o
+            const manageBtn = document.getElementById('btn-manage-store');
+            if (myOwnedStore && myOwnedStore.local_code === data.shopCode) {
+                manageBtn.style.display = 'block';
+            } else {
+                manageBtn.style.display = 'none';
+            }
+
+            // Configurar mailto
+            const mailtoBtn = document.getElementById('store-mailto-btn');
+            if (data.contactEmail) {
+                mailtoBtn.href = `mailto:${data.contactEmail}?subject=Consulta Mall - Local ${data.shopCode}`;
+                mailtoBtn.style.display = 'block';
+            } else {
+                mailtoBtn.style.display = 'none';
+            }
+
             document.getElementById('modal-overlay').style.display = 'block';
             document.getElementById('store-modal').style.display = 'block';
         }
 
-        window.sendStoreMessage = function() {
-            const name = document.getElementById('contact-name').value;
-            const email = document.getElementById('contact-email').value;
-            const msg = document.getElementById('contact-message').value;
-            const shopCode = document.getElementById('modal-code').innerText;
-            
-            if(!name || !email || !msg) {
-                alert("Por favor completa todos los campos para contactar a la tienda.");
-                return;
-            }
-            
-            // Simulación de envío (luego conectaremos con Supabase si el locatario está registrado)
-            alert(`¡Mensaje enviado a ${shopCode}!\n\nPronto el locatario se pondrá en contacto contigo.`);
-            
-            // Limpiar campos
-            document.getElementById('contact-name').value = '';
-            document.getElementById('contact-email').value = '';
-            document.getElementById('contact-message').value = '';
-        };
-
-        // --- SISTEMA DE INTERACCIÓN (RAYCASTING) ---
+        // --- SISTEMA DE INTERACCI├ôN (RAYCASTING) ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        // --- SISTEMA DE BÚSQUEDA Y MAPAS ---
+        // --- SISTEMA DE B├ÜSQUEDA Y MAPAS ---
         let fullStoreInventory = [];
-        function precalculateInventory() {
-            // Recorre códigos posibles y precalcula para el buscador
+        async function precalculateInventory() {
+            // Recorre c├│digos posibles y precalcula para el buscador
             const codes = [];
             ['N', 'S', 'E', 'O'].forEach(w => {
                 [1, 2].forEach(f => {
@@ -1895,7 +2171,9 @@
                 });
             });
             ['N', 'S', 'E', 'O'].forEach(a => codes.push(a));
-            codes.forEach(c => fullStoreInventory.push(getStoreData(c)));
+            
+            const promises = codes.map(c => getStoreData(c));
+            fullStoreInventory = await Promise.all(promises);
         }
         precalculateInventory();
 
@@ -1908,7 +2186,10 @@
             matches.forEach(m => {
                 const div = document.createElement('div'); div.className = 'search-item';
                 div.innerHTML = `<span><strong>${m.name}</strong> (${m.category})</span> <small>${m.shopCode}</small>`;
-                div.onclick = () => showInMap(m);
+                div.onclick = async () => {
+                    const fullData = await getStoreData(m.shopCode);
+                    showInMap(fullData);
+                };
                 results.appendChild(div);
             });
         };
@@ -1921,7 +2202,7 @@
             const mapTarget = document.getElementById('map-target-pos');
             mapTarget.innerHTML = '';
 
-            // Decodificar código para mapa 2D (esquemático)
+            // Decodificar c├│digo para mapa 2D (esquem├ítico)
             let x = 50, y = 50;
             const wing = store.shopCode[0];
             const val = parseInt(store.shopCode.substring(2)) || 50; // Para anclas
@@ -1944,14 +2225,14 @@
             dot.appendChild(animate);
             mapTarget.appendChild(dot);
 
-            document.getElementById('location-text').innerHTML = `<b style="color:#c5a059;">Ubicación:</b> Ala ${wing}, Planta ${floor}. Local ${store.shopCode}`;
+            document.getElementById('location-text').innerHTML = `<b style="color:#c5a059;">Ubicaci├│n:</b> Ala ${wing}, Planta ${floor}. Local ${store.shopCode}`;
         }
 
         window.openSearch = function () { document.getElementById('search-modal').style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; };
         document.getElementById('search-close-btn').onclick = () => { document.getElementById('search-modal').style.display = 'none'; document.getElementById('modal-overlay').style.display = 'none'; };
 
-        window.addEventListener('click', (event) => {
-            // No interactuar con el mall si el login o el modal de búsqueda están abiertos
+        window.addEventListener('click', async (event) => {
+            // No interactuar con el mall si el login o el modal de b├║squeda est├ín abiertos
             if (document.getElementById('login-overlay').style.display !== 'none' ||
                 document.getElementById('search-modal').style.display === 'block') return;
 
@@ -1960,15 +2241,18 @@
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children, true);
             if (intersects.length > 0) {
-                let obj = intersects[0].object;
+                let initialObj = intersects[0].object;
+                let isSign = false;
+                let testSign = initialObj;
+                while(testSign) {
+                    if(testSign.userData.isSign) { isSign = true; break; }
+                    testSign = testSign.parent;
+                }
+
+                let obj = initialObj;
                 let foundStore = null, foundTotem = null, foundPlayer = null;
                 while (obj.parent) {
-                    if (obj.userData.isSign) {
-                        // Encontrar la tienda padre
-                        let storeObj = obj;
-                        while(storeObj.parent && !storeObj.userData.shopCode) storeObj = storeObj.parent;
-                        foundStore = storeObj;
-                    }
+                    if (obj.userData.shopCode) foundStore = obj;
                     if (obj.userData.isTotem) foundTotem = obj;
                     if (obj.userData.playerId) foundPlayer = obj.userData.playerId;
                     if (foundStore || foundTotem || foundPlayer) break;
@@ -1979,16 +2263,15 @@
                     return;
                 }
                 if (foundTotem) openSearch();
-                else if (foundStore) {
-                    const data = getStoreData(foundStore.userData.shopCode);
+                else if (foundStore && isSign) {
+                    const data = await getStoreData(foundStore.userData.shopCode);
                     if (foundStore.userData.isAnchor) data.name = foundStore.userData.name;
                     openModal(data);
                 }
             }
         });
 
-        // --- SUPABASE & MULTIJUGADOR OPTIMIZADO ---
-        let supabaseClient = null;
+        // supabaseClient ya inicializado arriba (antes de getStoreData)
         let myNickname = "";
         let myAvatarStyle = "1";
 
@@ -1996,6 +2279,12 @@
             myAvatarStyle = id;
             document.querySelectorAll('.avatar-opt').forEach(btn => btn.classList.remove('selected'));
             el.classList.add('selected');
+        }
+
+        window.toggleMembershipFields = function() {
+            const checkbox = document.getElementById('membership-checkbox');
+            const fields = document.getElementById('membership-fields');
+            fields.style.display = checkbox.checked ? 'flex' : 'none';
         }
 
         // Administradores y Chat
@@ -2020,24 +2309,368 @@
         window.setChatTarget = function (user) {
             if (user === myNickname) return;
             chatTarget = user;
-            document.getElementById('chat-target-text').innerText = `💬 Privado con: ${user}`;
+            document.getElementById('chat-target-text').innerText = `­ƒÆ¼ Privado con: ${user}`;
             document.getElementById('chat-reset-btn').style.display = isAdmin ? 'inline-block' : 'none';
         }
 
         window.resetChatTarget = function () {
             if (!isAdmin) return;
             chatTarget = "Todos";
-            document.getElementById('chat-target-text').innerText = "🔊 HABLANDO A: TODOS";
+            document.getElementById('chat-target-text').innerText = "­ƒöè HABLANDO A: TODOS";
             document.getElementById('chat-reset-btn').style.display = 'none';
+        }
+
+        // --- SISTEMA DE GESTI├ôN DE LOCATARIOS ---
+        let currentTenantUser = null;
+        let myOwnedStore = null; // Informaci├│n de la tienda del locatario logueado
+
+        window.toggleTenantLogin = function() {
+            const modal = document.getElementById('tenant-login-modal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // --- DETECTOR AUTOM├üTICO DE SESI├ôN ADMIN ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            setTimeout(async () => {
+                if (!supabaseClient) return;
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const btn = document.getElementById('super-admin-btn');
+                const btnP = document.getElementById('super-admin-btn-persistent');
+                
+                if (user && user.email === 'alanmauri4815@gmail.com') {
+                    currentTenantUser = user;
+                    if (btn) btn.style.display = 'block';
+                    if (btnP) btnP.style.display = 'block';
+                    
+                    const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
+                    myOwnedStore = storeData;
+                } else {
+                    if (btn) btn.style.display = 'none';
+                    if (btnP) btnP.style.display = 'none';
+                }
+
+                // CARGAR VISUALES DE TODAS LAS TIENDAS AL INICIO
+                const { data: allStores } = await supabaseClient.from('stores').select('*');
+                if(allStores) {
+                    for(const s of allStores) {
+                        const sCode = s.local_code || s.id;
+                        const { data: prods } = await supabaseClient.from('store_products').select('*').eq('local_code', sCode);
+                        updateStoreVisuals(sCode, s, prods || []);
+                    }
+                }
+            }, 1500);
+        });
+
+        window.adminLogout = async function() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+                alert("Sesi├│n cerrada correctamente.");
+                location.reload(); // Recargar para limpiar estado
+            }
+        }
+
+        window.submitTenantApplication = async function() {
+            if (!supabaseClient) return alert("Error de conexi├│n con el mall.");
+            
+            const brand = document.getElementById('apply-brand').value.trim();
+            const category = document.getElementById('apply-category').value.trim();
+            const email = document.getElementById('apply-email').value.trim();
+            const phone = document.getElementById('apply-phone').value.trim();
+            const social = document.getElementById('apply-social').value.trim();
+            
+            if(!brand || !email || !phone) return alert("Por favor completa los campos obligatorios.");
+
+            // 1. Guardar en Supabase (Registro hist├│rico)
+            const { error } = await supabaseClient.from('tenant_applications').insert([
+                { 
+                    brand_name: brand, 
+                    category: category, 
+                    email: email, 
+                    phone: phone, 
+                    social_link: social,
+                    status: 'pending'
+                }
+            ]);
+            
+            if (error) {
+                console.error(error);
+                return alert("Error al registrar en la base de datos: " + error.message);
+            }
+
+            // 2. Enviar Notificaci├│n por Email (v├¡a FormSubmit - Sin claves, directo a tu mail)
+            try {
+                const response = await fetch("https://formsubmit.co/ajax/8cc3291a2642b51af330138fe38da667", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify({
+                        subject: "NUEVA POSTULACI├ôN MALL: " + brand,
+                        Marca: brand,
+                        Giro: category,
+                        Email: email,
+                        Telefono: phone,
+                        Redes: social,
+                        _replyto: email
+                    })
+                });
+
+                if (response.ok) {
+                    alert("┬íPostulaci├│n enviada con ├®xito! Revisa tu email para activar el sistema (solo la primera vez).");
+                    toggleTenantApply();
+                } else {
+                    alert("Postulaci├│n guardada en Supabase. (Notificaci├│n v├¡a mail pendiente de activaci├│n)");
+                    toggleTenantApply();
+                }
+            } catch (e) {
+                console.error("Error env├¡o mail:", e);
+                alert("Postulaci├│n recibida en base de datos.");
+                toggleTenantApply();
+            }
+        }
+
+        window.toggleTenantApply = function() {
+            const modal = document.getElementById('tenant-apply-modal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
+        window.tenantLogin = async function() {
+            const email = document.getElementById('tenant-email').value;
+            const pass = document.getElementById('tenant-pass').value;
+            
+            if (!supabaseClient) return alert("Error de conexi├│n");
+            
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+            if (error) return alert("Error: " + error.message);
+            
+            currentTenantUser = data.user;
+            
+            // Si es el admin (Alan), mostrar botones de Super Admin, de lo contrario ocultar
+            const btn = document.getElementById('super-admin-btn');
+            const btnP = document.getElementById('super-admin-btn-persistent');
+            if (email === 'alanmauri4815@gmail.com') {
+                if(btn) btn.style.display = 'block';
+                if(btnP) btnP.style.display = 'block';
+            } else {
+                if(btn) btn.style.display = 'none';
+                if(btnP) btnP.style.display = 'none';
+            }
+            
+            toggleTenantLogin();
+            
+            // Buscar la tienda del due├▒o
+            const { data: storeData } = await supabaseClient.from('stores').select('*').eq('owner_id', data.user.id).maybeSingle();
+            myOwnedStore = storeData;
+            
+            alert("┬íSesi├│n iniciada con ├®xito!");
+            if (myOwnedStore) loadTenantData();
+        }
+
+        window.openSuperAdmin = function() {
+            const modal = document.getElementById('super-admin-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                loadAdminData();
+            } else {
+                alert("Error: Modal de administraci├│n no encontrado.");
+            }
+        }
+
+        window.loadAdminData = async function() {
+            // 1. Cargar Postulaciones
+            const { data: apps } = await supabaseClient.from('tenant_applications').select('*').order('created_at', { ascending: false });
+            const listDiv = document.getElementById('admin-apps-list');
+            listDiv.innerHTML = "";
+            
+            apps.forEach(app => {
+                const div = document.createElement('div');
+                div.style.background = "rgba(255,255,255,0.03)";
+                div.style.padding = "15px";
+                div.style.borderRadius = "8px";
+                div.style.marginBottom = "10px";
+                div.style.borderLeft = "4px solid " + (app.status === 'pending' ? '#c5a059' : '#4CAF50');
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="color:#fff;">${app.brand_name}</strong> <span style="font-size:10px; color:#888;">(${app.category})</span>
+                            <div style="font-size:11px; color:#666;">${app.email} | ${app.phone}</div>
+                        </div>
+                        <button onclick="assignStorePrompt('${app.email}')" style="background:#c5a059; color:black; border:none; padding:5px 10px; border-radius:3px; font-size:10px; cursor:pointer;">Asignar Local</button>
+                    </div>
+                `;
+                listDiv.appendChild(div);
+            });
+
+            // 2. Cargar Estad├¡sticas de Locales
+            const { data: stores } = await supabaseClient.from('stores').select('id, owner_id');
+            const total = stores.length;
+            const occupied = stores.filter(s => s.owner_id).length;
+            const free = total - occupied;
+            
+            document.getElementById('stat-total-stores').innerText = total;
+            document.getElementById('stat-occupied-stores').innerText = occupied;
+            document.getElementById('stat-free-stores').innerText = free;
+        }
+
+        window.assignStorePrompt = async function(email) {
+            const uid = prompt("Ingresa el UID del usuario (copiado de Supabase Auth) para asignar al local:");
+            if (!uid) return;
+            const code = prompt("Ingresa el C├ôDIGO del local (ej: N101):");
+            if (!code) return;
+            
+            const { error } = await supabaseClient.from('stores').update({ owner_id: uid }).eq('id', code);
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("┬íLocal asignado con ├®xito!");
+                loadAdminData();
+            }
+        }
+
+        window.openTenantAdmin = async function() {
+            if (!myOwnedStore) return alert("No tienes un local asignado.");
+            
+            document.getElementById('edit-store-name').value = myOwnedStore.name;
+            document.getElementById('edit-store-category').value = myOwnedStore.category || "";
+            document.getElementById('edit-store-email').value = myOwnedStore.contact_email || "";
+            document.getElementById('edit-store-logo').value = myOwnedStore.logo_url || "";
+            document.getElementById('edit-store-shelf-style').value = myOwnedStore.shelf_style || "madera";
+            
+            // Cargar productos
+            const { data: products } = await supabaseClient.from('store_products').select('*').eq('local_code', myOwnedStore.local_code).limit(10);
+            
+            const list = document.getElementById('edit-products-list');
+            list.innerHTML = "";
+            for(let i=0; i<10; i++) {
+                const p = (products && products[i]) ? products[i] : { name: "", price: "", image_url: "" };
+                const slot = document.createElement('div');
+                slot.className = "p-slot";
+                slot.style.padding = "10px"; slot.style.background = "#111"; slot.style.borderRadius = "8px";
+                slot.innerHTML = `
+                    <input type="text" placeholder="Nombre" value="${p.name}" class="p-name" style="width:100%; background:#000; border:1px solid #333; color:#fff; font-size:11px; padding:5px; margin-bottom:5px;">
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" placeholder="Precio" value="${p.price}" class="p-price" style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:11px; padding:5px;">
+                        <input type="text" placeholder="URL Foto" value="${p.image_url}" class="p-image" style="flex:2; background:#000; border:1px solid #333; color:#fff; font-size:11px; padding:5px;">
+                    </div>
+                `;
+                list.appendChild(slot);
+            }
+            
+            document.getElementById('tenant-admin-modal').style.display = 'block';
+            document.getElementById('modal-overlay').style.display = 'block';
+        }
+
+        window.closeTenantAdmin = function() {
+            document.getElementById('tenant-admin-modal').style.display = 'none';
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        window.previewTenantStore = function() {
+            const data = {
+                name: document.getElementById('edit-store-name').value,
+                shopCode: myOwnedStore.local_code,
+                category: document.getElementById('edit-store-category').value,
+                contactEmail: document.getElementById('edit-store-email').value,
+                products: []
+            };
+            
+            const slots = document.querySelectorAll('.p-slot');
+            slots.forEach(slot => {
+                const n = slot.querySelector('.p-name').value;
+                const p = slot.querySelector('.p-price').value;
+                if(n) data.products.push({ n: n, p: p });
+            });
+            
+            openModal(data);
+        }
+
+        window.saveTenantData = async function() {
+            if (!myOwnedStore || !currentTenantUser) return;
+            
+            const newName = document.getElementById('edit-store-name').value;
+            const newCat = document.getElementById('edit-store-category').value;
+            const newEmail = document.getElementById('edit-store-email').value;
+            const newLogo = document.getElementById('edit-store-logo').value;
+            const newStyle = document.getElementById('edit-store-shelf-style').value;
+            
+            // 1. Actualizar tienda
+            await supabaseClient.from('stores').update({
+                name: newName,
+                category: newCat,
+                contact_email: newEmail,
+                logo_url: newLogo,
+                shelf_style: newStyle
+            }).eq('local_code', myOwnedStore.local_code);
+            
+            // 2. Actualizar productos (limpiar y re-insertar)
+            await supabaseClient.from('store_products').delete().eq('local_code', myOwnedStore.local_code);
+            
+            const productsToInsert = [];
+            const slots = document.querySelectorAll('.p-slot');
+            slots.forEach(slot => {
+                const n = slot.querySelector('.p-name').value;
+                const p = slot.querySelector('.p-price').value;
+                const img = slot.querySelector('.p-image').value;
+                if(n) productsToInsert.push({ local_code: myOwnedStore.local_code, name: n, price: p, image_url: img });
+            });
+            
+            if(productsToInsert.length > 0) {
+                await supabaseClient.from('store_products').insert(productsToInsert);
+            }
+            
+            // Actualizar localmente
+            myOwnedStore.name = newName;
+            myOwnedStore.category = newCat;
+            myOwnedStore.contact_email = newEmail;
+            myOwnedStore.logo_url = newLogo;
+            myOwnedStore.shelf_style = newStyle;
+
+            // 4. Actualizar visuales 3D inmediatamente
+            const { data: updatedProds } = await supabaseClient.from('store_products').select('*').eq('local_code', myOwnedStore.local_code);
+            updateStoreVisuals(myOwnedStore.local_code, myOwnedStore, updatedProds || []);
+            
+            alert("┬íCambios guardados con ├®xito!");
+            closeTenantAdmin();
+        }
+
+        window.updateTenantPassword = async function() {
+            const newPass = document.getElementById('new-tenant-pass').value;
+            if (newPass.length < 6) return alert("La contrase├▒a debe tener al menos 6 caracteres.");
+            
+            const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("Contrase├▒a actualizada con ├®xito.");
+                document.getElementById('new-tenant-pass').value = "";
+            }
+        }
+
+        window.sendStoreMessage = async function() {
+            const name = document.getElementById('store-contact-name').value;
+            const email = document.getElementById('store-contact-email').value;
+            const msg = document.getElementById('store-contact-msg').value;
+            
+            if(!supabaseClient) return;
+            
+            const { error } = await supabaseClient.from('contact_messages').insert([{
+                name: name,
+                email: email,
+                requirement: msg,
+                store_id: currentModalStoreCode
+            }]);
+            
+            if(error) alert("Error al enviar: " + error.message);
+            else {
+                alert("┬íMensaje enviado al due├▒o del local!");
+                document.getElementById('store-contact-form').reset();
+            }
         }
         let otherPlayers = {}; // { sessionId: { mesh, label, targetPos, targetRot } }
         let presenceChannel = null;
 
-        // Variables de optimización (Ahorro de datos)
+        // Variables de optimizaci├│n (Ahorro de datos)
         let lastSentPos = new THREE.Vector3();
         let lastSentRot = 0;
         const POS_THRESHOLD = 0.3; // No enviar si se mueve menos de 30cm
         const ROT_THRESHOLD = 0.15; // No enviar si rota menos de ~8 grados
+        // Supabase ya inicializado arriba - no sobreescribir
+
         window.startMallExperience = async function () {
             const nick = document.getElementById('nickname-input').value.trim();
             if (!nick) return alert("Por favor, ingresa tu nombre de visitante");
@@ -2048,13 +2681,14 @@
                 resetChatTarget();
             } else {
                 chatTarget = ""; 
-                document.getElementById('chat-target-text').innerText = "🖱️ Clickea un jugador para hablarle";
+                document.getElementById('chat-target-text').innerText = "­ƒû▒´©Å Clickea un jugador para hablarle";
             }
             
             document.getElementById('login-overlay').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('login-overlay').style.display = 'none';
-                // Forzar posición de inicio al entrar
+                document.getElementById('main-header').style.display = 'flex'; // Mostrar cabecera
+                // Forzar posici├│n de inicio al entrar
                 if (!isWalking) {
                     window.toggleWalkMode();
                 } else {
@@ -2064,23 +2698,28 @@
                 }
             }, 500);
 
-            // Configuración de Supabase
-            const SB_URL = "https://wwvkmxqonsnrliedqtqn.supabase.co";
-            const SB_KEY = "sb_publishable_6elC2KGVGeqzhkuolO4hFQ_D4OjNdCu";
-
-            console.log("🛠️ Inicializando conexión con Supabase...");
-            if (typeof supabase !== 'undefined') {
-                try {
-                    supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-                    console.log("🚀 Conexion exitosa con el Metaverso (Modo Ahorro)");
-                    initPresence();
-                } catch (e) {
-                    console.error("❌ Error al conectar con Supabase:", e);
+            // Registro de Socio (Si aplica)
+            const isMember = document.getElementById('membership-checkbox').checked;
+            if (isMember && supabaseClient) {
+                const email = document.getElementById('member-email').value.trim();
+                const phone = document.getElementById('member-phone').value.trim();
+                
+                if (!email || !phone) {
+                    alert("Por favor, completa tu correo y celular para ser socio, o desmarca la opci├│n.");
+                    document.getElementById('login-overlay').style.display = 'flex';
+                    document.getElementById('login-overlay').style.opacity = '1';
+                    return;
                 }
+
+                await supabaseClient.from('mall_members').insert([
+                    { nickname: myNickname, email: email, phone: phone }
+                ]);
             }
+            
+            initPresence();
         };
 
-        const HEARTBEAT_LIMIT = 4000; // Enviar cada 4 seg aunque esté quieto
+        const HEARTBEAT_LIMIT = 4000; // Enviar cada 4 seg aunque est├® quieto
         let lastUpdateTime = 0;
 
         function initPresence() {
@@ -2117,7 +2756,7 @@
                 .on('broadcast', { event: 'pos_update' }, payload => {
                     const id = payload.payload.user;
                     if (id === myNickname) return;
-                    // Pasamos tb el estilo en el payload por si no lo teníamos en presence inicial
+                    // Pasamos tb el estilo en el payload por si no lo ten├¡amos en presence inicial
                     if (!otherPlayers[id]) otherPlayers[id] = createAvatar(id, payload.payload.style || "1");
                     const p = otherPlayers[id];
                     const pData = payload.payload;
@@ -2129,7 +2768,7 @@
                         await trackMySelf();
                         document.getElementById('chat-minimized-btn').style.display = 'flex';
                         // window.toggleChat(); // El chat ahora comienza cerrado por defecto
-                        addChatMessage("Sistema", `¡Hola ${myNickname}! Presiona Enter para enviar mensajes.`);
+                        addChatMessage("Sistema", `┬íHola ${myNickname}! Presiona Enter para enviar mensajes.`);
                         broadcastMyPosition();
                     }
                 });
@@ -2142,7 +2781,7 @@
                 const rotDiff = Math.abs(camera.rotation.y - lastSentRot);
                 const now = Date.now();
 
-                // LÓGICA DE OPTIMIZACIÓN: Solo enviar si hubo cambio o pasó el tiempo límite
+                // L├ôGICA DE OPTIMIZACI├ôN: Solo enviar si hubo cambio o pas├│ el tiempo l├¡mite
                 if (dist > POS_THRESHOLD || rotDiff > ROT_THRESHOLD || (now - lastUpdateTime) > HEARTBEAT_LIMIT) {
                     broadcastMyPosition();
                     lastSentPos.copy(camera.position);
@@ -2154,7 +2793,7 @@
 
         async function trackMySelf() {
             if (!presenceChannel) return;
-            // Solo registrar presencia básica y qué avatar escogimos
+            // Solo registrar presencia b├ísica y qu├® avatar escogimos
             await presenceChannel.track({ nickname: myNickname, style: myAvatarStyle });
         }
 
@@ -2208,7 +2847,7 @@
                 payload: { user: myNickname, text: text, to: chatTarget }
             });
             chatInput.value = '';
-            chatInput.blur(); // Quitar el foco para devolver el control a la cámara/teclado del mall
+            chatInput.blur(); // Quitar el foco para devolver el control a la c├ímara/teclado del mall
         }
 
         chatSend.onclick = sendChat;
@@ -2219,81 +2858,260 @@
         function createAvatar(nickname, styleCode = "1") {
             const group = new THREE.Group();
 
-            // Colores por clase
-            let skinColor = 0xffcc99; // base
-            let shirtColor = 0x222222; // formal
-            let pantsColor = 0x111111;
+            let skinColor = 0xffdbac;
+            let clothColor = 0x333333;
+            let accentColor = 0x555555;
+            let hairColor = 0x221100;
 
-            if (styleCode === "2") { shirtColor = 0xffd700; pantsColor = 0x3344cc; } // deportivo
-            if (styleCode === "3") { shirtColor = 0xaa4455; pantsColor = 0x556677; } // casual urbano
+            const skinTones = [0xffdbac, 0xf1c27d, 0xe0ac69, 0x8d5524];
+            skinColor = skinTones[Math.abs(nickname.split("").reduce((a, b) => a + b.charCodeAt(0), 0)) % skinTones.length];
 
-            const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.6 });
-            const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.8 });
-            const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.9 });
-            const blackMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+            if (styleCode === "1") {
+                clothColor = 0x1a1a1a;
+                accentColor = 0xc5a059;
+                hairColor = 0x111111;
+            } else if (styleCode === "2") {
+                clothColor = 0x0066cc;
+                accentColor = 0xf2f2f2;
+                hairColor = 0x442211;
+            } else if (styleCode === "3") {
+                clothColor = 0xaa4455;
+                accentColor = 0x2f3136;
+                hairColor = 0x221100;
+            }
 
-            // Torso (0.6x0.8x0.3) centro en Y=1.1
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.3), shirtMat);
-            body.position.set(0, 1.1, 0);
-            group.add(body);
-            body.userData.playerId = nickname;
+            const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.72 });
+            const clothMat = new THREE.MeshStandardMaterial({ color: clothColor, roughness: 0.82 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.7, metalness: styleCode === "1" ? 0.15 : 0.02 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.9 });
+            const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.45 });
+            const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 });
 
-            // Cabeza (0.5x0.5x0.5) centro en Y=1.75
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.4), skinMat);
-            head.position.set(0, 1.75, 0);
-            group.add(head);
-            head.userData.playerId = nickname;
+            const addTagged = (parent, mesh, name) => {
+                if (name) mesh.name = name;
+                mesh.userData.playerId = nickname;
+                parent.add(mesh);
+                return mesh;
+            };
 
-            // Gafas o visor (para saber hacia dónde mira) (frontal en el eje Z positivo)
-            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.1, 0.15), blackMat);
-            visor.position.set(0, 1.75, 0.22);
-            group.add(visor);
-            visor.userData.playerId = nickname;
+            const createLimb = (radius, height, material, name) => {
+                const root = new THREE.Group();
+                root.name = name;
 
-            // Brazos
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), skinMat);
-            armL.position.set(-0.45, 1.15, 0); group.add(armL);
-            armL.userData.playerId = nickname;
+                const upperH = height * 0.48;
+                const lowerH = height * 0.52;
 
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), skinMat);
-            armR.position.set(0.45, 1.15, 0); group.add(armR);
-            armR.userData.playerId = nickname;
+                const upperGeom = new THREE.CylinderGeometry(radius, radius * 0.92, upperH, 8);
+                upperGeom.translate(0, -upperH / 2, 0);
+                const upper = addTagged(root, new THREE.Mesh(upperGeom, material), `${name}_upper`);
 
-            // Piernas
-            const legL = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.7, 0.25), pantsMat);
-            legL.position.set(-0.15, 0.35, 0); group.add(legL);
-            legL.userData.playerId = nickname;
+                const joint = addTagged(upper, new THREE.Mesh(new THREE.SphereGeometry(radius * 1.08, 8, 8), material), `${name}_joint`);
+                joint.position.set(0, -upperH, 0);
 
-            const legR = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.7, 0.25), pantsMat);
-            legR.position.set(0.15, 0.35, 0); group.add(legR);
-            legR.userData.playerId = nickname;
+                const lowerGeom = new THREE.CylinderGeometry(radius * 0.92, radius * 0.78, lowerH, 8);
+                lowerGeom.translate(0, -lowerH / 2, 0);
+                const lower = addTagged(upper, new THREE.Mesh(lowerGeom, material), `${name}_lower`);
+                lower.position.set(0, -upperH, 0);
+
+                return { root, upper, lower };
+            };
+
+            const shoulders = addTagged(group, new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.14, 0.2), accentMat), "shoulders");
+            shoulders.position.set(0, 1.42, 0);
+
+            const torso = addTagged(group, new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.17, 0.68, 8), clothMat), "torso");
+            torso.position.set(0, 1.14, 0.01);
+
+            const waist = addTagged(group, new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.19, 0.18, 8), accentMat), "waist");
+            waist.position.set(0, 0.81, 0);
+
+            if (styleCode === "1") {
+                const tie = addTagged(group, new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.28, 0.03), accentMat), "tie");
+                tie.position.set(0, 1.08, 0.17);
+            } else if (styleCode === "2") {
+                const stripe = addTagged(group, new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.08, 0.3), accentMat), "stripe");
+                stripe.position.set(0, 1.16, 0.02);
+            } else {
+                const strap = addTagged(group, new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.65, 0.05), accentMat), "strap");
+                strap.position.set(0.08, 1.12, 0.14);
+                strap.rotation.z = -0.45;
+            }
+
+            const neck = addTagged(group, new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.07, 0.1, 8), skinMat), "neck");
+            neck.position.set(0, 1.5, 0);
+
+            const headPivot = new THREE.Group();
+            headPivot.name = "headPivot";
+            headPivot.position.set(0, 1.69, 0);
+            group.add(headPivot);
+
+            const head = addTagged(headPivot, new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), skinMat), "head");
+            head.scale.set(0.94, 1.08, 0.92);
+
+            const nose = addTagged(headPivot, new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.08, 8), skinMat), "nose");
+            nose.position.set(0, -0.01, 0.17);
+            nose.rotation.x = Math.PI / 2;
+
+            const eyeL = new THREE.Group();
+            eyeL.name = "eyeL";
+            eyeL.position.set(-0.075, 0.05, 0.16);
+            const eyeballL = addTagged(eyeL, new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), whiteMat), "eyeL_ball");
+            const pupilL = addTagged(eyeL, new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), blackMat), "eyeL_pupil");
+            pupilL.position.z = 0.03;
+            headPivot.add(eyeL);
+
+            const eyeR = new THREE.Group();
+            eyeR.name = "eyeR";
+            eyeR.position.set(0.075, 0.05, 0.16);
+            const eyeballR = addTagged(eyeR, new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), whiteMat), "eyeR_ball");
+            const pupilR = addTagged(eyeR, new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), blackMat), "eyeR_pupil");
+            pupilR.position.z = 0.03;
+            headPivot.add(eyeR);
+
+            let hairGeom;
+            if (styleCode === "1") hairGeom = new THREE.SphereGeometry(0.21, 16, 16, 0, Math.PI * 2, 0, Math.PI / 1.75);
+            else if (styleCode === "2") hairGeom = new THREE.BoxGeometry(0.26, 0.1, 0.42);
+            else hairGeom = new THREE.SphereGeometry(0.22, 16, 16);
+
+            const hair = addTagged(headPivot, new THREE.Mesh(hairGeom, hairMat), "hair");
+            hair.position.set(0, 0.06, styleCode === "2" ? 0.05 : 0);
+
+            if (styleCode === "2") {
+                const visor = addTagged(headPivot, new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.025, 0.12), hairMat), "visor");
+                visor.position.set(0, 0.02, 0.23);
+            }
+
+            const armL = createLimb(0.058, 0.63, clothMat, "armL");
+            armL.root.position.set(-0.29, 1.42, 0.01);
+            armL.root.rotation.z = 0.12;
+            const handL = addTagged(armL.lower, new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), skinMat), "handL");
+            handL.position.set(0, -0.34, 0);
+            group.add(armL.root);
+
+            const armR = createLimb(0.058, 0.63, clothMat, "armR");
+            armR.root.position.set(0.29, 1.42, 0.01);
+            armR.root.rotation.z = -0.12;
+            const handR = addTagged(armR.lower, new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), skinMat), "handR");
+            handR.position.set(0, -0.34, 0);
+            group.add(armR.root);
+
+            const legL = createLimb(0.078, 0.8, accentMat, "legL");
+            legL.root.position.set(-0.11, 0.8, 0);
+            const footL = addTagged(legL.lower, new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.08, 0.3), blackMat), "footL");
+            footL.position.set(0, -0.42, 0.08);
+            group.add(legL.root);
+
+            const legR = createLimb(0.078, 0.8, accentMat, "legR");
+            legR.root.position.set(0.11, 0.8, 0);
+            const footR = addTagged(legR.lower, new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.08, 0.3), blackMat), "footR");
+            footR.position.set(0, -0.42, 0.08);
+            group.add(legR.root);
+
+            group.traverse((obj) => {
+                obj.userData.playerId = nickname;
+            });
 
             scene.add(group);
 
             const label = document.createElement('div');
-            label.className = 'avatar-label'; label.innerText = nickname;
+            label.className = 'avatar-label';
+            label.innerText = nickname;
             document.body.appendChild(label);
 
-            return { 
-                mesh: group, 
-                label: label, 
-                targetPos: new THREE.Vector3(), 
+            return {
+                mesh: group,
+                label: label,
+                targetPos: new THREE.Vector3(),
                 targetRot: 0,
-                limbs: { armL, armR, legL, legR }
+                motionPhase: Math.random() * Math.PI * 2,
+                idlePhase: Math.random() * Math.PI * 2,
+                rig: {
+                    shoulders,
+                    torso,
+                    waist,
+                    neck,
+                    headPivot,
+                    head,
+                    hair,
+                    armL,
+                    armR,
+                    legL,
+                    legR,
+                    footL,
+                    footR,
+                    base: {
+                        shouldersY: 1.42,
+                        torsoY: 1.14,
+                        waistY: 0.81,
+                        neckY: 1.5,
+                        headY: 1.69,
+                        armLRotZ: 0.12,
+                        armRRotZ: -0.12
+                    }
+                }
             };
         }
 
-        const CHILEAN_NAMES = [
-            "Mateo González", "Agustín Muñoz", "Benjamín Rojas", "Vicente Díaz", "Sofía Morales",
-            "Emilia Sepúlveda", "Florencia Araya", "Isidora Pastén", "Josefa Castro", "Juan Pérez",
-            "Diego Soto", "Luis Silva", "Carlos Contreras", "Jorge Martínez", "Víctor Tapia",
-            "Andrés Concha", "Patricio Leyton", "Felipe Valenzuela", "Nicolás Poblete", "Sebastián Vera",
-            "Matias Fuenzalida", "Cristian Henríquez", "Rodrigo Saavedra", "Gabriel Maturana", "Joaquín Orellana",
-            "Valentina Gatica", "Martina Lagos", "Catalina Briones", "Antonia Jerez", "Fernanda Farías",
-            "Paz Bustamante", "Trinidad Arancibia", "Maite Vilches", "Isabel Carvajal", "Lucía Pizarro",
-            "Elena Godoy", "Rosa Mellado", "Ana María Salinas", "Mónica Olivares", "Bárbara Espinoza",
-            "Francisca Urbina", "Camila Gallegos", "Javiera Alarcón", "Daniela Varas", "Constanza Rivas"
-        ];
+        function applyAvatarPose(actor, movementAmount = 0, nowMs = performance.now()) {
+            if (!actor || !actor.rig) return;
+
+            const rig = actor.rig;
+            const base = rig.base;
+            const moving = movementAmount > 0.0015;
+
+            if (typeof actor.motionPhase !== "number") actor.motionPhase = Math.random() * Math.PI * 2;
+            if (typeof actor.idlePhase !== "number") actor.idlePhase = Math.random() * Math.PI * 2;
+
+            if (moving) {
+                actor.motionPhase += Math.max(0.08, movementAmount * 22);
+            }
+
+            const walkPhase = actor.motionPhase;
+            const idlePhase = nowMs * 0.0018 + actor.idlePhase;
+            const breath = Math.sin(idlePhase) * 0.018;
+            const bob = moving ? Math.abs(Math.sin(walkPhase)) * 0.075 : breath;
+            const sway = moving ? Math.sin(walkPhase) : Math.sin(idlePhase * 0.75) * 0.12;
+            const twist = moving ? Math.sin(walkPhase) * 0.08 : Math.sin(idlePhase * 0.6) * 0.02;
+            const stride = moving ? Math.min(1, 0.35 + movementAmount * 24) : 0;
+
+            rig.shoulders.position.y = base.shouldersY + bob * 0.52;
+            rig.torso.position.y = base.torsoY + bob * 0.42;
+            rig.waist.position.y = base.waistY + bob * 0.18;
+            rig.neck.position.y = base.neckY + bob * 0.72;
+            rig.headPivot.position.y = base.headY + bob * 0.9 + Math.sin(idlePhase * 1.4) * 0.006;
+
+            rig.shoulders.rotation.y = twist * 0.75;
+            rig.shoulders.rotation.z = -sway * 0.04;
+            rig.torso.rotation.x = moving ? -0.04 + Math.abs(Math.sin(walkPhase)) * 0.03 : 0.01 + breath * 0.25;
+            rig.torso.rotation.y = twist;
+            rig.torso.rotation.z = sway * 0.05;
+            rig.waist.rotation.y = -twist * 0.5;
+            rig.waist.rotation.z = sway * 0.03;
+            rig.headPivot.rotation.x = moving ? -Math.abs(Math.sin(walkPhase + 0.5)) * 0.035 : breath * 0.3;
+            rig.headPivot.rotation.y = -twist * 0.35;
+            rig.headPivot.rotation.z = -sway * 0.03;
+
+            const armSwingL = moving ? Math.sin(walkPhase + Math.PI) * 0.82 * stride : -0.12 + breath * 0.4;
+            const armSwingR = moving ? Math.sin(walkPhase) * 0.82 * stride : 0.08 - breath * 0.4;
+            const legSwingL = moving ? Math.sin(walkPhase) * 0.72 * stride : -0.02;
+            const legSwingR = moving ? Math.sin(walkPhase + Math.PI) * 0.72 * stride : 0.02;
+
+            rig.armL.root.rotation.z = base.armLRotZ - sway * 0.08;
+            rig.armR.root.rotation.z = base.armRRotZ + sway * 0.08;
+            rig.armL.root.rotation.x = armSwingL;
+            rig.armR.root.rotation.x = armSwingR;
+            rig.armL.lower.rotation.x = moving ? (armSwingL > 0 ? -armSwingL * 0.45 : -0.04) : -0.16;
+            rig.armR.lower.rotation.x = moving ? (armSwingR > 0 ? -armSwingR * 0.45 : -0.04) : -0.12;
+
+            rig.legL.root.rotation.x = legSwingL;
+            rig.legR.root.rotation.x = legSwingR;
+            rig.legL.root.rotation.z = sway * 0.04;
+            rig.legR.root.rotation.z = -sway * 0.04;
+            rig.legL.lower.rotation.x = moving ? Math.max(0, -legSwingL) * 0.95 : 0.05;
+            rig.legR.lower.rotation.x = moving ? Math.max(0, -legSwingR) * 0.95 : 0.02;
+            rig.footL.rotation.x = moving ? Math.max(0, legSwingL) * -0.4 : 0;
+            rig.footR.rotation.x = moving ? Math.max(0, legSwingR) * -0.4 : 0;
+        }
 
         function syncPlayers(state) {
             Object.keys(state).forEach(id => {
@@ -2301,7 +3119,7 @@
                 let remoteStyle = "1";
                 if (state[id] && state[id][0] && state[id][0].style) remoteStyle = state[id][0].style;
                 if (!otherPlayers[id]) otherPlayers[id] = createAvatar(id, remoteStyle);
-                // No configuramos posiciones iniciales aquí porque vendrán vía Broadcast
+                // No configuramos posiciones iniciales aqu├¡ porque vendr├ín v├¡a Broadcast
             });
         }
 
@@ -2316,10 +3134,18 @@
         function updateOtherPlayers() {
             Object.values(otherPlayers).forEach(p => {
                 if (p.mesh) {
-                    p.mesh.position.lerp(p.targetPos, 0.08); // Suavizado mayor para compensar saltos
-                    p.mesh.rotation.y = p.targetRot;
+                    const prevPos = p.mesh.position.clone();
+                    p.mesh.position.lerp(p.targetPos, 0.1);
+                    let rotDiff = p.targetRot - p.mesh.rotation.y;
+                    while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
+                    while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
+                    p.mesh.rotation.y += rotDiff * 0.16;
+
+                    const stepDistance = prevPos.distanceTo(p.mesh.position);
+                    applyAvatarPose(p, stepDistance, performance.now());
+                    
                     const tempVec = p.mesh.position.clone();
-                    tempVec.y += 2.0;
+                    tempVec.y += 2.15;
                     tempVec.project(camera);
                     const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                     const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
@@ -2351,156 +3177,181 @@
             renderer.render(scene, camera); 
         }
 
-        // --- SISTEMA DE NPCs (MULTITUD ARTIFICIAL) ---
+        // --- SISTEMA DE NPCs (MULTITUD ARTIFICIAL CHILENA) ---
+        const CHILEAN_NAMES = [
+            "Mateo González", "Agustín Muñoz", "Benjamín Rojas", "Vicente Díaz", "Santiago Pérez",
+            "Matías Soto", "Joaquín Contreras", "Maximiliano Silva", "Nicolás Martínez", "Sebastián Sepúlveda",
+            "Sofía Morales", "Isabella Rodríguez", "Emilia López", "Martina Fuentes", "Lucía Hernández",
+            "Francisca Olave", "Catalina Tapia", "Valentina Carrasco", "Florencia Vera", "Isidora Castro",
+            "Lucas Herrera", "Felipe Medina", "Diego Castro", "Javier Muñoz", "Gabriel Palma",
+            "Paz Romero", "Antonella Silva", "Maite Araya", "Josefa Reyes", "Ignacia Pizarro",
+            "Daniela Soto", "Carolina Rojas", "Andrés Martínez", "Cristóbal Valenzuela", "Camila Bravo",
+            "Rodrigo Espinoza", "Bastián Tapia", "Javiera Torres", "Renato Vera", "Micaela Lagos",
+            "Tomás Castro", "Bárbara Peña", "Emanuel Vargas", "Julieta Miranda", "Pascal Cáceres"
+        ];
+
         const npcs = [];
-        const NPC_COUNT = 100;
+        const NPC_COUNT = 45; 
+
+        function getValidNPCPosition(y) {
+            const isPB = y < 3;
+            if (isPB) {
+                if (Math.random() > 0.5) {
+                    return { x: (Math.random() - 0.5) * 18, z: (Math.random() - 0.5) * 180, y: 0 };
+                } else {
+                    return { x: (Math.random() - 0.5) * 180, z: (Math.random() - 0.5) * 18, y: 0 };
+                }
+            } else {
+                const side = Math.floor(Math.random() * 4);
+                if (side === 0) return { x: 14 + (Math.random() - 0.5) * 4, z: (Math.random() - 0.5) * 180, y: 5.4 };
+                if (side === 1) return { x: -14 + (Math.random() - 0.5) * 4, z: (Math.random() - 0.5) * 180, y: 5.4 };
+                if (side === 2) return { x: (Math.random() - 0.5) * 180, z: 14 + (Math.random() - 0.5) * 4, y: 5.4 };
+                if (side === 3) return { x: (Math.random() - 0.5) * 180, z: -14 + (Math.random() - 0.5) * 4, y: 5.4 };
+            }
+        }
 
         function initNPCs() {
             for (let i = 0; i < NPC_COUNT; i++) {
-                const name = CHILEAN_NAMES[i % CHILEAN_NAMES.length] + (i >= CHILEAN_NAMES.length ? ` ${i}` : "");
+                const name = CHILEAN_NAMES[i % CHILEAN_NAMES.length];
                 const style = ["1", "2", "3"][Math.floor(Math.random() * 3)];
-                const npc = createAvatar(name, style);
+                const npcAvatar = createAvatar(name, style);
                 
-                // Distribución inicial: Pasillos y pasarelas
-                const startY = Math.random() > 0.5 ? 5.4 : 0;
-                let startX = (Math.random() - 0.5) * 80;
-                let startZ = (Math.random() - 0.5) * 80;
-                
-                // Asegurar que empiecen en pasillos (cruces centrales)
-                if (Math.random() > 0.5) startX = (Math.random() - 0.5) * 20;
-                else startZ = (Math.random() - 0.5) * 20;
-
-                npc.mesh.position.set(startX, startY, startZ);
+                const startFloor = Math.random() > 0.5 ? 5.4 : 0;
+                const pos = getValidNPCPosition(startFloor);
+                npcAvatar.mesh.position.set(pos.x, pos.y, pos.z);
                 
                 npcs.push({
-                    mesh: npc.mesh,
-                    label: npc.label,
-                    limbs: npc.limbs,
-                    target: new THREE.Vector3(startX, startY, startZ),
+                    mesh: npcAvatar.mesh,
+                    label: npcAvatar.label,
+                    rig: npcAvatar.rig,
+                    target: new THREE.Vector3(pos.x, pos.y, pos.z),
+                    intermediateTarget: null,
                     state: 'walking',
                     timer: 0,
-                    speed: 0.03 + Math.random() * 0.04,
-                    walkCycle: Math.random() * Math.PI * 2
+                    speed: 0.012 + Math.random() * 0.015,
+                    name: name,
+                    motionPhase: npcAvatar.motionPhase,
+                    idlePhase: npcAvatar.idlePhase
                 });
-                
-                // Etiqueta sutil para NPCs
-                npc.label.style.fontSize = "10px";
-                npc.label.style.opacity = "0.7";
-                npc.label.style.background = "rgba(0,0,0,0.3)";
+                npcAvatar.label.style.background = "rgba(0,0,0,0.4)";
+                npcAvatar.label.style.borderColor = "rgba(197, 160, 89, 0.3)";
+                npcAvatar.label.style.color = "#aaa";
+                npcAvatar.label.style.fontSize = "8px";
+                npcAvatar.label.style.padding = "2px 6px";
             }
         }
 
         function updateNPCs() {
             const now = Date.now();
             npcs.forEach(npc => {
-                // --- 1. LÓGICA DE ESCALERA PARA BOTS ---
+                const prevPos = npc.mesh.position.clone();
                 let onEscalator = false;
                 escalatorList.forEach(e => {
                     const dx = Math.abs(npc.mesh.position.x - e.x);
                     const dz = (npc.mesh.position.z >= e.zMin && npc.mesh.position.z <= e.zMax);
-                    
-                    if (dx < 1.5 && dz) {
+                    if (dx < 1.6 && dz) {
                         onEscalator = true;
                         const distDir = Math.sign(e.zEnd - e.zStart);
                         const speedZ = 0.08;
                         const speedY = 0.038;
                         const targetHeight = e.up ? 5.4 : 0;
-
                         npc.mesh.position.z += distDir * speedZ;
                         if (e.up && npc.mesh.position.y < targetHeight) npc.mesh.position.y += speedY;
                         else if (!e.up && npc.mesh.position.y > targetHeight) npc.mesh.position.y -= speedY;
-                        
                         npc.mesh.rotation.y = distDir > 0 ? 0 : Math.PI;
+                        npc.intermediateTarget = null;
                     }
                 });
 
-                if (!onEscalator) {
-                    // --- GRAVEDAD Y DETECCIÓN DE SUELO (Simplificada para bots) ---
-                    const inAtrium = Math.abs(npc.mesh.position.x) < 11 && Math.abs(npc.mesh.position.z) < 11;
-                    if (npc.mesh.position.y > 0.1 && inAtrium) {
-                         npc.mesh.position.y -= 0.15;
-                         if (npc.mesh.position.y < 0) npc.mesh.position.y = 0;
+                if (!onEscalator && npc.state === 'walking') {
+                    const needsFloorChange = Math.abs(npc.target.y - npc.mesh.position.y) > 1;
+                    let currentMoveTarget = npc.target;
+
+                    if (needsFloorChange) {
+                        if (!npc.intermediateTarget) {
+                            const isGoingUp = npc.target.y > npc.mesh.position.y;
+                            let bestEsc = null;
+                            let minDist = Infinity;
+                            escalatorList.forEach(e => {
+                                if (e.up === isGoingUp) {
+                                    const entX = e.x;
+                                    const entZ = isGoingUp ? e.zStart : e.zEnd;
+                                    const d = Math.hypot(npc.mesh.position.x - entX, npc.mesh.position.z - entZ);
+                                    if (d < minDist) { minDist = d; bestEsc = { x: entX, z: entZ, y: npc.mesh.position.y }; }
+                                }
+                            });
+                            if (bestEsc) npc.intermediateTarget = new THREE.Vector3(bestEsc.x, bestEsc.y, bestEsc.z);
+                        }
+                        if (npc.intermediateTarget) currentMoveTarget = npc.intermediateTarget;
                     }
 
-                    if (npc.state === 'walking') {
-                        const dist = npc.mesh.position.distanceTo(npc.target);
-                        if (dist < 1.0) {
+                    const dist = npc.mesh.position.distanceTo(currentMoveTarget);
+                    if (dist < 0.8) {
+                        if (!needsFloorChange) {
                             npc.state = 'looking';
-                            npc.timer = now + (3000 + Math.random() * 6000);
+                            npc.timer = now + (4000 + Math.random() * 8000);
+                        }
+                    } else {
+                        const dir = currentMoveTarget.clone().sub(npc.mesh.position);
+                        dir.y = 0; dir.normalize();
+                        
+                        // --- MOVIMIENTO CON COLISIONES ---
+                        const nextX = npc.mesh.position.x + dir.x * npc.speed;
+                        const nextZ = npc.mesh.position.z + dir.z * npc.speed;
+                        const bodyY = npc.mesh.position.y + 1.2; // Altura de colisi├│n
+
+                        if (!checkCollision(nextX, bodyY, nextZ)) {
+                            npc.mesh.position.x = nextX;
+                            npc.mesh.position.z = nextZ;
                         } else {
-                            const dir = npc.target.clone().sub(npc.mesh.position);
-                            dir.y = 0; dir.normalize();
-                            
-                            const moveStep = dir.clone().multiplyScalar(npc.speed);
-                            const nextX = npc.mesh.position.x + moveStep.x;
-                            const nextZ = npc.mesh.position.z + moveStep.z;
-
-                            // Solo mover si no hay colisión
-                            if (!checkCollision(nextX, npc.mesh.position.y, nextZ)) {
-                                npc.mesh.position.x = nextX;
-                                npc.mesh.position.z = nextZ;
-                                
-                                // Animación de extremidades (humana)
-                                npc.walkCycle += npc.speed * 10;
-                                const swing = Math.sin(npc.walkCycle) * 0.6;
-                                npc.limbs.legL.rotation.x = swing;
-                                npc.limbs.legR.rotation.x = -swing;
-                                npc.limbs.armL.rotation.x = -swing;
-                                npc.limbs.armR.rotation.x = swing;
-                            } else {
-                                npc.state = 'looking';
-                                npc.timer = now + 1000;
-                            }
-
-                            const targetRot = Math.atan2(dir.x, dir.z);
-                            let diff = targetRot - npc.mesh.rotation.y;
-                            while(diff < -Math.PI) diff += Math.PI * 2;
-                            while(diff > Math.PI) diff -= Math.PI * 2;
-                            npc.mesh.rotation.y += diff * 0.1;
+                            // Si choca con algo (pared, barandilla, objeto), recalcular ruta
+                            npc.state = 'looking';
+                            npc.timer = now;
                         }
-                    } else if (npc.state === 'looking') {
-                        // Reset limb positions
-                        npc.limbs.legL.rotation.x = 0; npc.limbs.legR.rotation.x = 0;
-                        npc.limbs.armL.rotation.x = 0; npc.limbs.armR.rotation.x = 0;
-
-                        if (now > npc.timer) {
-                            const floor = Math.round(npc.mesh.position.y / 5.4);
-                            if (floor === 0) {
-                                // Planta Baja: Pasillos
-                                if (Math.random() > 0.5) npc.target.set((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 170);
-                                else npc.target.set((Math.random() - 0.5) * 170, 0, (Math.random() - 0.5) * 10);
-                            } else {
-                                // Planta Alta: Pasarelas
-                                const side = Math.floor(Math.random() * 4);
-                                if (side === 0) npc.target.set((Math.random() - 0.5) * 70, 5.4, 25);
-                                if (side === 1) npc.target.set((Math.random() - 0.5) * 70, 5.4, -25);
-                                if (side === 2) npc.target.set(25, 5.4, (Math.random() - 0.5) * 70);
-                                if (side === 3) npc.target.set(-25, 5.4, (Math.random() - 0.5) * 70);
-                            }
-                            npc.state = 'walking';
-                        }
+                        
+                        const targetRot = Math.atan2(dir.x, dir.z);
+                        let diff = targetRot - npc.mesh.rotation.y;
+                        while(diff < -Math.PI) diff += Math.PI * 2;
+                        while(diff > Math.PI) diff -= Math.PI * 2;
+                        npc.mesh.rotation.y += diff * 0.12;
+                    }
+                } else if (!onEscalator && npc.state === 'looking') {
+                    if (now > npc.timer) {
+                        npc.state = 'walking';
+                        npc.intermediateTarget = null;
+                        const changeFloor = Math.random() > 0.85;
+                        const nextY = changeFloor ? (npc.mesh.position.y > 3 ? 0 : 5.4) : npc.mesh.position.y;
+                        const pos = getValidNPCPosition(nextY);
+                        npc.target.set(pos.x, pos.y, pos.z);
                     }
                 }
 
+                const movedAmount = prevPos.distanceTo(npc.mesh.position);
+                applyAvatarPose(npc, movedAmount, performance.now());
+
                 // --- 3. ACTUALIZAR ETIQUETAS ---
                 const tempVec = npc.mesh.position.clone();
-                tempVec.y += 2.1;
+                tempVec.y += 2.2;
                 tempVec.project(camera);
                 const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                 const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
                 npc.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                npc.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1) ? 'none' : 'block';
-            });
-        }
-                    if (now > npc.timer) {
-                        npc.state = 'walking';
-                        const wing = Math.random();
-                        const targetY = Math.random() > 0.5 ? 5.4 : 0; // Puede elegir cualquier piso
-                        
-                        if (wing < 0.25) npc.target.set((Math.random()-0.5)*20, targetY, (Math.random()*80 + 20));
-                        else if (wing < 0.5) npc.target.set((Math.random()-0.5)*20, targetY, -(Math.random()*80 + 20));
-                        else if (wing < 0.75) npc.target.set((Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
-                        else npc.target.set(-(Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
+                
+                const distToCam = camera.position.distanceTo(npc.mesh.position);
+                npc.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1 || distToCam > 35) ? 'none' : 'block';
+
+                // --- 4. SEGURIDAD: GRAVEDAD Y SUELO ---
+                if (!onEscalator) {
+                    const inAtrium = Math.abs(npc.mesh.position.x) < 11 && Math.abs(npc.mesh.position.z) < 11;
+                    const isPA = npc.mesh.position.y > 2.7;
+                    const groundY = isPA ? 5.4 : 0;
+                    
+                    if (isPA && inAtrium) {
+                        npc.mesh.position.y -= 0.2; // Ca├¡da libre si logran saltar la barandilla o aparecen en el aire
+                        if (npc.mesh.position.y < 0) npc.mesh.position.y = 0;
+                    } else {
+                        // Snap suave al suelo para evitar que floten por errores de precisi├│n decimal
+                        npc.mesh.position.y = THREE.MathUtils.lerp(npc.mesh.position.y, groundY, 0.1);
                     }
                 }
             });
@@ -2508,7 +3359,7 @@
 
         initNPCs();
 
-        // --- VÍNCULOS DE CIERRE (MÉTODO ROBUSTO) ---
+        // --- V├ìNCULOS DE CIERRE (M├ëTODO ROBUSTO) ---
         function closeModal() {
             document.getElementById('modal-overlay').style.display = 'none';
             document.getElementById('store-modal').style.display = 'none';
@@ -2520,7 +3371,7 @@
         document.getElementById('modal-overlay').addEventListener('click', closeModal);
         document.getElementById('search-close-btn').addEventListener('click', closeModal);
 
-        // --- INICIALIZACIÓN ---
+        // --- INICIALIZACI├ôN ---
         precalculateInventory();
         animate();
 
@@ -2529,3 +3380,4 @@
 </body>
 
 </html>
+
