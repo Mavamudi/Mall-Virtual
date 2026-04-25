@@ -1132,10 +1132,20 @@
         camera.position.set(45, 45, 45);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        const getPreferredPixelRatio = () => {
+            const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+            return Math.min(window.devicePixelRatio || 1, isCoarsePointer ? 1.1 : 1.4);
+        };
+        const syncRendererViewport = () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(getPreferredPixelRatio());
+        };
         renderer.toneMapping = THREE.ReinhardToneMapping;
-        renderer.setPixelRatio(window.devicePixelRatio);
+        syncRendererViewport();
         document.getElementById('canvas-container').appendChild(renderer.domElement);
+        window.addEventListener('resize', syncRendererViewport);
 
         let isWalking = false;
         let controlsMenuOpen = false;
@@ -4002,6 +4012,17 @@
             };
         }
 
+        function updateAvatarLabelPosition(actor, labelOffsetY, farDistanceOverride = null) {
+            if (!actor?.mesh || !actor?.label) return;
+            const tempVec = actor.mesh.position.clone();
+            tempVec.y += labelOffsetY;
+            tempVec.project(camera);
+            const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
+            actor.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+            actor.label.style.display = (actor.mesh.visible && shouldShowAvatarLabel(actor.mesh.position, tempVec, farDistanceOverride ?? AVATAR_LABEL_FAR_DISTANCE)) ? 'block' : 'none';
+        }
+
         function applyAvatarPose(actor, movementAmount = 0, nowMs = performance.now()) {
             if (!actor || !actor.rig) return;
 
@@ -4081,7 +4102,7 @@
             }
         }
 
-        function updateOtherPlayers() {
+        function updateOtherPlayers(nowMs = performance.now(), updateLabels = true) {
             Object.values(otherPlayers).forEach(p => {
                 if (p.mesh) {
                     const prevPos = p.mesh.position.clone();
@@ -4092,17 +4113,10 @@
                     p.mesh.rotation.y += rotDiff * 0.16;
 
                     const stepDistance = prevPos.distanceTo(p.mesh.position);
-                    applyAvatarPose(p, stepDistance, performance.now());
+                    applyAvatarPose(p, stepDistance, nowMs);
                     const distToCam = camera.position.distanceTo(p.mesh.position);
                     p.mesh.visible = distToCam > AVATAR_CAMERA_HIDE_DISTANCE;
-                    
-                    const tempVec = p.mesh.position.clone();
-                    tempVec.y += 2.15;
-                    tempVec.project(camera);
-                    const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
-                    const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
-                    p.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                    p.label.style.display = (p.mesh.visible && shouldShowAvatarLabel(p.mesh.position, tempVec)) ? 'block' : 'none';
+                    if (updateLabels) updateAvatarLabelPosition(p, 2.15);
                 }
             });
         }
@@ -4111,19 +4125,25 @@
         let lastAdUpdate = Date.now();
         let adIndex = 0;
 
+        let lastLabelUpdateAt = 0;
+        const LABEL_UPDATE_INTERVAL_MS = 1000 / 24;
+
         function animate() {
             requestAnimationFrame(animate);
 
+            const nowMs = performance.now();
             const currentTime = Date.now();
             if (currentTime - lastAdUpdate > 5000) {
                 adIndex = (adIndex + 1) % adTextures.length;
                 screenMeshes.forEach(s => s.material.map = adTextures[adIndex]);
                 lastAdUpdate = currentTime;
             }
+            const shouldUpdateLabels = nowMs - lastLabelUpdateAt >= LABEL_UPDATE_INTERVAL_MS;
+            if (shouldUpdateLabels) lastLabelUpdateAt = nowMs;
 
             updateKeyboardNavigation();
-            updateOtherPlayers();
-            updateNPCs(); // Actualizar bots
+            updateOtherPlayers(nowMs, shouldUpdateLabels);
+            updateNPCs(nowMs, shouldUpdateLabels); // Actualizar bots
             updateBoutiqueSlidingDoors();
 
             controls.update(); 
@@ -4194,7 +4214,7 @@
             }
         }
 
-        function updateNPCs() {
+        function updateNPCs(nowMs = performance.now(), updateLabels = true) {
             const now = Date.now();
             npcs.forEach(npc => {
                 const prevPos = npc.mesh.position.clone();
@@ -4294,18 +4314,12 @@
                 }
 
                 const movedAmount = prevPos.distanceTo(npc.mesh.position);
-                applyAvatarPose(npc, movedAmount, performance.now());
+                applyAvatarPose(npc, movedAmount, nowMs);
                 const npcDistToCam = camera.position.distanceTo(npc.mesh.position);
                 npc.mesh.visible = npcDistToCam > AVATAR_CAMERA_HIDE_DISTANCE;
 
                 // --- 3. ACTUALIZAR ETIQUETAS ---
-                const tempVec = npc.mesh.position.clone();
-                tempVec.y += 2.2;
-                tempVec.project(camera);
-                const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
-                npc.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                npc.label.style.display = (npc.mesh.visible && shouldShowAvatarLabel(npc.mesh.position, tempVec, AVATAR_LABEL_NPC_FAR_DISTANCE)) ? 'block' : 'none';
+                if (updateLabels) updateAvatarLabelPosition(npc, 2.2, AVATAR_LABEL_NPC_FAR_DISTANCE);
 
                 // --- 4. SEGURIDAD: GRAVEDAD Y SUELO ---
                 if (!onEscalator) {
