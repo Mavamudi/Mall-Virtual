@@ -1377,6 +1377,17 @@
             scene.add(vaultG);
         }
 
+        const boutiqueSlidingDoors = [];
+        const boutiqueDoorPrevActors = new Map();
+        const BOUTIQUE_DOOR_FRONT_Z = 9.02;
+        const BOUTIQUE_DOOR_TRIGGER_HALF_WIDTH = 3.2;
+        const BOUTIQUE_DOOR_TRIGGER_DEPTH = 2.2;
+        const BOUTIQUE_DOOR_OPEN_HOLD_MS = 950;
+        const BOUTIQUE_DOOR_SLIDE_DISTANCE = 0.95;
+        const BOUTIQUE_DOOR_LAYER_OFFSET = 0.14;
+        const BOUTIQUE_DOOR_COLLIDER_OFFSET_X = 4.5;
+        const BOUTIQUE_DOOR_COLLIDER_WIDTH = 2.55;
+
         // TIENDAS ANCLA E IDENTIFICADORES Giant N,S,E,O
         function createAnchorStore(posX, posZ, width, height, name = "ANCLA", idLetter = "") {
             const g = new THREE.Group(); g.position.set(posX, 0, posZ);
@@ -1389,8 +1400,124 @@
             }
 
             const m = (w, h, d, x, y, z, mat) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); mw.position.set(x, y, z); g.add(mw); };
-            m(width, 0.2, 30, 0, 0.02, -10, whiteMat); // Suelo elevado 2cm para evitar z-fighting
+            const anchorSlabTopY = 5.4;
+            const anchorSlabThickness = 0.6;
+            const anchorFloorMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c2, roughness: 0.08, metalness: 0.03 });
+            const anchorStripeMat = new THREE.MeshStandardMaterial({ color: 0x332211, roughness: 0.2, metalness: 0.08 });
+            const anchorFrontWallZ = 9.05;
+            const anchorFrontWallH = 5.4;
+            const anchorUpperFrontWallZ = 4.88;
+            const anchorEntryWidth = 12;
+            const anchorEntryHeight = 5.4;
+            const anchorUpperEntryClearHeight = 4.0;
+            const anchorUpperSideWallHeight = height - anchorSlabTopY;
+            const anchorUpperSideWallCenterY = anchorSlabTopY + anchorUpperSideWallHeight / 2;
+            const anchorUpperFrontWallHeight = height - (anchorSlabTopY + anchorUpperEntryClearHeight);
+            const anchorUpperFrontWallCenterY = anchorSlabTopY + anchorUpperEntryClearHeight + anchorUpperFrontWallHeight / 2;
+            const drawAnchorFloorWithGrid = (w, d, y, z) => {
+                const step = 8;
+                const gap = 0.8;
+                const lineY = y + 0.012;
+                for (let i = -w / 2; i <= w / 2 + 0.1; i += step) {
+                    [0, gap].forEach((off) => {
+                        const xPos = i + off;
+                        if (xPos < -w / 2 - 0.1 || xPos > w / 2 + 0.1) return;
+                        const line = new THREE.Mesh(new THREE.PlaneGeometry(0.04, d), anchorStripeMat);
+                        line.rotation.x = -Math.PI / 2;
+                        line.position.set(xPos, lineY, z);
+                        g.add(line);
+                    });
+                }
+                for (let j = -d / 2; j <= d / 2 + 0.1; j += step) {
+                    [0, gap].forEach((off) => {
+                        const zPos = j + off;
+                        if (zPos < -d / 2 - 0.1 || zPos > d / 2 + 0.1) return;
+                        const line = new THREE.Mesh(new THREE.PlaneGeometry(w, 0.04), anchorStripeMat);
+                        line.rotation.x = -Math.PI / 2;
+                        line.position.set(0, lineY, z + zPos);
+                        g.add(line);
+                    });
+                }
+            };
+            const addAnchorGateway = (wallZ, outwardDir) => {
+                const portalDepth = 2.6;
+                const canopyDepth = 3.2;
+                const portalCenterZ = wallZ + outwardDir * (portalDepth / 2 - 0.2);
+                const canopyCenterZ = wallZ + outwardDir * (canopyDepth / 2 + 0.25);
+                const sideReturnZ = wallZ + outwardDir * 0.75;
+                const thresholdZ = wallZ + outwardDir * 1.1;
+                const facadeMat = darkMat;
+
+                // Umbral y piso de acceso para dar presencia de gran tienda.
+                m(anchorEntryWidth + 2.4, 0.08, 2.6, 0, 0.05, thresholdZ, anchorFloorMat);
+                drawAnchorFloorWithGrid(anchorEntryWidth + 1.8, 2.2, 0.09, thresholdZ);
+
+                // Marco principal y pilastras.
+                m(anchorEntryWidth + 2.8, 0.45, canopyDepth, 0, anchorEntryHeight + 0.24, canopyCenterZ, facadeMat);
+                m(anchorEntryWidth + 3.2, 0.12, canopyDepth + 0.2, 0, anchorEntryHeight + 0.52, canopyCenterZ, goldMat);
+                m(1.1, anchorEntryHeight + 0.3, portalDepth, -(anchorEntryWidth / 2 + 0.55), (anchorEntryHeight + 0.3) / 2, portalCenterZ, facadeMat);
+                m(1.1, anchorEntryHeight + 0.3, portalDepth, anchorEntryWidth / 2 + 0.55, (anchorEntryHeight + 0.3) / 2, portalCenterZ, facadeMat);
+
+                // Retornos laterales para que el acceso tenga profundidad.
+                m(0.18, anchorEntryHeight, 1.6, -(anchorEntryWidth / 2 - 0.25), anchorEntryHeight / 2, sideReturnZ, whiteMat);
+                m(0.18, anchorEntryHeight, 1.6, anchorEntryWidth / 2 - 0.25, anchorEntryHeight / 2, sideReturnZ, whiteMat);
+
+                // Paños de vidrio laterales tipo grandes tiendas.
+                m(0.08, anchorEntryHeight - 0.8, portalDepth - 0.5, -(anchorEntryWidth / 2 - 1.05), (anchorEntryHeight - 0.8) / 2 + 0.2, portalCenterZ, glassMat);
+                m(0.08, anchorEntryHeight - 0.8, portalDepth - 0.5, anchorEntryWidth / 2 - 1.05, (anchorEntryHeight - 0.8) / 2 + 0.2, portalCenterZ, glassMat);
+
+                // Remates dorados finos para reforzar el lenguaje premium.
+                m(0.14, anchorEntryHeight - 0.2, 0.14, -(anchorEntryWidth / 2 + 0.02), anchorEntryHeight / 2, wallZ + outwardDir * 0.18, goldMat);
+                m(0.14, anchorEntryHeight - 0.2, 0.14, anchorEntryWidth / 2 + 0.02, anchorEntryHeight / 2, wallZ + outwardDir * 0.18, goldMat);
+            };
+            const addAnchorUpperGateway = () => {
+                const upperPortalDepth = 1.35;
+                const upperCanopyDepth = 1.7;
+                const upperPortalCenterZ = anchorUpperFrontWallZ + upperPortalDepth / 2 - 0.14;
+                const upperCanopyCenterZ = anchorUpperFrontWallZ + upperCanopyDepth / 2 + 0.1;
+                const upperPortalCenterY = anchorSlabTopY + anchorUpperEntryClearHeight / 2;
+                const upperCanopyY = anchorSlabTopY + anchorUpperEntryClearHeight + 0.2;
+
+                m(anchorEntryWidth + 1.8, 0.26, upperCanopyDepth, 0, upperCanopyY, upperCanopyCenterZ, darkMat);
+                m(anchorEntryWidth + 2.15, 0.08, upperCanopyDepth + 0.14, 0, upperCanopyY + 0.18, upperCanopyCenterZ, goldMat);
+                m(0.8, anchorUpperEntryClearHeight + 0.18, upperPortalDepth, -(anchorEntryWidth / 2 + 0.4), upperPortalCenterY, upperPortalCenterZ, darkMat);
+                m(0.8, anchorUpperEntryClearHeight + 0.18, upperPortalDepth, anchorEntryWidth / 2 + 0.4, upperPortalCenterY, upperPortalCenterZ, darkMat);
+                m(0.16, anchorUpperEntryClearHeight, 0.85, -(anchorEntryWidth / 2 - 0.22), upperPortalCenterY, anchorUpperFrontWallZ + 0.38, whiteMat);
+                m(0.16, anchorUpperEntryClearHeight, 0.85, anchorEntryWidth / 2 - 0.22, upperPortalCenterY, anchorUpperFrontWallZ + 0.38, whiteMat);
+                m(0.08, anchorUpperEntryClearHeight - 0.55, upperPortalDepth - 0.28, -(anchorEntryWidth / 2 - 0.88), anchorSlabTopY + (anchorUpperEntryClearHeight - 0.55) / 2 + 0.16, upperPortalCenterZ, glassMat);
+                m(0.08, anchorUpperEntryClearHeight - 0.55, upperPortalDepth - 0.28, anchorEntryWidth / 2 - 0.88, anchorSlabTopY + (anchorUpperEntryClearHeight - 0.55) / 2 + 0.16, upperPortalCenterZ, glassMat);
+                m(0.14, anchorUpperEntryClearHeight - 0.12, 0.12, -(anchorEntryWidth / 2 + 0.02), upperPortalCenterY, anchorUpperFrontWallZ + 0.12, goldMat);
+                m(0.14, anchorUpperEntryClearHeight - 0.12, 0.12, anchorEntryWidth / 2 + 0.02, upperPortalCenterY, anchorUpperFrontWallZ + 0.12, goldMat);
+            };
+
+            m(width, 0.2, 30, 0, 0.02, -10, anchorFloorMat); // Suelo elevado 2cm para evitar z-fighting
             m(width + 2, 0.2, 30, 0, height, -10, whiteMat); // Techo s├│lido
+            drawAnchorFloorWithGrid(width - 1.2, 28.8, 0.12, -10);
+            // Extensión frontal: completa el piso hasta el muro de acceso interior.
+            m(width, 0.2, 4.2, 0, 0.02, 7.1, anchorFloorMat);
+            drawAnchorFloorWithGrid(width - 1.2, 3.8, 0.12, 7.1);
+
+            // Losa intermedia: divide visualmente primer y segundo piso al mismo nivel del mall.
+            m(width - 0.8, anchorSlabThickness, 29.2, 0, anchorSlabTopY - anchorSlabThickness / 2, -10, anchorFloorMat);
+            const frontEdge = new THREE.Mesh(new THREE.BoxGeometry(width - 0.6, 0.16, 0.24), goldMat);
+            frontEdge.position.set(0, anchorSlabTopY + 0.02, 4.88); g.add(frontEdge);
+            drawAnchorFloorWithGrid(width - 2.2, 27.8, anchorSlabTopY, -10);
+            // Extensión frontal de la losa: tapa el hueco azul visible desde el interior.
+            m(width - 0.8, anchorSlabThickness, 4.6, 0, anchorSlabTopY - anchorSlabThickness / 2, 7.0, anchorFloorMat);
+            drawAnchorFloorWithGrid(width - 2.2, 4.0, anchorSlabTopY, 7.0);
+
+            // Frontis planta baja con un orificio central, manteniendo los cierres laterales de la caja.
+            m(width / 2 - 6, 5.4, 0.2, -(width / 4 + 3), 5.4 / 2, anchorFrontWallZ, whiteMat);
+            m(width / 2 - 6, 5.4, 0.2, (width / 4 + 3), 5.4 / 2, anchorFrontWallZ, whiteMat);
+            m(12, 1.4, 0.2, 0, 5.4 - 0.7, anchorFrontWallZ, whiteMat);
+            m(width / 2 - 6, anchorUpperSideWallHeight, 0.2, -(width / 4 + 3), anchorUpperSideWallCenterY, anchorUpperFrontWallZ, whiteMat);
+            m(width / 2 - 6, anchorUpperSideWallHeight, 0.2, (width / 4 + 3), anchorUpperSideWallCenterY, anchorUpperFrontWallZ, whiteMat);
+            m(12, anchorUpperFrontWallHeight, 0.2, 0, anchorUpperFrontWallCenterY, anchorUpperFrontWallZ, whiteMat);
+            // Bloques de esquina: se estiran hacia el muro lateral para cerrar la unión desde dentro.
+            m(3.2, anchorFrontWallH, 4.2, -width / 2 + 1.6, anchorFrontWallH / 2, anchorFrontWallZ - 2.0, whiteMat);
+            m(3.2, anchorFrontWallH, 4.2, width / 2 - 1.6, anchorFrontWallH / 2, anchorFrontWallZ - 2.0, whiteMat);
+            addAnchorGateway(anchorFrontWallZ, 1);
+            addAnchorUpperGateway();
 
             // Paredes laterales
             m(0.2, height, 30, -width / 2, height / 2, -10, whiteMat);
@@ -1401,6 +1528,7 @@
             m(width / 2 - 6, 5.4, 0.2, -(width / 4 + 3), 5.4 / 2, -25, whiteMat);
             m(width / 2 - 6, 5.4, 0.2, (width / 4 + 3), 5.4 / 2, -25, whiteMat);
             m(12, 1.4, 0.2, 0, 5.4 - 0.7, -25, whiteMat); // Dintel de la puerta
+            addAnchorGateway(-25, -1);
 
             // 2. Planta Alta (MURO TOTALMENTE CERRADO para seguridad)
             m(width, height - 5.4, 0.2, 0, 5.4 + (height - 5.4) / 2, -25, whiteMat);
@@ -1946,11 +2074,193 @@
             scene.add(gr);
         }
 
+        function applyBoutiqueDoorPose(door) {
+            const slide = door.slideDistance * door.openAmount;
+            door.leftLeaf.position.x = door.leftClosedX - slide;
+            door.rightLeaf.position.x = door.rightClosedX + slide;
+            door.leftLeaf.position.z = door.leftClosedZ - door.openAmount * BOUTIQUE_DOOR_LAYER_OFFSET;
+            door.rightLeaf.position.z = door.rightClosedZ + door.openAmount * BOUTIQUE_DOOR_LAYER_OFFSET;
+        }
+
+        function actorTriggersBoutiqueDoor(door, currentWorldPos, previousWorldPos) {
+            const currentLocal = door.group.worldToLocal(currentWorldPos.clone());
+            const prevLocal = door.group.worldToLocal((previousWorldPos || currentWorldPos).clone());
+            const triggerCenterX = door.triggerCenterX || 0;
+            const withinWidth = Math.abs(currentLocal.x - triggerCenterX) <= door.triggerHalfWidth || Math.abs(prevLocal.x - triggerCenterX) <= door.triggerHalfWidth;
+            const nearFront = Math.abs(currentLocal.z - door.frontZ) <= door.triggerDepth || Math.abs(prevLocal.z - door.frontZ) <= door.triggerDepth;
+
+            if (!withinWidth || !nearFront) return false;
+
+            const deltaZ = currentLocal.z - prevLocal.z;
+            const crossedDoorPlane = (prevLocal.z - door.frontZ) * (currentLocal.z - door.frontZ) <= 0;
+            const enteringStore = prevLocal.z > door.frontZ + 0.35 && deltaZ < -0.012 && currentLocal.z < door.frontZ + door.triggerDepth;
+            const exitingStore = prevLocal.z < door.frontZ - 0.35 && deltaZ > 0.012 && currentLocal.z > door.frontZ - door.triggerDepth;
+            const waitingOnThreshold = Math.abs(currentLocal.z - door.frontZ) <= 0.7 && Math.abs(deltaZ) > 0.004;
+
+            return enteringStore || exitingStore || (crossedDoorPlane && Math.abs(deltaZ) > 0.008) || waitingOnThreshold;
+        }
+
+        function updateBoutiqueSlidingDoors(nowMs = performance.now()) {
+            if (!boutiqueSlidingDoors.length) return;
+
+            const actors = [];
+            if (isWalking) actors.push({ id: '__local__', position: camera.position.clone() });
+
+            Object.entries(otherPlayers).forEach(([id, player]) => {
+                if (player?.mesh) actors.push({ id: `remote:${id}`, position: player.mesh.position.clone() });
+            });
+
+            npcs.forEach((npc, index) => {
+                if (npc?.mesh) actors.push({ id: `npc:${index}`, position: npc.mesh.position.clone() });
+            });
+
+            boutiqueSlidingDoors.forEach((door) => {
+                for (const actor of actors) {
+                    const prev = boutiqueDoorPrevActors.get(actor.id);
+                    if (actorTriggersBoutiqueDoor(door, actor.position, prev)) {
+                        door.openUntil = nowMs + BOUTIQUE_DOOR_OPEN_HOLD_MS;
+                        break;
+                    }
+                }
+
+                const targetOpen = nowMs < door.openUntil ? 1 : 0;
+                const easing = targetOpen > door.openAmount ? 0.24 : 0.14;
+                door.openAmount = THREE.MathUtils.lerp(door.openAmount, targetOpen, easing);
+                if (Math.abs(door.openAmount - targetOpen) < 0.001) door.openAmount = targetOpen;
+                applyBoutiqueDoorPose(door);
+            });
+
+            const liveActorIds = new Set(actors.map(actor => actor.id));
+            Array.from(boutiqueDoorPrevActors.keys()).forEach((id) => {
+                if (!liveActorIds.has(id)) boutiqueDoorPrevActors.delete(id);
+            });
+            actors.forEach((actor) => boutiqueDoorPrevActors.set(actor.id, actor.position.clone()));
+        }
+
         function createBoutique(posX, posZ, rotY, walls, posY = 0, shopCode = "") {
             const sh = new THREE.Group(); sh.position.set(posX, posY, posZ); sh.rotation.y = rotY;
             sh.userData = { isBoutique: true, shopCode: shopCode };
             const f = new THREE.Mesh(new THREE.BoxGeometry(12, 0.2, 18), new THREE.MeshPhongMaterial({ color: 0x003366 })); f.position.y = 0.02; sh.add(f);
-            const cw = (w, h, d, x, y, z, m) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); mw.position.set(x, y, z); sh.add(mw); };
+            const cw = (w, h, d, x, y, z, m, parent = sh) => { const mw = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); mw.position.set(x, y, z); parent.add(mw); return mw; };
+            const accentPalette = [0xc5a059, 0x6ea6d9, 0xb9875d, 0x8bbf7a, 0xd17f76];
+            const paletteSeed = (shopCode || "B").split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+            const accentColor = accentPalette[paletteSeed % accentPalette.length];
+            const woodMat = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.58, metalness: 0.08 });
+            const woodDarkMat = new THREE.MeshStandardMaterial({ color: 0x4f3923, roughness: 0.62, metalness: 0.05 });
+            const stoneMat = new THREE.MeshStandardMaterial({ color: 0xd7d0c7, roughness: 0.22, metalness: 0.02 });
+            const brassMat = new THREE.MeshStandardMaterial({ color: 0xc5a059, roughness: 0.2, metalness: 0.82 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.44, metalness: 0.16 });
+            const softFabricMat = new THREE.MeshStandardMaterial({ color: 0x988f85, roughness: 0.9, metalness: 0.02 });
+            const glowMat = new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: 0.72 });
+
+            const addProductCluster = (parent, width, depth, y, paletteOffset = 0) => {
+                const tones = [accentColor, 0xf3efe6, 0x1e1e1e, 0xc8b58f, 0x7a8f63];
+                const slots = [
+                    [-width * 0.22, y, -depth * 0.18, 0.34, 0.32, 0.26],
+                    [0, y + 0.06, depth * 0.08, 0.3, 0.44, 0.24],
+                    [width * 0.22, y, -depth * 0.02, 0.26, 0.28, 0.26]
+                ];
+                slots.forEach((slot, index) => {
+                    const tone = tones[(paletteSeed + paletteOffset + index) % tones.length];
+                    const itemMat = new THREE.MeshStandardMaterial({ color: tone, roughness: 0.45, metalness: 0.08 });
+                    const item = new THREE.Mesh(new THREE.BoxGeometry(slot[3], slot[4], slot[5]), itemMat);
+                    item.position.set(slot[0], slot[1] + slot[4] / 2, slot[2]);
+                    parent.add(item);
+                });
+            };
+
+            const addShelfWall = (x, z, width, depth, height, rotationY = 0) => {
+                const shelf = new THREE.Group();
+                shelf.position.set(x, 0, z);
+                shelf.rotation.y = rotationY;
+                cw(width, 0.32, depth, 0, 0.16, 0, woodDarkMat, shelf);
+                cw(width, 0.18, depth + 0.08, 0, height + 0.09, 0, brassMat, shelf);
+                cw(width, height, 0.08, 0, height / 2, -depth / 2 + 0.04, woodMat, shelf);
+                [-width / 2 + 0.12, width / 2 - 0.12].forEach((px) => cw(0.12, height, depth, px, height / 2, 0, woodMat, shelf));
+                [1.15, 2.15, 3.15].forEach((py, index) => {
+                    cw(width - 0.28, 0.1, depth - 0.14, 0, py, 0.02, stoneMat, shelf);
+                    const merch = new THREE.Group();
+                    merch.position.y = py + 0.05;
+                    addProductCluster(merch, width - 0.6, depth - 0.4, 0.02, index);
+                    shelf.add(merch);
+                });
+                sh.add(shelf);
+            };
+
+            const addCenterIsland = (x, z, width, depth, height, glassCap = false) => {
+                const island = new THREE.Group();
+                island.position.set(x, 0, z);
+                cw(width, 0.28, depth, 0, 0.14, 0, woodDarkMat, island);
+                cw(width - 0.22, height, depth - 0.22, 0, height / 2 + 0.28, 0, stoneMat, island);
+                cw(width - 0.36, 0.14, depth - 0.36, 0, height + 0.42, 0, brassMat, island);
+                addProductCluster(island, width - 0.8, depth - 0.8, height + 0.42, 2);
+                if (glassCap) {
+                    cw(width - 0.32, 1.1, 0.06, 0, height + 0.86, -depth / 2 + 0.2, glassMat, island);
+                    cw(width - 0.32, 1.1, 0.06, 0, height + 0.86, depth / 2 - 0.2, glassMat, island);
+                    cw(0.06, 1.1, depth - 0.32, -width / 2 + 0.2, height + 0.86, 0, glassMat, island);
+                    cw(0.06, 1.1, depth - 0.32, width / 2 - 0.2, height + 0.86, 0, glassMat, island);
+                    cw(width - 0.28, 0.08, depth - 0.28, 0, height + 1.38, 0, glassMat, island);
+                }
+                sh.add(island);
+            };
+
+            const addCashDesk = (x, z) => {
+                const desk = new THREE.Group();
+                desk.position.set(x, 0, z);
+                cw(2.8, 1.05, 1.15, 0, 0.52, 0, woodDarkMat, desk);
+                cw(2.68, 0.16, 1.02, 0, 1.12, 0, stoneMat, desk);
+                cw(1.1, 0.86, 0.46, -0.72, 1.55, 0, accentMat, desk);
+                cw(0.6, 0.08, 0.42, -0.72, 1.56, 0.03, darkMat, desk);
+                cw(0.42, 0.68, 0.42, 0.85, 0.36, 0.12, woodMat, desk);
+                cw(0.78, 0.14, 0.48, 0.85, 0.78, 0.12, softFabricMat, desk);
+                sh.add(desk);
+            };
+
+            const addFrontVitrine = (x, z) => {
+                const vitrine = new THREE.Group();
+                vitrine.position.set(x, 0, z);
+                cw(1.65, 0.75, 0.9, 0, 0.38, 0, stoneMat, vitrine);
+                cw(1.45, 0.08, 0.72, 0, 0.8, 0, brassMat, vitrine);
+                cw(1.38, 1.08, 0.06, 0, 1.38, -0.3, glassMat, vitrine);
+                cw(1.38, 1.08, 0.06, 0, 1.38, 0.3, glassMat, vitrine);
+                cw(0.06, 1.08, 0.54, -0.66, 1.38, 0, glassMat, vitrine);
+                cw(0.06, 1.08, 0.54, 0.66, 1.38, 0, glassMat, vitrine);
+                cw(1.36, 0.08, 0.56, 0, 1.9, 0, glassMat, vitrine);
+                addProductCluster(vitrine, 1.0, 0.45, 0.92, 3);
+                sh.add(vitrine);
+            };
+            const addWindowDisplay = (x) => {
+                const display = new THREE.Group();
+                display.position.set(x, 0, 7.25);
+                cw(2.15, 0.3, 0.95, 0, 0.15, 0, woodDarkMat, display);
+                cw(1.45, 0.82, 0.48, 0, 0.72, 0, stoneMat, display);
+                cw(2.0, 1.15, 0.06, 0, 1.26, -0.34, glassMat, display);
+                cw(0.06, 1.15, 0.62, -0.97, 1.26, -0.02, glassMat, display);
+                cw(0.06, 1.15, 0.62, 0.97, 1.26, -0.02, glassMat, display);
+                cw(1.92, 0.08, 0.62, 0, 1.87, -0.02, glassMat, display);
+                cw(1.92, 0.08, 0.62, 0, 0.68, -0.02, brassMat, display);
+                const pedestal = new THREE.Group();
+                pedestal.position.set(0, 0.66, 0.08);
+                cw(0.76, 0.62, 0.42, 0, 0.31, 0, accentMat, pedestal);
+                cw(0.88, 0.08, 0.5, 0, 0.66, 0, brassMat, pedestal);
+                addProductCluster(pedestal, 0.68, 0.3, 0.68, 4);
+                display.add(pedestal);
+                sh.add(display);
+            };
+
+            const addBoutiqueCeilingFeature = () => {
+                [-3.2, 0, 3.2].forEach((px) => {
+                    const drop = new THREE.Group();
+                    drop.position.set(px, 0, 1.2);
+                    cw(0.06, 0.9, 0.06, 0, 4.25, 0, brassMat, drop);
+                    cw(1.4, 0.06, 0.26, 0, 3.74, 0, glowMat, drop);
+                    sh.add(drop);
+                });
+                const runner = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 0.7), glowMat);
+                runner.rotation.x = Math.PI / 2;
+                runner.position.set(0, 4.7, -2.2);
+                sh.add(runner);
+            };
 
             // Iluminaci├│n Techo (Interior)
             const lightStrip = new THREE.Mesh(new THREE.PlaneGeometry(10, 16), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 }));
@@ -1964,8 +2274,15 @@
             cw(2.8, shopH, 0.05, -4.5, shopH / 2, 9, glassMat);
             cw(2.8, shopH, 0.05, 4.5, shopH / 2, 9, glassMat);
             cw(6, shopH - doorH, 0.05, 0, (shopH + doorH) / 2, 9, glassMat);
-            cw(2.9, doorH, 0.05, -1.5, doorH / 2, 9.02, glassMat);
-            cw(2.9, doorH, 0.05, 1.5, doorH / 2, 9.02, glassMat);
+
+            const leftDoorLeaf = new THREE.Group();
+            leftDoorLeaf.position.set(-1.5, doorH / 2, BOUTIQUE_DOOR_FRONT_Z);
+            const rightDoorLeaf = new THREE.Group();
+            rightDoorLeaf.position.set(1.5, doorH / 2, BOUTIQUE_DOOR_FRONT_Z);
+            sh.add(leftDoorLeaf, rightDoorLeaf);
+
+            cw(2.9, doorH, 0.05, 0, 0, 0, glassMat, leftDoorLeaf);
+            cw(2.9, doorH, 0.05, 0, 0, 0, glassMat, rightDoorLeaf);
             cw(12.2, 0.2, 0.2, 0, 0.1, 9.05, frM);
             cw(12.2, 0.2, 0.2, 0, shopH, 9.05, frM);
             cw(0.2, shopH, 0.2, -6, shopH / 2, 9.05, frM);
@@ -1973,8 +2290,8 @@
             cw(0.2, shopH, 0.2, -3, shopH / 2, 9.05, frM);
             cw(0.2, shopH, 0.2, 3, shopH / 2, 9.05, frM);
             cw(6, 0.15, 0.2, 0, doorH, 9.05, frM);
-            cw(0.1, 1.4, 0.1, -0.2, 1.8, 9.15, goldMat);
-            cw(0.1, 1.4, 0.1, 0.2, 1.8, 9.15, goldMat);
+            cw(0.1, 1.4, 0.1, 1.25, 0, 0.12, goldMat, leftDoorLeaf);
+            cw(0.1, 1.4, 0.1, -1.25, 0, 0.12, goldMat, rightDoorLeaf);
 
             if (shopCode !== "") {
                 const idTex = createSmallIDTexture(shopCode);
@@ -1983,6 +2300,35 @@
                 idPlaque.position.set(-5.0, 4.4, 9.15); sh.add(idPlaque);
             }
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
+
+            // Ambientación interior tipo retail premium.
+            cw(4.8, 0.02, 7.4, 0, 0.12, -2.2, new THREE.MeshBasicMaterial({ color: accentColor, transparent: true, opacity: 0.08 }));
+            if (walls.left !== false) addShelfWall(-5.05, -0.8, 15.4, 0.72, 3.85, Math.PI / 2);
+            if (walls.right !== false) addShelfWall(5.05, -0.8, 15.4, 0.72, 3.85, -Math.PI / 2);
+            if (walls.back) addShelfWall(0, -8.05, 8.4, 0.9, 3.9, 0);
+            addCenterIsland(-1.75, -1.6, 2.5, 1.35, 0.95, false);
+            addCenterIsland(2.1, -4.25, 2.25, 1.2, 0.95, true);
+            addCashDesk(3.6, 5.1);
+            addFrontVitrine(-3.9, 5.4);
+            addWindowDisplay(-4.45);
+            addWindowDisplay(4.45);
+            addBoutiqueCeilingFeature();
+
+            boutiqueSlidingDoors.push({
+                group: sh,
+                leftLeaf: leftDoorLeaf,
+                rightLeaf: rightDoorLeaf,
+                leftClosedX: -1.5,
+                rightClosedX: 1.5,
+                leftClosedZ: BOUTIQUE_DOOR_FRONT_Z,
+                rightClosedZ: BOUTIQUE_DOOR_FRONT_Z,
+                slideDistance: BOUTIQUE_DOOR_SLIDE_DISTANCE,
+                triggerHalfWidth: BOUTIQUE_DOOR_TRIGGER_HALF_WIDTH,
+                triggerDepth: BOUTIQUE_DOOR_TRIGGER_DEPTH,
+                frontZ: BOUTIQUE_DOOR_FRONT_Z,
+                openAmount: 0,
+                openUntil: 0
+            });
 
             // --- REGISTRO DE COLISI├ôN (Paredes laterales, trasera y frontal con hueco de puerta) ---
             const cos = Math.cos(rotY); const sin = Math.sin(rotY);
@@ -2005,10 +2351,17 @@
             }
 
             // 3. Pared Frontal (Cristal con puerta de 6m, desplazada 0.25m hacia adentro: 8.75)
-            [4.5, -4.5].forEach(offX => {
+            [BOUTIQUE_DOOR_COLLIDER_OFFSET_X, -BOUTIQUE_DOOR_COLLIDER_OFFSET_X].forEach(offX => {
                 const fx = posX + cos * offX + sin * 8.75;
                 const fz = posZ + sin * (-offX) + cos * 8.75;
-                registerCollider(fx, fz, Math.abs(3 * cos) + Math.abs(0.5 * sin), Math.abs(3 * sin) + Math.abs(0.5 * cos), yB, yB + 6);
+                registerCollider(
+                    fx,
+                    fz,
+                    Math.abs(BOUTIQUE_DOOR_COLLIDER_WIDTH * cos) + Math.abs(0.5 * sin),
+                    Math.abs(BOUTIQUE_DOOR_COLLIDER_WIDTH * sin) + Math.abs(0.5 * cos),
+                    yB,
+                    yB + 6
+                );
             });
 
             return sh;
@@ -2119,16 +2472,17 @@
             const backScreen = screen.clone(); backScreen.rotation.y = Math.PI; backScreen.position.z = -0.21; gr.add(backScreen);
             // Marco Oro
             const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 3.2, 0.5), goldMat); frame.position.y = 2.5; gr.add(frame);
+            gr.scale.setScalar(0.82);
             scene.add(gr);
-            registerCollider(x, z, 2, 2, 0, 5);
+            registerCollider(x, z, 1.7, 1.7, 0, 4.3);
         }
 
         // --- POBLAR T├ôTEMS ---
         createInfoTotem(0, 10);   // Centro Atrio
-        createInfoTotem(0, 80);   // Ala Norte
-        createInfoTotem(0, -80);  // Ala Sur
-        createInfoTotem(80, 0);   // Ala Este
-        createInfoTotem(-80, 0);  // Ala Oeste
+        createInfoTotem(0, 68);   // Ala Norte
+        createInfoTotem(0, -68);  // Ala Sur
+        createInfoTotem(68, 0);   // Ala Este
+        createInfoTotem(-68, 0);  // Ala Oeste
 
 
         const q = (sx, sz, y) => {
@@ -2198,8 +2552,8 @@
         [0, 5.5].forEach(y => { [1, -1].forEach(sx => { [1, -1].forEach(sz => scene.add(q(sx, sz, y))); }); });
 
         // --- POBLAR URBANISMO ---
-        for (let j = -70; j <= 70; j += 25) { if (Math.abs(j) < 15) continue; createPlanter(0, j); createBench(8, j, 0); createBench(-8, j, 0); }
-        for (let k = -70; k <= 70; k += 25) { if (Math.abs(k) < 15) continue; createPlanter(k, 0); createBench(k, 8, Math.PI / 2); createBench(k, -8, Math.PI / 2); }
+        [-70, -45, -20, 28, 48].forEach((j) => { createPlanter(0, j); createBench(8, j, 0); createBench(-8, j, 0); });
+        [-70, -45, -20, 28, 48].forEach((k) => { createPlanter(k, 0); createBench(k, 8, Math.PI / 2); createBench(k, -8, Math.PI / 2); });
         createCentralFountain(); // La fuente crece visualmente por el espacio
         createDigitalScreen(0, 22.0, 17, 0);
         createDigitalScreen(0, 22.0, -17, Math.PI);
@@ -3770,6 +4124,7 @@
             updateKeyboardNavigation();
             updateOtherPlayers();
             updateNPCs(); // Actualizar bots
+            updateBoutiqueSlidingDoors();
 
             controls.update(); 
             renderer.render(scene, camera); 
