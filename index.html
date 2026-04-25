@@ -482,77 +482,206 @@
         }
 
         @media(max-width: 768px) {
+            #main-header {
+                padding: 16px 14px 0 !important;
+                align-items: flex-start !important;
+            }
+
+            #ui-overlay {
+                max-width: 230px;
+                padding: 10px 12px;
+                border-radius: 18px;
+                background: linear-gradient(180deg, rgba(8, 10, 14, 0.36) 0%, rgba(8, 10, 14, 0) 100%);
+                backdrop-filter: blur(8px);
+            }
+
+            #ui-overlay h1 {
+                font-size: 30px !important;
+                line-height: 0.9;
+                letter-spacing: 4px !important;
+            }
+
+            #ui-overlay p {
+                font-size: 10px !important;
+                line-height: 1.2;
+                letter-spacing: 1.2px !important;
+                max-width: 190px;
+            }
+
+            .controls-menu {
+                top: 16px;
+                right: 14px;
+            }
+
+            .controls-menu-btn {
+                min-width: 154px;
+                padding: 10px 14px;
+                font-size: 10px;
+                letter-spacing: 1.5px;
+            }
+
+            .controls-dropdown {
+                min-width: 236px;
+                gap: 8px;
+                padding: 12px;
+                border-radius: 18px;
+            }
+
             #mobile-controls-container {
                 display: none;
                 position: fixed;
-                bottom: 30px;
+                bottom: max(18px, env(safe-area-inset-bottom));
                 left: 0;
                 width: 100%;
-                height: 160px;
+                height: 196px;
                 z-index: 1000;
                 pointer-events: none;
                 justify-content: space-between;
-                align-items: center;
-                padding: 0 20px;
+                align-items: flex-end;
+                padding: 0 16px;
             }
 
             #mall-chat {
-                bottom: 180px !important;
+                bottom: 214px !important;
+                left: 12px !important;
+                width: calc(100vw - 24px) !important;
             }
+
+            .interaction-hint {
+                bottom: 190px;
+                width: min(68vw, 280px);
+                text-align: center;
+                font-size: 9px;
+                letter-spacing: 2px;
+            }
+        }
+
+        .mobile-control-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .mobile-control-chip {
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(8, 10, 14, 0.72);
+            border: 1px solid rgba(197, 160, 89, 0.32);
+            color: #dfcb9d;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+        }
+
+        .mobile-control-note {
+            color: rgba(255, 255, 255, 0.48);
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .joystick-shell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
 
         /* VIRTUAL JOYSTICK */
         .joystick-container {
-            width: 120px;
-            height: 120px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid rgba(197, 160, 89, 0.3);
+            width: 132px;
+            height: 132px;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0 32%, transparent 33%),
+                linear-gradient(180deg, rgba(17, 20, 26, 0.82) 0%, rgba(8, 10, 14, 0.72) 100%);
+            border: 1px solid rgba(197, 160, 89, 0.32);
             border-radius: 50%;
             position: relative;
             pointer-events: auto;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+        }
+
+        .joystick-container::before {
+            content: '';
+            position: absolute;
+            inset: 18px;
+            border-radius: 50%;
+            border: 1px dashed rgba(197, 160, 89, 0.22);
         }
 
         .joystick-knob {
-            width: 50px;
-            height: 50px;
-            background: #c5a059;
+            width: 56px;
+            height: 56px;
+            background: radial-gradient(circle at 30% 30%, #e1c37c 0%, #c5a059 58%, #977435 100%);
             border-radius: 50%;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px rgba(197, 160, 89, 0.4);
+            box-shadow: 0 10px 20px rgba(197, 160, 89, 0.35);
             pointer-events: none;
         }
 
-        /* BOTONES DE ROTACI├ôN */
+        /* BOTONES DE CAMARA */
         .rotation-controls {
             display: grid;
-            grid-template-columns: 50px 50px;
-            gap: 10px;
+            grid-template-columns: repeat(2, 78px);
+            gap: 12px;
             pointer-events: auto;
         }
 
         .dpad-btn {
-            background: rgba(10, 15, 20, 0.7);
-            border: 1px solid rgba(197, 160, 89, 0.5);
-            border-radius: 12px;
-            color: #c5a059;
-            font-size: 22px;
-            width: 50px;
-            height: 50px;
+            background: linear-gradient(180deg, rgba(17, 21, 28, 0.9) 0%, rgba(9, 12, 16, 0.82) 100%);
+            border: 1px solid rgba(197, 160, 89, 0.42);
+            border-radius: 18px;
+            color: #e6d0a3;
+            width: 78px;
+            height: 72px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
             user-select: none;
             touch-action: none;
-            transition: 0.2s;
+            transition: 0.2s ease;
+            box-shadow: 0 14px 24px rgba(0, 0, 0, 0.22);
+        }
+
+        .dpad-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .dpad-label {
+            font-size: 9px;
+            letter-spacing: 1.1px;
+            text-transform: uppercase;
+        }
+
+        .dpad-note {
+            font-size: 8px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            opacity: 0.7;
         }
 
         .dpad-btn:active {
-            background: rgba(197, 160, 89, 0.4);
+            background: rgba(197, 160, 89, 0.32);
             transform: scale(0.9);
+        }
+
+        .dpad-btn:focus-visible {
+            outline: 2px solid rgba(197, 160, 89, 0.8);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -670,17 +799,41 @@
 
     <!-- JOYSTICK Y CONTROLES M├ôVILES -->
     <div id="mobile-controls-container">
-        <!-- Joystick Izquierdo (Desplazamiento) -->
-        <div class="joystick-container" id="joystick-zone">
-            <div class="joystick-knob" id="joystick-knob"></div>
+        <div class="mobile-control-panel">
+            <div class="mobile-control-chip">Mover</div>
+            <div class="joystick-shell">
+                <div class="joystick-container" id="joystick-zone" aria-label="Joystick de movimiento">
+                    <div class="joystick-knob" id="joystick-knob"></div>
+                </div>
+                <div class="mobile-control-note">Arrastra para caminar</div>
+            </div>
         </div>
 
-        <!-- Botones Derecha (Rotaci├│n) -->
-        <div class="rotation-controls">
-            <div class="dpad-btn" id="btn-rotate-left">Ôå║</div>
-            <div class="dpad-btn" id="btn-rotate-right">Ôå╗</div>
-            <div class="dpad-btn" id="btn-look-up">Ôû▓</div>
-            <div class="dpad-btn" id="btn-look-down">Ôû╝</div>
+        <div class="mobile-control-panel">
+            <div class="mobile-control-chip">Camara</div>
+            <div class="rotation-controls">
+                <button type="button" class="dpad-btn" id="btn-rotate-left" aria-label="Girar a la izquierda" title="Girar a la izquierda">
+                    <span class="dpad-icon">&#8592;</span>
+                    <span class="dpad-label">Girar</span>
+                    <span class="dpad-note">Izq.</span>
+                </button>
+                <button type="button" class="dpad-btn" id="btn-rotate-right" aria-label="Girar a la derecha" title="Girar a la derecha">
+                    <span class="dpad-icon">&#8594;</span>
+                    <span class="dpad-label">Girar</span>
+                    <span class="dpad-note">Der.</span>
+                </button>
+                <button type="button" class="dpad-btn" id="btn-look-up" aria-label="Mirar hacia arriba" title="Mirar hacia arriba">
+                    <span class="dpad-icon">&#8593;</span>
+                    <span class="dpad-label">Mirar</span>
+                    <span class="dpad-note">Arriba</span>
+                </button>
+                <button type="button" class="dpad-btn" id="btn-look-down" aria-label="Mirar hacia abajo" title="Mirar hacia abajo">
+                    <span class="dpad-icon">&#8595;</span>
+                    <span class="dpad-label">Mirar</span>
+                    <span class="dpad-note">Abajo</span>
+                </button>
+            </div>
+            <div class="mobile-control-note">Mantener para orientar la vista</div>
         </div>
     </div>
 
@@ -1482,7 +1635,6 @@
         const ESCALATOR_FLAT_LEN = 4;
         const ESCALATOR_RIDE_Y_BOTTOM = 0.1;
         const ESCALATOR_RIDE_Y_TOP = 5.4;
-        const ESCALATOR_EXIT_BLEND_DISTANCE = 3.4;
         const PLAYER_EYE_HEIGHT = 1.7;
         function createEscalator(x, zStart, zEnd, up = true) {
             const h = 5.4;
@@ -1490,6 +1642,8 @@
             const flatLen = ESCALATOR_FLAT_LEN;
             const gr = new THREE.Group(); gr.position.set(x, -0.53, zStart);
             const dir = Math.sign(dist);
+            const travelStartZ = up ? zStart : zEnd;
+            const travelDir = up ? dir : -dir;
             const pathLenZ = Math.abs(dist);
             const diagLenZ = Math.max(0.001, pathLenZ - (flatLen * 2));
             const pathStartY = up ? ESCALATOR_RIDE_Y_BOTTOM : ESCALATOR_RIDE_Y_TOP;
@@ -1506,6 +1660,8 @@
                 yEnd: h - 0.53,
                 zStart,
                 zEnd,
+                travelStartZ,
+                travelDir,
                 axis: 'z',
                 dir,
                 flatLen,
@@ -1552,7 +1708,7 @@
         }
 
         function getEscalatorProgressForZ(escalator, z) {
-            return THREE.MathUtils.clamp((z - escalator.zStart) * escalator.dir, 0, escalator.pathLenZ);
+            return THREE.MathUtils.clamp((z - escalator.travelStartZ) * escalator.travelDir, 0, escalator.pathLenZ);
         }
 
         function getEscalatorRideYAtProgress(escalator, progress) {
@@ -1568,7 +1724,7 @@
             return new THREE.Vector3(
                 escalator.x,
                 getEscalatorRideYAtProgress(escalator, p) + eyeOffset,
-                escalator.zStart + escalator.dir * p
+                escalator.travelStartZ + escalator.travelDir * p
             );
         }
 
@@ -1597,13 +1753,13 @@
             return best;
         }
 
-        function advanceAlongEscalator(point, escalator, progress, travelStep, eyeOffset = 0, snapX = 0.35) {
+        function advanceAlongEscalator(point, escalator, progress, travelStep, eyeOffset = 0, snapX = 0.35, blendToLanding = false) {
             const nextProgress = THREE.MathUtils.clamp(progress + travelStep, 0, escalator.pathLenZ);
             const ridePos = getEscalatorRidePosition(escalator, nextProgress, eyeOffset);
             let landing = null;
 
-            if (escalator.pathEndY > escalator.pathStartY) {
-                const blendStart = Math.max(escalator.flatLen, escalator.pathLenZ - ESCALATOR_EXIT_BLEND_DISTANCE);
+            if (blendToLanding && escalator.pathEndY > escalator.pathStartY) {
+                const blendStart = Math.max(escalator.flatLen, escalator.pathLenZ - 3.4);
                 const blendT = THREE.MathUtils.clamp(
                     (nextProgress - blendStart) / Math.max(0.001, escalator.pathLenZ - blendStart),
                     0,
@@ -1630,33 +1786,11 @@
 
         function getEscalatorExitPosition(escalator, eyeOffset = 0, extraForward = 2.6) {
             const exitPos = getEscalatorRidePosition(escalator, escalator.pathLenZ, eyeOffset);
-            exitPos.z += escalator.dir * extraForward;
+            exitPos.z += escalator.travelDir * extraForward;
             return exitPos;
         }
 
         function getEscalatorLandingTransform(escalator, eyeOffset = 0) {
-            const exitsOnUpperFloor = escalator.pathEndY > escalator.pathStartY;
-            if (exitsOnUpperFloor) {
-                const sideDir = escalator.x >= 0 ? 1 : -1;
-                const upperLaneX = escalator.x + sideDir * 2.65;
-                const upperLaneZ = escalator.zEnd + escalator.dir * 2.8;
-                const position = new THREE.Vector3(
-                    upperLaneX,
-                    ESCALATOR_RIDE_Y_TOP + eyeOffset,
-                    upperLaneZ
-                );
-                return {
-                    position,
-                    target: new THREE.Vector3(
-                        upperLaneX + sideDir * 8,
-                        position.y + 0.05,
-                        upperLaneZ
-                    ),
-                    exitAxis: 'x',
-                    exitDir: sideDir
-                };
-            }
-
             const isNorthSouthRide = escalator.axis !== 'x';
             const preferredSide = isNorthSouthRide
                 ? (escalator.x >= 0 ? 1 : -1)
@@ -2200,10 +2334,24 @@
         const bindKey = (id, key) => {
             const el = document.getElementById(id);
             if (!el) return;
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; el.classList.add('opacity-50'); });
-            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; el.classList.remove('opacity-50'); });
-            el.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
-            el.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
+            const pressKey = (e) => {
+                e.preventDefault();
+                keys[key] = true;
+                el.classList.add('opacity-50');
+            };
+            const releaseKey = (e) => {
+                e.preventDefault();
+                keys[key] = false;
+                el.classList.remove('opacity-50');
+            };
+            el.addEventListener('touchstart', pressKey);
+            el.addEventListener('touchend', releaseKey);
+            el.addEventListener('touchcancel', releaseKey);
+            el.addEventListener('mousedown', pressKey);
+            el.addEventListener('mouseup', releaseKey);
+            el.addEventListener('mouseleave', releaseKey);
+            el.addEventListener('pointercancel', releaseKey);
+            el.addEventListener('pointerleave', releaseKey);
         };
         bindKey('btn-rotate-left', 'ArrowLeft');
         bindKey('btn-rotate-right', 'ArrowRight');
@@ -2213,10 +2361,18 @@
         // L├│gica de Look Up/Down para botones espec├¡ficos
         let isBtnLookUp = false;
         let isBtnLookDown = false;
-        document.getElementById('btn-look-up').onpointerdown = () => isBtnLookUp = true;
-        document.getElementById('btn-look-up').onpointerup = () => isBtnLookUp = false;
-        document.getElementById('btn-look-down').onpointerdown = () => isBtnLookDown = true;
-        document.getElementById('btn-look-down').onpointerup = () => isBtnLookDown = false;
+        const lookUpBtn = document.getElementById('btn-look-up');
+        const lookDownBtn = document.getElementById('btn-look-down');
+        const resetLookUp = () => isBtnLookUp = false;
+        const resetLookDown = () => isBtnLookDown = false;
+        lookUpBtn.onpointerdown = () => isBtnLookUp = true;
+        lookUpBtn.onpointerup = resetLookUp;
+        lookUpBtn.onpointercancel = resetLookUp;
+        lookUpBtn.onpointerleave = resetLookUp;
+        lookDownBtn.onpointerdown = () => isBtnLookDown = true;
+        lookDownBtn.onpointerup = resetLookDown;
+        lookDownBtn.onpointercancel = resetLookDown;
+        lookDownBtn.onpointerleave = resetLookDown;
 
 
         let moveSpeed = 0.15;
@@ -2333,8 +2489,12 @@
             let onEscalator = false;
             currentEscalatorState = null;
             const nowMs = performance.now();
-            if (escalatorExitCooldown && nowMs > escalatorExitCooldown.until) {
-                escalatorExitCooldown = null;
+            if (escalatorExitCooldown) {
+                const exitDx = camera.position.x - escalatorExitCooldown.x;
+                const exitDz = camera.position.z - escalatorExitCooldown.z;
+                if ((exitDx * exitDx + exitDz * exitDz) >= (escalatorExitCooldown.releaseDistance * escalatorExitCooldown.releaseDistance)) {
+                    escalatorExitCooldown = null;
+                }
             }
             let activeEscalator = findActiveEscalator(
                 camera.position.x,
@@ -2353,19 +2513,20 @@
                     activeEscalator.progress,
                     0.11,
                     PLAYER_EYE_HEIGHT,
-                    0.4
+                    0.4,
+                    false
                 );
                 const delta = camera.position.clone().sub(prevCamPos);
                 controls.target.add(delta);
                 onEscalator = true;
                 if (ride.done) {
-                    if (ride.landing) {
-                        controls.target.copy(ride.landing.target);
-                    }
+                    const exitHoldPos = getEscalatorRidePosition(activeEscalator.escalator, activeEscalator.escalator.pathLenZ, PLAYER_EYE_HEIGHT);
                     currentEscalatorState = null;
                     escalatorExitCooldown = {
                         id: activeEscalator.escalator.id,
-                        until: nowMs + 850
+                        x: exitHoldPos.x,
+                        z: exitHoldPos.z,
+                        releaseDistance: 2.35
                     };
                     onEscalator = false;
                 } else {
@@ -3111,7 +3272,7 @@
                         const escalator = escalatorList[pData.escId];
                         const escProgress = THREE.MathUtils.clamp(pData.escT, 0, 1) * escalator.pathLenZ;
                         p.targetPos.copy(getEscalatorRidePosition(escalator, escProgress, 0));
-                        p.targetRot = escalator.dir > 0 ? 0 : Math.PI;
+                        p.targetRot = escalator.travelDir > 0 ? 0 : Math.PI;
                         p.escalatorState = { id: escalator.id, t: pData.escT };
                     } else {
                         p.targetPos.set(pData.x, pData.y - PLAYER_EYE_HEIGHT, pData.z);
@@ -3620,9 +3781,10 @@
                         activeEscalator.progress,
                         Math.max(0.05, npc.speed * 4.5),
                         0,
-                        0.45
+                        0.45,
+                        true
                     );
-                    npc.mesh.rotation.y = activeEscalator.escalator.dir > 0 ? 0 : Math.PI;
+                    npc.mesh.rotation.y = activeEscalator.escalator.travelDir > 0 ? 0 : Math.PI;
                     npc.intermediateTarget = null;
                     if (ride.done) {
                         if (ride.landing) {
