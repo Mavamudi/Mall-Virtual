@@ -2283,6 +2283,142 @@
             };
         }
 
+        const createAvatarStylized = function (nickname, styleCode = "1") {
+            const group = new THREE.Group();
+
+            let palette = {
+                skin: 0xf0c7a2,
+                shirt: 0x1f232a,
+                accent: 0xc5a059,
+                pants: 0x171a1f,
+                shoes: 0x0b0b0d,
+                hair: 0x2a1e18
+            };
+            if (styleCode === "2") palette = { skin: 0xe7bc97, shirt: 0xf1c232, accent: 0xffffff, pants: 0x274690, shoes: 0xf7f7f7, hair: 0x3a2a1c };
+            if (styleCode === "3") palette = { skin: 0xd9ae86, shirt: 0x8c3f58, accent: 0xe3c27a, pants: 0x586674, shoes: 0x231f20, hair: 0x151515 };
+
+            const skinMat = new THREE.MeshStandardMaterial({ color: palette.skin, roughness: 0.72, metalness: 0.02 });
+            const shirtMat = new THREE.MeshStandardMaterial({ color: palette.shirt, roughness: 0.78 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: palette.accent, roughness: 0.45, metalness: 0.15 });
+            const pantsMat = new THREE.MeshStandardMaterial({ color: palette.pants, roughness: 0.88 });
+            const shoesMat = new THREE.MeshStandardMaterial({ color: palette.shoes, roughness: 0.55 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: palette.hair, roughness: 0.9 });
+            const darkMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.35, metalness: 0.15 });
+
+            const assignPlayerId = (obj) => {
+                obj.userData.playerId = nickname;
+                return obj;
+            };
+
+            const torso = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.72, 0.28), shirtMat));
+            torso.position.set(0, 1.18, 0);
+            group.add(torso);
+
+            const chest = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.34, 0.3), accentMat));
+            chest.position.set(0, 1.2, 0.02);
+            group.add(chest);
+
+            const pelvis = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.28, 0.24), pantsMat));
+            pelvis.position.set(0, 0.72, 0);
+            group.add(pelvis);
+
+            const neck = assignPlayerId(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.14, 10), skinMat));
+            neck.position.set(0, 1.58, 0);
+            group.add(neck);
+
+            const head = assignPlayerId(new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 14), skinMat));
+            head.position.set(0, 1.88, 0.02);
+            head.scale.set(1, 1.08, 0.96);
+            group.add(head);
+
+            const hair = assignPlayerId(new THREE.Mesh(new THREE.SphereGeometry(0.25, 12, 12), hairMat));
+            hair.position.set(0, 1.97, -0.01);
+            hair.scale.set(1.02, 0.72, 1.02);
+            group.add(hair);
+
+            const visor = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.06, 0.12), darkMat));
+            visor.position.set(0, 1.87, 0.2);
+            group.add(visor);
+
+            const shoulderBar = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.12, 0.18), shirtMat));
+            shoulderBar.position.set(0, 1.42, 0);
+            group.add(shoulderBar);
+
+            const armGeometry = new THREE.CylinderGeometry(0.07, 0.08, 0.52, 8);
+            const forearmGeometry = new THREE.CylinderGeometry(0.055, 0.065, 0.42, 8);
+            const legGeometry = new THREE.CylinderGeometry(0.085, 0.095, 0.62, 8);
+            const shinGeometry = new THREE.CylinderGeometry(0.07, 0.08, 0.54, 8);
+
+            const armL = new THREE.Group();
+            armL.position.set(-0.36, 1.38, 0);
+            group.add(armL);
+            const armLUpper = assignPlayerId(new THREE.Mesh(armGeometry, shirtMat));
+            armLUpper.position.y = -0.24;
+            armLUpper.rotation.z = 0.08;
+            armL.add(armLUpper);
+            const armLFore = assignPlayerId(new THREE.Mesh(forearmGeometry, skinMat));
+            armLFore.position.set(0, -0.58, 0);
+            armLFore.rotation.z = 0.04;
+            armL.add(armLFore);
+
+            const armR = new THREE.Group();
+            armR.position.set(0.36, 1.38, 0);
+            group.add(armR);
+            const armRUpper = assignPlayerId(new THREE.Mesh(armGeometry, shirtMat));
+            armRUpper.position.y = -0.24;
+            armRUpper.rotation.z = -0.08;
+            armR.add(armRUpper);
+            const armRFore = assignPlayerId(new THREE.Mesh(forearmGeometry, skinMat));
+            armRFore.position.set(0, -0.58, 0);
+            armRFore.rotation.z = -0.04;
+            armR.add(armRFore);
+
+            const legL = new THREE.Group();
+            legL.position.set(-0.17, 0.58, 0);
+            group.add(legL);
+            const legLUpper = assignPlayerId(new THREE.Mesh(legGeometry, pantsMat));
+            legLUpper.position.y = -0.34;
+            legL.add(legLUpper);
+            const legLLower = assignPlayerId(new THREE.Mesh(shinGeometry, pantsMat));
+            legLLower.position.set(0, -0.82, 0.02);
+            legL.add(legLLower);
+            const shoeL = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 0.34), shoesMat));
+            shoeL.position.set(0, -1.12, 0.08);
+            legL.add(shoeL);
+
+            const legR = new THREE.Group();
+            legR.position.set(0.17, 0.58, 0);
+            group.add(legR);
+            const legRUpper = assignPlayerId(new THREE.Mesh(legGeometry, pantsMat));
+            legRUpper.position.y = -0.34;
+            legR.add(legRUpper);
+            const legRLower = assignPlayerId(new THREE.Mesh(shinGeometry, pantsMat));
+            legRLower.position.set(0, -0.82, 0.02);
+            legR.add(legRLower);
+            const shoeR = assignPlayerId(new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 0.34), shoesMat));
+            shoeR.position.set(0, -1.12, 0.08);
+            legR.add(shoeR);
+
+            scene.add(group);
+
+            const label = document.createElement('div');
+            label.className = 'avatar-label';
+            label.innerText = nickname;
+            document.body.appendChild(label);
+
+            return {
+                mesh: group,
+                label: label,
+                targetPos: new THREE.Vector3(),
+                targetRot: 0,
+                lastPos: new THREE.Vector3(),
+                walkCycle: Math.random() * Math.PI * 2,
+                limbs: { armL, armR, legL, legR }
+            };
+        };
+
+        createAvatar = createAvatarStylized;
+
         const CHILEAN_NAMES = [
             "Mateo González", "Agustín Muñoz", "Benjamín Rojas", "Vicente Díaz", "Sofía Morales",
             "Emilia Sepúlveda", "Florencia Araya", "Isidora Pastén", "Josefa Castro", "Juan Pérez",
@@ -2316,8 +2452,19 @@
         function updateOtherPlayers() {
             Object.values(otherPlayers).forEach(p => {
                 if (p.mesh) {
+                    if (!p.lastPos) p.lastPos = p.mesh.position.clone();
+                    const prevPos = p.mesh.position.clone();
                     p.mesh.position.lerp(p.targetPos, 0.08); // Suavizado mayor para compensar saltos
                     p.mesh.rotation.y = p.targetRot;
+                    if (p.limbs) {
+                        const stepDistance = prevPos.distanceTo(p.mesh.position);
+                        p.walkCycle = (p.walkCycle || 0) + Math.min(stepDistance * 16, 0.45);
+                        const swing = Math.sin(p.walkCycle) * Math.min(stepDistance * 20, 0.55);
+                        p.limbs.legL.rotation.x = swing;
+                        p.limbs.legR.rotation.x = -swing;
+                        p.limbs.armL.rotation.x = -swing * 0.85;
+                        p.limbs.armR.rotation.x = swing * 0.85;
+                    }
                     const tempVec = p.mesh.position.clone();
                     tempVec.y += 2.0;
                     tempVec.project(camera);
@@ -2384,9 +2531,10 @@
                 });
                 
                 // Etiqueta sutil para NPCs
-                npc.label.style.fontSize = "10px";
-                npc.label.style.opacity = "0.7";
-                npc.label.style.background = "rgba(0,0,0,0.3)";
+                npc.label.style.fontSize = "9px";
+                npc.label.style.opacity = "0.45";
+                npc.label.style.background = "rgba(0,0,0,0.16)";
+                npc.label.style.borderColor = "rgba(197,160,89,0.35)";
             }
         }
 
@@ -2442,11 +2590,11 @@
                                 
                                 // Animación de extremidades (humana)
                                 npc.walkCycle += npc.speed * 10;
-                                const swing = Math.sin(npc.walkCycle) * 0.6;
+                                const swing = Math.sin(npc.walkCycle) * 0.52;
                                 npc.limbs.legL.rotation.x = swing;
                                 npc.limbs.legR.rotation.x = -swing;
-                                npc.limbs.armL.rotation.x = -swing;
-                                npc.limbs.armR.rotation.x = swing;
+                                npc.limbs.armL.rotation.x = -swing * 0.85;
+                                npc.limbs.armR.rotation.x = swing * 0.85;
                             } else {
                                 npc.state = 'looking';
                                 npc.timer = now + 1000;
@@ -2489,23 +2637,11 @@
                 const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
                 const y = (tempVec.y * -0.5 + 0.5) * window.innerHeight;
                 npc.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                npc.label.style.display = (tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1) ? 'none' : 'block';
+                const npcDistance = camera.position.distanceTo(npc.mesh.position);
+                const npcVisible = !(tempVec.z > 1 || Math.abs(tempVec.x) > 1 || Math.abs(tempVec.y) > 1);
+                npc.label.style.display = (npcVisible && npcDistance < 22) ? 'block' : 'none';
             });
         }
-                    if (now > npc.timer) {
-                        npc.state = 'walking';
-                        const wing = Math.random();
-                        const targetY = Math.random() > 0.5 ? 5.4 : 0; // Puede elegir cualquier piso
-                        
-                        if (wing < 0.25) npc.target.set((Math.random()-0.5)*20, targetY, (Math.random()*80 + 20));
-                        else if (wing < 0.5) npc.target.set((Math.random()-0.5)*20, targetY, -(Math.random()*80 + 20));
-                        else if (wing < 0.75) npc.target.set((Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
-                        else npc.target.set(-(Math.random()*80 + 20), targetY, (Math.random()-0.5)*20);
-                    }
-                }
-            });
-        }
-
         initNPCs();
 
         // --- VÍNCULOS DE CIERRE (MÉTODO ROBUSTO) ---
