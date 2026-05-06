@@ -2442,8 +2442,8 @@
             const isOuterDoor = variant === 'outer';
             const innerLateralOffset = isOuterDoor ? 0 : -2.2;
             const innerDepthOffset = isOuterDoor ? 0 : -10;
-            const manualOffsetX = doorCode === 'OS' ? -6 : doorCode === 'SO' ? 5.5 : doorCode === 'SO_COPY' ? 23.5 : doorCode === 'SE' ? 14 : doorCode === 'ES' ? -1.8 : doorCode === 'ES_COPY' ? -1.8 : doorCode === 'NE' ? 14.5 : doorCode === 'NE_COPY' ? -3.4 : doorCode === 'NO' ? 5.5 : doorCode === 'NO_COPY' ? 23.5 : doorCode === 'EN' ? -1.8 : doorCode === 'EN_COPY' ? -1.7 : doorCode === 'SE_COPY' ? -3 : 0;
-            const manualOffsetZ = doorCode === 'OS' ? 10 : doorCode === 'SO' ? 1.8 : doorCode === 'SO_COPY' ? 1.8 : doorCode === 'SE' ? 1.9 : doorCode === 'ES' ? 5.6 : doorCode === 'ES_COPY' ? 23.5 : doorCode === 'NE' ? -6.3 : doorCode === 'NE_COPY' ? -6.2 : doorCode === 'NO' ? -6.2 : doorCode === 'NO_COPY' ? -6.2 : doorCode === 'EN' ? 14.4 : doorCode === 'EN_COPY' ? -3.3 : doorCode === 'SE_COPY' ? 1.9 : 0;
+            const manualOffsetX = doorCode === 'OS' ? 6.2 : doorCode === 'OS_COPY' ? 6.2 : doorCode === 'ON' ? 6.2 : doorCode === 'ON_COPY' ? 6.2 : doorCode === 'SO' ? 5.5 : doorCode === 'SO_COPY' ? 23.5 : doorCode === 'SE' ? 14 : doorCode === 'ES' ? -1.8 : doorCode === 'ES_COPY' ? -1.8 : doorCode === 'NE' ? 14.5 : doorCode === 'NE_COPY' ? -3.4 : doorCode === 'NO' ? 5.5 : doorCode === 'NO_COPY' ? 23.5 : doorCode === 'EN' ? -1.8 : doorCode === 'EN_COPY' ? -1.7 : doorCode === 'SE_COPY' ? -3 : 0;
+            const manualOffsetZ = doorCode === 'OS' ? 5.6 : doorCode === 'OS_COPY' ? 23.5 : doorCode === 'ON' ? 14.4 : doorCode === 'ON_COPY' ? -3.3 : doorCode === 'SO' ? 1.8 : doorCode === 'SO_COPY' ? 1.8 : doorCode === 'SE' ? 1.9 : doorCode === 'ES' ? 5.6 : doorCode === 'ES_COPY' ? 23.5 : doorCode === 'NE' ? -6.3 : doorCode === 'NE_COPY' ? -6.2 : doorCode === 'NO' ? -6.2 : doorCode === 'NO_COPY' ? -6.2 : doorCode === 'EN' ? 14.4 : doorCode === 'EN_COPY' ? -3.3 : doorCode === 'SE_COPY' ? 1.9 : 0;
             const offsetX = Math.cos(rotationY) * innerLateralOffset;
             const offsetZ = -Math.sin(rotationY) * innerLateralOffset;
             const depthOffsetX = Math.sin(rotationY) * innerDepthOffset;
@@ -2633,6 +2633,8 @@
             // Pasillos de anclas Este y Oeste
             [-eastWestZ, eastWestZ].forEach((z) => {
                 createCorridorAccessDoor(-innerX, z, 0, 'inner', z < 0 ? 'OS' : 'ON');
+                if (z < 0) createCorridorAccessDoor(-innerX, z, 0, 'inner', 'OS_COPY');
+                if (z > 0) createCorridorAccessDoor(-innerX, z, 0, 'inner', 'ON_COPY');
                 createCorridorAccessDoor(innerX, z, 0, 'inner', z < 0 ? 'ES' : 'EN');
                 if (z < 0) createCorridorAccessDoor(innerX, z, 0, 'inner', 'ES_COPY');
                 if (z > 0) createCorridorAccessDoor(innerX, z, 0, 'inner', 'EN_COPY');
