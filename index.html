@@ -3476,7 +3476,8 @@
             lightStrip.rotation.x = Math.PI / 2; lightStrip.position.y = 4.75; sh.add(lightStrip);
 
             if (walls.back && !hideRearWallForShop) cw(12, 4.8, 0.1, 0, 2.4, -9, whiteMat);
-            if (walls.left !== false) cw(0.1, 4.8, 18, -6, 2.4, 0, walls.left === 'glass' ? glassMat : whiteMat);
+            const wallLeftMat = (shopCode === "E206") ? new THREE.MeshStandardMaterial({ color: 0xff0000 }) : (walls.left === 'glass' ? glassMat : whiteMat);
+            if (walls.left !== false) cw(0.1, 4.8, 18, -6, 2.4, 0, wallLeftMat);
             if (walls.right !== false) cw(0.1, 4.8, 18, 6, 2.4, 0, walls.right === 'glass' ? glassMat : whiteMat);
 
             const doorH = 3.6; const shopH = 4.8; const frM = darkMat;
