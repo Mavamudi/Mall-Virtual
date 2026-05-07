@@ -5589,9 +5589,11 @@
                     if (savedState && typeof savedState.px === 'number') {
                         try {
                             const s = savedState;
-                            // Validar que no sean coordenadas nulas que dejen al usuario en el limbo
-                            if (!(s.px === 0 && s.pz === 0)) {
-                                camera.position.set(s.px, s.py, s.pz);
+                            // Validar que no sean coordenadas nulas o muy cerca del origen que dejen al usuario en el limbo
+                            if (Math.abs(s.px) > 0.5 || Math.abs(s.pz) > 0.5) {
+                                // Asegurar altura mínima para no quedar enterrado
+                                const safeY = Math.max(s.py || 0, 1.2);
+                                camera.position.set(s.px, safeY, s.pz);
                                 controls.target.set(s.tx, s.ty, s.tz);
                                 restored = true;
                             }
@@ -7726,6 +7728,18 @@
                 isAdminSaving = false;
             }
         }
+
+        window.addEventListener('beforeunload', () => {
+            if (isAdmin) {
+                const state = {
+                    px: camera.position.x, py: camera.position.y, pz: camera.position.z,
+                    tx: controls.target.x, ty: controls.target.y, tz: controls.target.z
+                };
+                if (Math.abs(state.px) > 0.5 || Math.abs(state.pz) > 0.5) {
+                    localStorage.setItem('mall_admin_last_pos', JSON.stringify(state));
+                }
+            }
+        });
 
         function animate() {
             requestAnimationFrame(animate);
