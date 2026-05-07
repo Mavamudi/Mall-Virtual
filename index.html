@@ -5563,13 +5563,29 @@
             setTimeout(() => {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('main-header').style.display = 'flex';
+                
+                let restored = false;
+                if (isAdmin) {
+                    const saved = localStorage.getItem('mall_admin_last_pos');
+                    if (saved) {
+                        try {
+                            const s = JSON.parse(saved);
+                            camera.position.set(s.px, s.px === 0 && s.pz === 0 ? 1.7 : s.py, s.pz);
+                            controls.target.set(s.tx, s.ty, s.tz);
+                            restored = true;
+                        } catch(e) {}
+                    }
+                }
+
                 if (!isWalking) {
                     window.toggleWalkMode();
-                } else {
-                    camera.position.copy(WALK_SPAWN);
-                    controls.target.copy(WALK_LOOK_TARGET);
-                    controls.update();
+                } 
+                
+                if (!restored) {
+                    camera.position.set(0, 1.7, -82);
+                    controls.target.set(0, 1.80, -78);
                 }
+                controls.update();
                 focusMallCanvas();
             }, 500);
 
@@ -7660,6 +7676,18 @@
         const FAR_NPC_SIM_DISTANCE = IS_COARSE_POINTER ? 46 : 58;
         const FAR_NPC_SKIP_FRAMES = IS_COARSE_POINTER ? 3 : 2;
         let frameTick = 0;
+        let lastAdminSave = 0;
+        function saveAdminPosition() {
+            if (!isAdmin) return;
+            const now = Date.now();
+            if (now - lastAdminSave < 2000) return;
+            lastAdminSave = now;
+            const state = {
+                px: camera.position.x, py: camera.position.y, pz: camera.position.z,
+                tx: controls.target.x, ty: controls.target.y, tz: controls.target.z
+            };
+            localStorage.setItem('mall_admin_last_pos', JSON.stringify(state));
+        }
 
         function animate() {
             requestAnimationFrame(animate);
@@ -7686,6 +7714,7 @@
             updateAxisReference();
 
             controls.update(); 
+            saveAdminPosition();
             renderer.render(scene, camera); 
         }
 
