@@ -5588,10 +5588,8 @@
                 document.getElementById('main-header').style.display = 'flex';
                 
                 let restored = false;
-                /* Desactivado temporalmente por solicitud del usuario
                 if (isAdmin) {
                     const savedState = currentUserProfile?.last_pos || JSON.parse(localStorage.getItem('mall_admin_last_pos') || "null");
-                    console.log("Persistence Debug [Admin]:", { source: currentUserProfile?.last_pos ? "Supabase" : "LocalStorage", data: savedState });
                     if (savedState && typeof savedState.px === 'number') {
                         try {
                             const s = savedState;
@@ -5604,15 +5602,15 @@
                         } catch(e) { console.warn("Error al restaurar posición admin:", e); }
                     }
                 }
-                */
 
                 if (!isWalking) {
                     window.toggleWalkMode();
                 } 
                 
-                // Siempre forzar Atrio Sur por ahora
-                camera.position.set(0, 1.7, -82);
-                controls.target.set(0, 1.80, -78);
+                if (!restored) {
+                    camera.position.set(0, 1.7, -82);
+                    controls.target.set(0, 1.80, -78);
+                }
                 controls.update();
                 focusMallCanvas();
             }, 500);
