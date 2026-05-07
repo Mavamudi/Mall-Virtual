@@ -5569,14 +5569,18 @@
                 
                 let restored = false;
                 if (isAdmin) {
-                    const saved = localStorage.getItem('mall_admin_last_pos');
-                    if (saved) {
+                    // Intentar primero desde el perfil de Supabase, luego fallback a localStorage
+                    const savedState = currentUserProfile?.last_pos || JSON.parse(localStorage.getItem('mall_admin_last_pos') || "null");
+                    if (savedState && typeof savedState.px === 'number') {
                         try {
-                            const s = JSON.parse(saved);
-                            camera.position.set(s.px, s.px === 0 && s.pz === 0 ? 1.7 : s.py, s.pz);
-                            controls.target.set(s.tx, s.ty, s.tz);
-                            restored = true;
-                        } catch(e) {}
+                            const s = savedState;
+                            // Validar que no sean coordenadas nulas que dejen al usuario en el limbo
+                            if (!(s.px === 0 && s.pz === 0)) {
+                                camera.position.set(s.px, s.py, s.pz);
+                                controls.target.set(s.tx, s.ty, s.tz);
+                                restored = true;
+                            }
+                        } catch(e) { console.warn("Error al restaurar posición admin:", e); }
                     }
                 }
 
@@ -7680,7 +7684,8 @@
         const FAR_NPC_SKIP_FRAMES = IS_COARSE_POINTER ? 3 : 2;
         let frameTick = 0;
         let lastAdminSave = 0;
-        function saveAdminPosition() {
+        let lastSupabaseSave = 0;
+        async function saveAdminPosition() {
             if (!isAdmin) return;
             const now = Date.now();
             if (now - lastAdminSave < 2000) return;
@@ -7690,6 +7695,12 @@
                 tx: controls.target.x, ty: controls.target.y, tz: controls.target.z
             };
             localStorage.setItem('mall_admin_last_pos', JSON.stringify(state));
+
+            // Sincronizar con Supabase cada 10 segundos para no saturar
+            if (supabaseClient && currentUserProfile?.auth_user_id && (now - lastSupabaseSave > 10000)) {
+                lastSupabaseSave = now;
+                await supabaseClient.from('user_profiles').update({ last_pos: state }).eq('auth_user_id', currentUserProfile.auth_user_id);
+            }
         }
 
         function animate() {
