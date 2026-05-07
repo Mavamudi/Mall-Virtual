@@ -7703,8 +7703,9 @@
         let frameTick = 0;
         let lastAdminSave = 0;
         let lastSupabaseSave = 0;
+        let isAdminSaving = false;
         async function saveAdminPosition() {
-            if (!isAdmin) return;
+            if (!isAdmin || isAdminSaving) return;
             const now = Date.now();
             if (now - lastAdminSave < 2000) return;
             lastAdminSave = now;
@@ -7714,10 +7715,14 @@
             };
             localStorage.setItem('mall_admin_last_pos', JSON.stringify(state));
 
-            // Sincronizar con Supabase cada 10 segundos para no saturar
+            // Sincronizar con Supabase cada 10 segundos
             if (supabaseClient && currentUserProfile?.auth_user_id && (now - lastSupabaseSave > 10000)) {
+                isAdminSaving = true;
                 lastSupabaseSave = now;
-                await supabaseClient.from('user_profiles').update({ last_pos: state }).eq('auth_user_id', currentUserProfile.auth_user_id);
+                try {
+                    await supabaseClient.from('user_profiles').update({ last_pos: state }).eq('auth_user_id', currentUserProfile.auth_user_id);
+                } catch(e) {}
+                isAdminSaving = false;
             }
         }
 
