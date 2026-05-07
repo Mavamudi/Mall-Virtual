@@ -1195,6 +1195,12 @@
                         </label>
                         <label style="display: flex; align-items: center; gap: 10px; font-size: 12px; cursor: pointer; color: #ddd;">
                             <input type="checkbox" id="admin-toggle-inspector" onchange="toggleAdminTool('inspector', this.checked)" style="accent-color: #c5a059;"> Activar Inspector de Objetos
+                        </div>
+                        <div style="margin-top:15px; border-top:1px solid #444; padding-top:15px;">
+                            <button onclick="resetAdminPosition()" style="background:#d17f76; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; width:100%; font-weight:bold;">
+                                REINICIAR MI POSICIÓN (Ir al Atrio Sur)
+                            </button>
+                        </div>
                         </label>
                     </div>
                 </div>
@@ -5372,6 +5378,18 @@
                 if (debugPanel) debugPanel.style.display = isVisible ? 'block' : 'none';
             }
         }
+
+        window.resetAdminPosition = async function() {
+            if (!isAdmin) return;
+            localStorage.removeItem('mall_admin_last_pos');
+            if (supabaseClient && currentUserProfile?.auth_user_id) {
+                await supabaseClient.from('user_profiles').update({ last_pos: null }).eq('auth_user_id', currentUserProfile.auth_user_id);
+            }
+            camera.position.set(0, 1.7, -82);
+            controls.target.set(0, 1.80, -78);
+            controls.update();
+            alert("Posición reiniciada. Te hemos llevado a la entrada del Atrio Sur.");
+        };
 
         // Administradores y Chat
         const ADMINS = ['javier', 'javi', 'mauri', 'admin'];
