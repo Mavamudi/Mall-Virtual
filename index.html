@@ -3475,7 +3475,7 @@
             const lightStrip = new THREE.Mesh(new THREE.PlaneGeometry(10, 16), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 }));
             lightStrip.rotation.x = Math.PI / 2; lightStrip.position.y = 4.75; sh.add(lightStrip);
 
-            if (walls.back && !hideRearWallForShop) cw(12, 4.8, 0.1, 0, 2.4, -9, whiteMat);
+            if (walls.back && !hideRearWallForShop && shopCode !== "O207") cw(12, 4.8, 0.1, 0, 2.4, -9, whiteMat);
             if (walls.left !== false && shopCode !== "E206") cw(0.1, 4.8, 18, -6, 2.4, 0, walls.left === 'glass' ? glassMat : whiteMat);
             if (walls.right !== false) cw(0.1, 4.8, 18, 6, 2.4, 0, walls.right === 'glass' ? glassMat : whiteMat);
 
@@ -3578,7 +3578,7 @@
             const yB = (posY > 5 ? 5.4 : 0);
             
             // 1. Pared Trasera (Fija en profundidad -8.75 para no sobresalir)
-            if (walls.back && !hideRearWallForShop) {
+            if (walls.back && !hideRearWallForShop && shopCode !== "O207") {
                 const rx = posX + sin * (-8.75); const rz = posZ + cos * (-8.75);
                 registerCollider(rx, rz, Math.abs(12 * cos) + Math.abs(0.5 * sin), Math.abs(12 * sin) + Math.abs(0.5 * cos), yB, yB + 6);
             }
