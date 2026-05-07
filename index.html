@@ -5596,12 +5596,15 @@
                         try {
                             const s = savedState;
                             // Validar que no sean coordenadas nulas o muy cerca del origen que dejen al usuario en el limbo
-                            if (Math.abs(s.px) > 0.5 || Math.abs(s.pz) > 0.5) {
+                            if (Math.abs(s.px) > 2 || Math.abs(s.pz) > 2) {
                                 // Asegurar altura mínima para no quedar enterrado
                                 const safeY = Math.max(s.py || 0, 1.2);
                                 camera.position.set(s.px, safeY, s.pz);
                                 controls.target.set(s.tx, s.ty, s.tz);
                                 restored = true;
+                            } else {
+                                console.log("Posición restaurada descartada por estar en el origen.");
+                                restored = false;
                             }
                         } catch(e) { console.warn("Error al restaurar posición admin:", e); }
                     }
