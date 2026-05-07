@@ -5311,6 +5311,11 @@
                 role,
                 updated_at: new Date().toISOString()
             };
+            
+            // Si ya tenemos una posición, la preservamos en el upsert
+            if (currentUserProfile?.last_pos) {
+                payload.last_pos = currentUserProfile.last_pos;
+            }
             const { data, error } = await supabaseClient
                 .from('user_profiles')
                 .upsert(payload, { onConflict: 'auth_user_id' })
@@ -5586,6 +5591,7 @@
                 if (isAdmin) {
                     // Intentar primero desde el perfil de Supabase, luego fallback a localStorage
                     const savedState = currentUserProfile?.last_pos || JSON.parse(localStorage.getItem('mall_admin_last_pos') || "null");
+                    console.log("Persistence Debug [Admin]:", { source: currentUserProfile?.last_pos ? "Supabase" : "LocalStorage", data: savedState });
                     if (savedState && typeof savedState.px === 'number') {
                         try {
                             const s = savedState;
