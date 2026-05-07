@@ -7708,6 +7708,10 @@
             if (!isAdmin || isAdminSaving) return;
             const now = Date.now();
             if (now - lastAdminSave < 2000) return;
+            
+            // No guardar si estamos en el origen (posible carga inicial o error)
+            if (Math.abs(camera.position.x) < 2 && Math.abs(camera.position.z) < 2) return;
+            
             lastAdminSave = now;
             const state = {
                 px: camera.position.x, py: camera.position.y, pz: camera.position.z,
