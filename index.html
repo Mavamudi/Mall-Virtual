@@ -5588,36 +5588,31 @@
                 document.getElementById('main-header').style.display = 'flex';
                 
                 let restored = false;
+                /* Desactivado temporalmente por solicitud del usuario
                 if (isAdmin) {
-                    // Intentar primero desde el perfil de Supabase, luego fallback a localStorage
                     const savedState = currentUserProfile?.last_pos || JSON.parse(localStorage.getItem('mall_admin_last_pos') || "null");
                     console.log("Persistence Debug [Admin]:", { source: currentUserProfile?.last_pos ? "Supabase" : "LocalStorage", data: savedState });
                     if (savedState && typeof savedState.px === 'number') {
                         try {
                             const s = savedState;
-                            // Validar que no sean coordenadas nulas o muy cerca del origen que dejen al usuario en el limbo
                             if (Math.abs(s.px) > 2 || Math.abs(s.pz) > 2) {
-                                // Asegurar altura mínima para no quedar enterrado
                                 const safeY = Math.max(s.py || 0, 1.2);
                                 camera.position.set(s.px, safeY, s.pz);
                                 controls.target.set(s.tx, s.ty, s.tz);
                                 restored = true;
-                            } else {
-                                console.log("Posición restaurada descartada por estar en el origen.");
-                                restored = false;
                             }
                         } catch(e) { console.warn("Error al restaurar posición admin:", e); }
                     }
                 }
+                */
 
                 if (!isWalking) {
                     window.toggleWalkMode();
                 } 
                 
-                if (!restored) {
-                    camera.position.set(0, 1.7, -82);
-                    controls.target.set(0, 1.80, -78);
-                }
+                // Siempre forzar Atrio Sur por ahora
+                camera.position.set(0, 1.7, -82);
+                controls.target.set(0, 1.80, -78);
                 controls.update();
                 focusMallCanvas();
             }, 500);
