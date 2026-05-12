@@ -4251,11 +4251,14 @@
                 };
 
                 const isPassageShop = shopCode === "S101" || shopCode === "S201";
+                // DESACTIVADO TEMPORALMENTE: Ocultar muebles para limpieza de muros
+                /*
                 if (!isPassageShop) createShelfUnit(-5.5);
                 if (!isPassageShop) createShelfUnit(5.5);
                 addFacadeProductPanels();
                 addFeaturedWindowProduct();
                 addInteriorProductGallery();
+                */
                 prepareGroupForDistanceFade(interior);
                 sh.userData.dynamicInteriorBuilt = true;
                 sh.userData.dynamicInteriorRevision = sh.userData.storeVisualRevision;
