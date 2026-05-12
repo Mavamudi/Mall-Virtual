@@ -4072,16 +4072,17 @@
                 interior = new THREE.Group();
                 interior.name = "interior";
                 interior.visible = false;
-                sh.add(interior);
+                // sh.add(interior); // DESACTIVADO PARA LIMPIEZA
             }
             let showcase = sh.getObjectByName("showcaseVisuals");
             if (!showcase) {
                 showcase = new THREE.Group();
                 showcase.name = "showcaseVisuals";
-                sh.add(showcase);
+                showcase.visible = false;
+                // sh.add(showcase); // DESACTIVADO PARA LIMPIEZA
             }
             
-            // OCULTAR PARA LIMPIEZA DE MUROS
+            // OCULTAR PARA LIMPIEZA DE MUROS (DOBLE BLOQUEO)
             interior.visible = false;
             showcase.visible = false;
 
