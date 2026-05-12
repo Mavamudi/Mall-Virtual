@@ -3949,8 +3949,8 @@
                 depthWrite: true,
                 depthTest: true,
                 polygonOffset: true,
-                polygonOffsetFactor: -4,
-                polygonOffsetUnits: -4
+                polygonOffsetFactor: -1,
+                polygonOffsetUnits: -1
             });
             const logoBanner = new THREE.Mesh(new THREE.PlaneGeometry(BOUTIQUE_SIGN_WIDTH, BOUTIQUE_SIGN_HEIGHT), logoBannerMat);
             logoBanner.userData = { isSign: true, isLogoBanner: true, isCatalogTrigger: true, shopCode: shopCode };
@@ -3958,6 +3958,7 @@
             logoBanner.material.transparent = true;
             logoBanner.material.opacity = 0;
             logoBanner.position.set(0, doorH + ((shopH - doorH) / 2), 9.135);
+            logoBanner.renderOrder = -10; // Dibujar ANTES que el suelo para que sea tapado
             sh.add(logoBanner);
             catalogClickTargets.push(logoBanner);
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
