@@ -4,6 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function redirectFileProtocolToLocalhost() {
+            const localAppUrl = 'http://localhost:8080/';
+            if (window.location.protocol !== 'file:') return;
+            window.__mallFileProtocolWarning = 'La app esta abierta como archivo. Para usar Supabase y entrar como locatario abre ' + localAppUrl;
+            fetch(localAppUrl, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+                .then(() => window.location.replace(localAppUrl))
+                .catch(() => console.warn(window.__mallFileProtocolWarning));
+        })();
+    </script>
     <title>Mall Emprendimientos PRO - REPARACIÓN TOTAL</title>
     <!-- Google Fonts & Icons -->
     <link
@@ -119,9 +129,12 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(197, 160, 89, 0.2);
             z-index: 1000;
             width: 500px;
+            max-width: min(92vw, 760px);
+            max-height: 88vh;
+            overflow-y: auto;
             animation: fadeIn 0.3s ease-out;
             pointer-events: auto;
-        }
+        });
 
         @keyframes fadeIn {
             from {
@@ -203,6 +216,104 @@
         #store-modal .price {
             color: #c5a059;
             font-family: monospace;
+        });
+
+        #store-modal .store-hero {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 18px;
+            align-items: center;
+            margin-top: 18px;
+            padding: 16px;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.08), rgba(255, 255, 255, 0.02));
+        }
+
+        #store-modal .store-logo-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 14px;
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            background: rgba(0, 0, 0, 0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #store-modal .store-logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        #store-modal .store-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #store-modal .store-summary-note {
+            font-size: 11px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        #store-modal .store-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        #store-modal .store-gallery-card {
+            border: 1px solid rgba(197, 160, 89, 0.18);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        #store-modal .store-gallery-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            background: #111;
+        }
+
+        #store-modal .store-gallery-meta {
+            padding: 10px;
+        }
+
+        #store-modal .store-gallery-name {
+            font-size: 11px;
+            color: #fff;
+            line-height: 1.35;
+            min-height: 30px;
+        }
+
+        #store-modal .store-gallery-price {
+            color: #c5a059;
+            font-size: 12px;
+            margin-top: 6px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 640px) {
+            #store-modal {
+                padding: 24px 18px;
+            }
+
+            #store-modal .store-hero {
+                grid-template-columns: 1fr;
+            }
+
+            #store-modal .store-logo-box {
+                width: 96px;
+                height: 96px;
+            }
         }
 
         .interaction-hint {
@@ -435,26 +546,188 @@
         #login-overlay {
             position: fixed;
             inset: 0;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+            background:
+                radial-gradient(circle at 18% 22%, rgba(201, 166, 107, 0.16) 0%, rgba(201, 166, 107, 0) 30%),
+                radial-gradient(circle at 82% 18%, rgba(110, 166, 217, 0.1) 0%, rgba(110, 166, 217, 0) 28%),
+                linear-gradient(135deg, #080808 0%, #121212 42%, #050505 100%);
             z-index: 2000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             transition: opacity 0.5s ease;
+            overflow: hidden;
+            padding: 24px;
+        }
+
+        #login-overlay::before {
+            content: "";
+            position: absolute;
+            inset: 28px;
+            border: 1px solid rgba(201, 166, 107, 0.12);
+            border-radius: 28px;
+            pointer-events: none;
+        }
+
+        .welcome-shell {
+            position: relative;
+            width: min(1180px, 100%);
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(360px, 420px);
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .welcome-stage {
+            position: relative;
+            padding: 38px 40px;
+            border-radius: 28px;
+            border: 1px solid rgba(201, 166, 107, 0.16);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%),
+                rgba(7, 8, 10, 0.72);
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.36);
+            overflow: hidden;
+        }
+
+        .welcome-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(201, 166, 107, 0.08), rgba(201, 166, 107, 0)),
+                radial-gradient(circle at 78% 22%, rgba(201, 166, 107, 0.14), rgba(201, 166, 107, 0) 26%);
+            pointer-events: none;
+        }
+
+        .welcome-stage > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(201, 166, 107, 0.2);
+            color: #d7be92;
+            font-size: 10px;
+            letter-spacing: 2.4px;
+            text-transform: uppercase;
+            background: rgba(201, 166, 107, 0.06);
+        }
+
+        .welcome-kicker::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #c9a66b;
+            box-shadow: 0 0 14px rgba(201, 166, 107, 0.65);
+        }
+
+        .welcome-headline {
+            margin: 22px 0 10px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 7vw, 76px);
+            line-height: 0.94;
+            letter-spacing: 3px;
+            color: #f0dfbf;
+            text-transform: uppercase;
+        }
+
+        .welcome-subtitle {
+            max-width: 640px;
+            color: #b9b5ab;
+            font-size: 15px;
+            line-height: 1.75;
+            margin: 0;
+        }
+
+        .welcome-highlights {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 28px;
+        }
+
+        .welcome-highlight {
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .welcome-highlight strong {
+            display: block;
+            color: #f0dfbf;
+            font-size: 12px;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .welcome-highlight span {
+            display: block;
+            color: #9f9a8f;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .welcome-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .welcome-metric {
+            padding: 16px 14px;
+            border-top: 1px solid rgba(201, 166, 107, 0.22);
+        }
+
+        .welcome-metric b {
+            display: block;
+            color: #f6e9cf;
+            font-size: clamp(24px, 4vw, 34px);
+            font-weight: 600;
+            line-height: 1;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .welcome-metric small {
+            display: block;
+            margin-top: 7px;
+            color: #8d897f;
+            font-size: 10px;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+        }
+
+        .welcome-note {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #8f8b82;
+            font-size: 11px;
+            letter-spacing: 1.1px;
+            text-transform: uppercase;
         }
 
         .login-card {
             background: rgba(15, 15, 15, 0.9);
-            padding: 34px 40px;
-            border: 1px solid rgba(197, 160, 89, 0.7);
-            border-radius: 14px;
+            padding: 34px 32px;
+            border: 1px solid rgba(197, 160, 89, 0.32);
+            border-radius: 24px;
             text-align: center;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
-            width: min(390px, calc(100vw - 32px));
-            max-height: calc(100vh - 36px);
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
+            width: 100%;
+            max-height: calc(100vh - 48px);
             overflow-y: auto;
             scrollbar-width: thin;
+            backdrop-filter: blur(18px);
         }
 
         #nickname-input {
@@ -539,6 +812,25 @@
             background: rgba(197, 160, 89, 0.1);
         }
 
+        .welcome-access-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px;
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #eed8ad;
+            margin: 0 0 8px;
+        }
+
+        .welcome-access-copy {
+            color: #88857d;
+            font-size: 11px;
+            line-height: 1.7;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            margin: 0 0 18px;
+        }
+
         #chat-messages::-webkit-scrollbar {
             width: 6px;
         }
@@ -549,6 +841,54 @@
         }
 
         @media(max-width: 768px) {
+            #login-overlay {
+                padding: 16px;
+                justify-content: flex-start;
+            }
+
+            #login-overlay::before {
+                inset: 14px;
+                border-radius: 20px;
+            }
+
+            .welcome-shell {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                width: min(100%, 640px);
+                margin-top: 12px;
+            }
+
+            .welcome-stage {
+                padding: 24px 20px;
+                border-radius: 22px;
+            }
+
+            .welcome-headline {
+                margin-top: 18px;
+                font-size: 42px;
+                letter-spacing: 2px;
+            }
+
+            .welcome-subtitle {
+                font-size: 13px;
+                line-height: 1.65;
+            }
+
+            .welcome-highlights,
+            .welcome-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .login-card {
+                padding: 26px 20px;
+                border-radius: 22px;
+            }
+
+            .welcome-access-title {
+                font-size: 28px;
+                letter-spacing: 4px;
+            }
+
             #main-header {
                 padding: 16px 14px 0 !important;
                 align-items: flex-start !important;
@@ -878,9 +1218,44 @@
 
     <!-- LOGIN PARA EL METAVERSO -->
     <div id="login-overlay">
+        <div class="welcome-shell">
+            <section class="welcome-stage">
+                <div class="welcome-kicker">Mall Emprendimientos</div>
+                <h1 class="welcome-headline">Bienvenido al Mall Virtual</h1>
+                <p class="welcome-subtitle">Un entorno comercial inmersivo para recorrer vitrinas, descubrir marcas, consultar catalogos publicos y proyectar una experiencia premium para visitantes, locatarios y administracion.</p>
+                <div class="welcome-highlights">
+                    <div class="welcome-highlight">
+                        <strong>Recorrido 3D</strong>
+                        <span>Explora pasillos, fachadas y locales con una navegacion continua orientada a exhibicion comercial.</span>
+                    </div>
+                    <div class="welcome-highlight">
+                        <strong>Catalogos Vivos</strong>
+                        <span>Revisa productos, precios, logos y contenido publico de cada tienda desde la misma experiencia.</span>
+                    </div>
+                    <div class="welcome-highlight">
+                        <strong>Gestion Central</strong>
+                        <span>Locatarios y administracion pueden actualizar contenido, presencia visual y operacion del mall.</span>
+                    </div>
+                </div>
+                <div class="welcome-metrics">
+                    <div class="welcome-metric">
+                        <b>3D</b>
+                        <small>Experiencia inmersiva</small>
+                    </div>
+                    <div class="welcome-metric">
+                        <b>24/7</b>
+                        <small>Acceso permanente</small>
+                    </div>
+                    <div class="welcome-metric">
+                        <b>Live</b>
+                        <small>Contenido actualizable</small>
+                    </div>
+                </div>
+                <div class="welcome-note">Una portada comercial pensada para dar contexto, confianza y bienvenida antes del ingreso al recorrido del mall.</div>
+            </section>
         <div class="login-card">
-            <h1 class="text-4xl font-extralight luxury-gradient tracking-[8px] mb-2">BIENVENIDO</h1>
-            <p class="text-[10px] text-gray-500 tracking-[3px] uppercase">Acceso al Centro Comercial 3D</p>
+            <h2 class="welcome-access-title">Ingreso</h2>
+            <p class="welcome-access-copy">Accede como visitante, inscrito o locatario aprobado.</p>
             <div id="guest-entry-panel" style="margin-top: 16px;">
                 <input type="text" id="nickname-input" placeholder="Nick o correo" maxlength="80">
                 <input type="password" id="visitor-password-input" placeholder="Contraseña si ya estás inscrito"
@@ -947,6 +1322,7 @@
             <button id="super-admin-btn-persistent" onclick="openSuperAdmin()" style="display: none; position: fixed; top: 110px; left: 20px; background: #c5a059; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 2000; font-size: 11px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">ADMIN MALL</button>
             
             <p class="mt-8 text-[9px] text-gray-600 tracking-widest uppercase">Experiencia Multijugador Sincronizada</p>
+        </div>
         </div>
     </div>
 
@@ -1094,6 +1470,16 @@
         <h2 id="modal-title" style="margin-right: 40px;">Nombre del Local</h2>
         <div class="code" id="modal-code">LOCAL N101</div>
         <div class="category" id="modal-category">Giro: Boutique de Lujo</div>
+        <div class="store-hero" id="modal-store-hero">
+            <div class="store-logo-box" id="modal-store-logo-box" style="display:none;">
+                <img id="modal-store-logo" alt="Logo de la tienda">
+            </div>
+            <div class="store-summary">
+                <div id="modal-store-summary" class="store-summary-note">Los visitantes pueden revisar catálogo, productos, precios e imágenes disponibles de este local.</div>
+                <div id="modal-store-links" class="store-summary-note">Si el locatario cargó imágenes o logo, aparecerán aquí.</div>
+            </div>
+        </div>
+        <div id="modal-store-gallery" class="store-gallery" style="display:none;"></div>
         <div id="modal-products-container">
             <table>
                 <thead>
@@ -1324,8 +1710,17 @@
         </div>
 
         <h3 style="color: #c5a059; font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px;">Gestión de Inventario (Máx. 10 productos)</h3>
-        <div id="edit-products-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div id="edit-products-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
             <!-- Generado dinámicamente -->
+        </div>
+
+        <div style="border-top: 1px solid #222; padding-top: 20px; margin-top: 10px;">
+            <h3 style="color: #c5a059; font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: space-between;">
+                Buzón de Consultas <span id="tenant-msg-count" style="font-size: 10px; background: rgba(197, 160, 89, 0.2); padding: 2px 8px; border-radius: 10px; color: #fff;">0</span>
+            </h3>
+            <div id="tenant-messages-list" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; border: 1px solid #1a1a1a;">
+                <p style="color: #555; font-size: 11px; text-align: center; padding: 20px;">No hay mensajes nuevos.</p>
+            </div>
         </div>
 
         <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; padding-top: 20px;">
@@ -1384,6 +1779,7 @@
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xaabbcc);
+        const catalogClickTargets = [];
         const IS_COARSE_POINTER = window.matchMedia('(pointer: coarse)').matches;
         const FOG_PROFILE_OUTSIDE = { near: IS_COARSE_POINTER ? 16 : 22, far: IS_COARSE_POINTER ? 130 : 190 };
         const FOG_PROFILE_STORE_INSIDE = { near: IS_COARSE_POINTER ? 34 : 42, far: IS_COARSE_POINTER ? 220 : 320 };
@@ -1411,6 +1807,9 @@
 
         let isWalking = false;
         let controlsMenuOpen = false;
+        let currentModalStoreCode = "";
+        let currentModalStoreId = "";
+        let currentModalStoreData = null;
         let lockWalkModePreference = true;
         const WALK_SPAWN = new THREE.Vector3(0, 1.7, -8.5);
         const WALK_LOOK_TARGET = new THREE.Vector3(0, 1.8, -40.0);
@@ -1441,17 +1840,23 @@
             btn.innerText = isWalking ? "Cambiar a Modo Aéreo" : "Cambiar a Modo Paseo";
         }
 
+        function isElementActuallyVisible(element) {
+            if (!element) return false;
+            const style = window.getComputedStyle(element);
+            return style.display !== 'none' && style.visibility !== 'hidden' && parseFloat(style.opacity || '1') > 0.01;
+        }
+
         function shouldForceWalkMode() {
             if (!lockWalkModePreference) return false;
             if (!hasEnteredMall) return false;
-            if (document.getElementById('login-overlay').style.display !== 'none') return false;
-            if (document.getElementById('store-modal').style.display === 'block') return false;
-            if (document.getElementById('search-modal').style.display === 'block') return false;
-            if (document.getElementById('tenant-login-modal').style.display === 'block') return false;
-            if (document.getElementById('tenant-apply-modal').style.display === 'block') return false;
-            if (document.getElementById('super-admin-modal').style.display === 'block') return false;
-            if (document.getElementById('tenant-admin-modal').style.display === 'block') return false;
-            if (document.getElementById('password-recovery-modal').style.display === 'block') return false;
+            if (isElementActuallyVisible(document.getElementById('login-overlay'))) return false;
+            if (isElementActuallyVisible(document.getElementById('store-modal'))) return false;
+            if (isElementActuallyVisible(document.getElementById('search-modal'))) return false;
+            if (isElementActuallyVisible(document.getElementById('tenant-login-modal'))) return false;
+            if (isElementActuallyVisible(document.getElementById('tenant-apply-modal'))) return false;
+            if (isElementActuallyVisible(document.getElementById('super-admin-modal'))) return false;
+            if (isElementActuallyVisible(document.getElementById('tenant-admin-modal'))) return false;
+            if (isElementActuallyVisible(document.getElementById('password-recovery-modal'))) return false;
             return true;
         }
 
@@ -1895,7 +2300,7 @@
             if (idLetter !== "") {
                 const idTex = createSignTexture(idLetter, true);
                 const idM = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
-                idM.userData.isSign = true;
+                idM.userData.isSign = true; idM.userData.isAnchorSign = true; idM.userData.isCatalogTrigger = true; idM.userData.shopCode = idLetter; catalogClickTargets.push(idM);
                 idM.position.set(0, height + 0.1, -14); idM.rotation.x = -Math.PI / 2; g.add(idM);
 
             }
@@ -3198,11 +3603,11 @@
                 return;
             }
             const slide = door.slideDistance * door.openAmount;
-            door.leftLeaf.position.x = door.leftClosedX - slide;
-            door.rightLeaf.position.x = door.rightClosedX + slide;
+            if (!door.leftFixed) door.leftLeaf.position.x = door.leftClosedX - slide;
+            if (!door.rightFixed) door.rightLeaf.position.x = door.rightClosedX + slide;
             const layerOffset = door.layerOffset ?? BOUTIQUE_DOOR_LAYER_OFFSET;
-            door.leftLeaf.position.z = door.leftClosedZ - door.openAmount * layerOffset;
-            door.rightLeaf.position.z = door.rightClosedZ + door.openAmount * layerOffset;
+            if (!door.leftFixed) door.leftLeaf.position.z = door.leftClosedZ - door.openAmount * layerOffset;
+            if (!door.rightFixed) door.rightLeaf.position.z = door.rightClosedZ + door.openAmount * layerOffset;
         }
 
         function applyBoutiqueDoorPose(door) {
@@ -3296,10 +3701,10 @@
                     if (typeof shop.userData.ensureDetailedInterior === 'function') {
                         shop.userData.ensureDetailedInterior();
                     }
+                    if (!shop.userData.storeVisualPayload && !shop.userData.isLoadingVisuals) {
+                        loadStoreVisualsOnDemand(shop);
+                    }
                     if (typeof shop.userData.ensureDynamicStoreVisuals === 'function') {
-                        if (!shop.userData.storeVisualPayload && !shop.userData.isLoadingVisuals) {
-                            loadStoreVisualsOnDemand(shop);
-                        }
                         shop.userData.ensureDynamicStoreVisuals();
                     }
                 }
@@ -3344,7 +3749,7 @@
             });
         }
 
-        function createBoutique(posX, posZ, rotY, walls, posY = 0, shopCode = "") {
+        function createBoutique(posX, posZ, rotY, walls, posY = 0, shopCode = "", fixedLeaves = []) {
             const sh = new THREE.Group(); sh.position.set(posX, posY, posZ); sh.rotation.y = rotY;
             sh.userData = { isBoutique: true, shopCode: shopCode };
             const detailedInterior = new THREE.Group();
@@ -3512,8 +3917,28 @@
                 const idTex = createSmallIDTexture(shopCode);
                 const idPlaque = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.4), new THREE.MeshBasicMaterial({ map: idTex, transparent: true }));
                 idPlaque.userData.isStoreCodeSign = true;
+                idPlaque.userData.isSign = true;
+                idPlaque.userData.isCatalogTrigger = true;
+                idPlaque.userData.shopCode = shopCode;
                 idPlaque.position.set(-5.0, 4.4, 9.15);
                 sh.add(idPlaque);
+                catalogClickTargets.push(idPlaque);
+
+                // Invisible helper plane to make plaque clicks reliable for visitors.
+                const idPlaqueHitbox = new THREE.Mesh(
+                    new THREE.PlaneGeometry(3.1, 1.45),
+                    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+                );
+                idPlaqueHitbox.userData.isStoreCodeSign = true;
+                idPlaqueHitbox.userData.isSign = true;
+                idPlaqueHitbox.userData.isPlaqueHitbox = true;
+                idPlaqueHitbox.userData.isCatalogTrigger = true;
+                idPlaqueHitbox.userData.shopCode = shopCode;
+                idPlaqueHitbox.position.copy(idPlaque.position);
+                idPlaqueHitbox.position.z += 0.02;
+                idPlaqueHitbox.renderOrder = 60;
+                sh.add(idPlaqueHitbox);
+                catalogClickTargets.push(idPlaqueHitbox);
             }
 
             const logoBannerTex = createSmallIDTexture(shopCode || "LOCAL");
@@ -3525,13 +3950,15 @@
                 polygonOffsetFactor: -1
             });
             const logoBanner = new THREE.Mesh(new THREE.PlaneGeometry(BOUTIQUE_SIGN_WIDTH, BOUTIQUE_SIGN_HEIGHT), logoBannerMat);
-            logoBanner.userData.isSign = true;
-            logoBanner.userData.isLogoBanner = true;
-            logoBanner.visible = false;
+            logoBanner.userData = { isSign: true, isLogoBanner: true, isCatalogTrigger: true, shopCode: shopCode };
+            logoBanner.visible = true;
+            logoBanner.material.transparent = true;
+            logoBanner.material.opacity = 0;
             logoBanner.position.set(0, doorH + ((shopH - doorH) / 2), 9.135);
             logoBanner.renderOrder = 30;
             logoBanner.material.depthTest = false;
             sh.add(logoBanner);
+            catalogClickTargets.push(logoBanner);
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
 
             const ensureDetailedInterior = () => {
@@ -3563,21 +3990,29 @@
             sh.userData.interiorDetailVisible = false;
             ensureDetailedInterior();
 
-            boutiqueSlidingDoors.push({
-                group: sh,
-                leftLeaf: leftDoorLeaf,
-                rightLeaf: rightDoorLeaf,
-                leftClosedX: -1.5,
-                rightClosedX: 1.5,
-                leftClosedZ: BOUTIQUE_DOOR_FRONT_Z,
-                rightClosedZ: BOUTIQUE_DOOR_FRONT_Z,
-                slideDistance: BOUTIQUE_DOOR_SLIDE_DISTANCE,
-                triggerHalfWidth: BOUTIQUE_DOOR_TRIGGER_HALF_WIDTH,
-                triggerDepth: BOUTIQUE_DOOR_TRIGGER_DEPTH,
-                frontZ: BOUTIQUE_DOOR_FRONT_Z,
-                openAmount: 0,
-                openUntil: 0
-            });
+            const leftDoorFixed = (fixedLeaves || []).includes('left');
+            const rightDoorFixed = (fixedLeaves || []).includes('right');
+
+            // Solo registramos para animación si al menos una hoja es móvil
+            if (!leftDoorFixed || !rightDoorFixed) {
+                boutiqueSlidingDoors.push({
+                    group: sh,
+                    leftLeaf: leftDoorLeaf,
+                    rightLeaf: rightDoorLeaf,
+                    leftClosedX: -1.5,
+                    rightClosedX: 1.5,
+                    leftClosedZ: BOUTIQUE_DOOR_FRONT_Z,
+                    rightClosedZ: BOUTIQUE_DOOR_FRONT_Z,
+                    slideDistance: BOUTIQUE_DOOR_SLIDE_DISTANCE,
+                    triggerHalfWidth: BOUTIQUE_DOOR_TRIGGER_HALF_WIDTH,
+                    triggerDepth: BOUTIQUE_DOOR_TRIGGER_DEPTH,
+                    frontZ: BOUTIQUE_DOOR_FRONT_Z,
+                    openAmount: 0,
+                    openUntil: 0,
+                    leftFixed: leftDoorFixed,
+                    rightFixed: rightDoorFixed
+                });
+            }
 
             // --- REGISTRO DE COLISIÓN (Paredes laterales, trasera y frontal con hueco de puerta) ---
             const cos = Math.cos(rotY); const sin = Math.sin(rotY);
@@ -3594,7 +4029,7 @@
                 const lx = posX + cos * (-5.75); const lz = posZ + sin * (5.75);
                 registerCollider(lx, lz, Math.abs(0.5 * cos) + Math.abs(18 * sin), Math.abs(0.5 * sin) + Math.abs(18 * cos), yB, yB + 6);
             }
-            if (walls.right !== false && shopCode !== "O206") {
+            if (walls.right !== false && shopCode !== "O206" && shopCode !== "E201") {
                 const rx = posX + cos * (5.75); const rz = posZ + sin * (-5.75);
                 registerCollider(rx, rz, Math.abs(0.5 * cos) + Math.abs(18 * sin), Math.abs(0.5 * sin) + Math.abs(18 * cos), yB, yB + 6);
             }
@@ -3675,6 +4110,8 @@
                     transparent: true,
                     opacity: 0.94,
                     side: THREE.DoubleSide,
+                    depthTest: false,
+                    depthWrite: false,
                     polygonOffset: true,
                     polygonOffsetFactor: -2
                 });
@@ -3683,6 +4120,8 @@
                     transparent: true,
                     opacity: 0.42,
                     side: THREE.DoubleSide,
+                    depthTest: false,
+                    depthWrite: false,
                     polygonOffset: true,
                     polygonOffsetFactor: -1
                 });
@@ -3702,15 +4141,20 @@
                     holder.rotation.y = rotationY;
 
                     const backing = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.08, height + 0.08), productPanelBackMat.clone());
+                    backing.renderOrder = 40;
                     holder.add(backing);
 
                     const image = new THREE.Mesh(new THREE.PlaneGeometry(width, height), productPanelMat.clone());
-                    image.position.z = 0.012;
+                    image.position.z = 0.02;
+                    image.renderOrder = 41;
                     holder.add(image);
 
-                    const top = new THREE.Mesh(new THREE.BoxGeometry(width + 0.12, 0.025, 0.025), goldMat);
+                    const trimMat = goldMat.clone();
+                    trimMat.depthTest = false;
+                    trimMat.depthWrite = false;
+                    const top = new THREE.Mesh(new THREE.BoxGeometry(width + 0.12, 0.025, 0.025), trimMat);
                     const bottom = top.clone();
-                    const left = new THREE.Mesh(new THREE.BoxGeometry(0.025, height + 0.12, 0.025), goldMat);
+                    const left = new THREE.Mesh(new THREE.BoxGeometry(0.025, height + 0.12, 0.025), trimMat);
                     const right = left.clone();
                     top.position.set(0, height / 2 + 0.045, 0.02);
                     bottom.position.set(0, -height / 2 - 0.045, 0.02);
@@ -3724,6 +4168,7 @@
                         image.material.color.setHex(0x111111);
                         image.material.opacity = 0.08;
                     }
+                    holder.renderOrder = 41;
                     parent.add(holder);
                     return holder;
                 };
@@ -3731,6 +4176,7 @@
                 const addFacadeProductPanels = () => {
                     const facade = new THREE.Group();
                     facade.name = "facadeProductPanels";
+                    facade.renderOrder = 24;
                     const leftSlots = [
                         [-5.15, 1.28], [-3.85, 1.28], [-5.15, 2.42], [-3.85, 2.42], [-4.5, 3.52]
                     ];
@@ -3739,9 +4185,9 @@
                     ];
                     [...leftSlots, ...rightSlots].forEach(([x, y], index) => {
                         const product = productsWithImages[index];
-                        addProductImagePlane(facade, product, x, y, 9.16, 0.92, 0.72);
+                        addProductImagePlane(facade, product, x, y, 9.38, 0.92, 0.72);
                     });
-                    interior.add(facade);
+                    showcase.add(facade);
                 };
 
                 const addInteriorProductGallery = () => {
@@ -3764,7 +4210,8 @@
                     const featured = new THREE.Group();
                     featured.name = "featuredWindowProduct";
                     const product = productsWithImages[0];
-                    addProductImagePlane(featured, product, -4.45, 1.55, 7.35, 1.15, 0.95);
+                    addProductImagePlane(featured, product, -4.45, 1.55, 9.4, 1.15, 0.95);
+                    addProductImagePlane(featured, product, 0, 3.15, 9.42, 1.55, 0.95);
                     featured.renderOrder = 25;
                     showcase.add(featured);
                 };
@@ -3819,7 +4266,12 @@
                         tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
                         sign.material.map = tex;
                         sign.material.needsUpdate = true;
+                        sign.material.depthTest = false;
+                        sign.material.depthWrite = false;
+                        sign.material.transparent = true;
+                        sign.material.opacity = 1;
                         sign.visible = true;
+                        sign.renderOrder = 50;
                         const imageAspect = tex.image?.width && tex.image?.height ? tex.image.width / tex.image.height : (BOUTIQUE_SIGN_WIDTH / BOUTIQUE_SIGN_HEIGHT);
                         const bannerAspect = BOUTIQUE_SIGN_WIDTH / BOUTIQUE_SIGN_HEIGHT;
                         if (imageAspect > bannerAspect) {
@@ -3837,34 +4289,8 @@
             if (sh.userData.interiorDetailVisible && typeof sh.userData.ensureDynamicStoreVisuals === 'function') {
                 sh.userData.ensureDynamicStoreVisuals();
                 setGroupFade(interior, sh.userData.interiorDetailFade || 1);
-            }
-        }
-
-        async function loadStoreVisualsOnDemand(shRef) {
-            if (!shRef || shRef.userData.isLoadingVisuals || shRef.userData.storeVisualPayload) return;
-            const code = shRef.userData.shopCode;
-            if (!code) return;
-
-            shRef.userData.isLoadingVisuals = true;
-            try {
-                // Intento 1: Por local_code (ej. O101, N204) usando ilike para ser insensibles a mayúsculas
-                let { data: storeData } = await supabaseClient.from('stores').select('*').ilike('local_code', code).maybeSingle();
-                
-                // Intento 2: Por id (UUID) solo si el primero falló y parece un UUID
-                if (!storeData && code.length > 20) {
-                    const { data: storeById } = await supabaseClient.from('stores').select('*').eq('id', code).maybeSingle();
-                    storeData = storeById;
-                }
-
-                if (storeData) {
-                    const sCode = getStoreCode(storeData) || code;
-                    const productsResult = await loadStoreProducts(sCode);
-                    await updateStoreVisuals(sCode, storeData, productsResult.products || []);
-                }
-            } catch (e) {
-                console.warn("Error en carga on-demand para " + code, e);
-            } finally {
-                shRef.userData.isLoadingVisuals = false;
+            } else if (typeof sh.userData.ensureDynamicStoreVisuals === 'function') {
+                sh.userData.ensureDynamicStoreVisuals();
             }
         }
 
@@ -3926,14 +4352,17 @@
 
             oRows.forEach((o, i) => {
                 const code = `${wingH}${floorNum}${String(i + 1).padStart(2, '0')}`;
-                const b = createBoutique(o * sx, 26 * sz, sz > 0 ? Math.PI : 0, { back: true, left: i === 0 ? 'glass' : true, right: i === 0 ? false : true }, y, code);
+                const fixed = (code === "S201") ? ['right'] : [];
+                const b = createBoutique(o * sx, 26 * sz, sz > 0 ? Math.PI : 0, { back: true, left: i === 0 ? 'glass' : true, right: i === 0 ? false : true }, y, code, fixed);
                 storeGroups[code] = b;
                 gr.add(b);
             });
 
             sideRows.forEach((o, i) => {
                 const code = `${wingV}${floorNum}${String(i + 1).padStart(2, '0')}`;
-                const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true }, y, code);
+                const wallConfig = { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true };
+                if (code === "E201") wallConfig.right = false;
+                const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, wallConfig, y, code);
                 storeGroups[code] = b;
                 gr.add(b);
             });
@@ -3970,59 +4399,6 @@
 
 
         [0, 5.5].forEach(y => { [1, -1].forEach(sx => { [1, -1].forEach(sz => scene.add(q(sx, sz, y))); }); });
-
-        const boutiqueWallPaintTargets = [
-            {
-                shopCode: "E201",
-                position: new THREE.Vector3(26.0, 7.9, -17.0),
-                tolerance: 0.14,
-                size: [18, 4.8, 0.1],
-                sizeTolerance: 0.2
-            }
-        ];
-
-        function paintBoutiqueTargetMeshes() {
-            boutiqueWallPaintTargets.forEach((target) => {
-                const shop = storeGroups[target.shopCode];
-                if (!shop) return;
-
-                let bestMesh = null;
-                let bestDistance = Infinity;
-                const worldPos = new THREE.Vector3();
-
-                shop.traverse((node) => {
-                    if (!node.isMesh || !node.geometry || node.geometry.type !== "BoxGeometry") return;
-                    const params = node.geometry.parameters || {};
-                    const dims = [params.width || 0, params.height || 0, params.depth || 0].sort((a, b) => b - a);
-                    const expectedDims = (target.size || []).slice().sort((a, b) => b - a);
-                    if (expectedDims.length === 3) {
-                        const sizeTolerance = target.sizeTolerance ?? 0.15;
-                        const sizeMatches = dims.every((value, index) => Math.abs(value - expectedDims[index]) <= sizeTolerance);
-                        if (!sizeMatches) return;
-                    }
-                    node.getWorldPosition(worldPos);
-                    const distance = worldPos.distanceTo(target.position);
-                    if (distance < bestDistance) {
-                        bestDistance = distance;
-                        bestMesh = node;
-                    }
-                });
-
-                if (!bestMesh || bestDistance > target.tolerance) return;
-
-                const isMultiMaterial = Array.isArray(bestMesh.material);
-                const materials = isMultiMaterial ? bestMesh.material : [bestMesh.material];
-                const paintedMaterials = materials.map((material) => {
-                    const clone = material.clone();
-                    if ('color' in clone && clone.color) clone.color.setHex(0xff1f1f);
-                    if ('emissive' in clone && clone.emissive) clone.emissive.setHex(0x330000);
-                    return clone;
-                });
-                bestMesh.material = isMultiMaterial ? paintedMaterials : paintedMaterials[0];
-            });
-        }
-
-        paintBoutiqueTargetMeshes();
 
         // --- POBLAR URBANISMO ---
         [-70, -45, -20, 28, 48].forEach((j) => { createPlanter(0, j); createBench(8, j, 0); createBench(-8, j, 0); });
@@ -4195,11 +4571,11 @@
             if (!active) return false;
             const tag = String(active.tagName || '').toLowerCase();
             const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || active.isContentEditable;
-            if (document.getElementById('login-overlay').style.display !== 'none') return true;
+            if (isElementActuallyVisible(document.getElementById('login-overlay'))) return true;
             return isInput;
         };
         const focusMallCanvas = () => {
-            if (document.getElementById('login-overlay').style.display !== 'none') return;
+            if (isElementActuallyVisible(document.getElementById('login-overlay'))) return;
             if (shouldPreserveTextFocus()) return;
             try {
                 renderer.domElement.focus({ preventScroll: true });
@@ -4293,11 +4669,27 @@
             handleJoystick(e);
         });
         joyZone.addEventListener('touchmove', handleJoystick);
-        joyZone.addEventListener('touchend', () => {
+        const releaseJoystick = () => {
             joystickActive = false;
             joystickDir = { x: 0, y: 0 };
             joyKnob.style.transform = `translate(-50%, -50%)`;
+        };
+        joyZone.addEventListener('touchend', releaseJoystick);
+        joyZone.addEventListener('touchcancel', releaseJoystick);
+        joyZone.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'touch') return;
+            joystickActive = true;
+            try { joyZone.setPointerCapture(e.pointerId); } catch (_) {}
+            handleJoystick(e);
         });
+
+        joyZone.addEventListener('pointermove', (e) => {
+            if (!joystickActive || e.pointerType === 'touch') return;
+            handleJoystick(e);
+        });
+
+        window.addEventListener('pointerup', releaseJoystick);
+        window.addEventListener('pointercancel', releaseJoystick);
 
         // Touch simulador de teclado para botones de rotación
         const bindKey = (id, key) => {
@@ -4532,6 +4924,7 @@
         let escalatorExitCooldown = null;
         let avatarLabelMode = 'far';
         const AVATAR_LABEL_NEAR_DISTANCE = 18;
+        const AVATAR_LABEL_FAR_DISTANCE = 40;
         const AVATAR_LABEL_NPC_FAR_DISTANCE = 35;
         const AVATAR_CAMERA_HIDE_DISTANCE = 3.2;
 
@@ -4738,6 +5131,18 @@
             return store.local_code || store.shopCode || store.shop_code || store.code || store.id || "";
         }
 
+        function getStoreCodeCandidates(store) {
+            const values = [
+                getStoreCode(store),
+                store?.local_code,
+                store?.id,
+                store?.shopCode,
+                store?.shop_code,
+                store?.code
+            ];
+            return [...new Set(values.map(value => String(value || "").trim()).filter(Boolean))];
+        }
+
         const TENANT_ASSET_BUCKET = 'store-assets';
         const TENANT_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 
@@ -4824,60 +5229,121 @@
                 || (columnName && message.includes(columnName));
         }
 
+        function isNoRowsError(error) {
+            return String(error?.code || "") === "PGRST116" || /multiple \(or no\) rows returned|0 rows/i.test(String(error?.message || ""));
+        }
+
+        async function updateStoreByCode(store, payload) {
+            const candidates = getStoreCodeCandidates(store);
+            if (!candidates.length) {
+                return { data: null, error: new Error("No hay codigo de local para actualizar.") };
+            }
+
+            let lastError = null;
+            for (const code of candidates) {
+                const byId = await supabaseClient
+                    .from('stores')
+                    .update(payload)
+                    .eq('id', code)
+                    .select('*')
+                    .maybeSingle();
+                if (!byId.error && byId.data) return byId;
+                if (byId.error && !isNoRowsError(byId.error)) lastError = byId.error;
+
+                const byLocalCode = await supabaseClient
+                    .from('stores')
+                    .update(payload)
+                    .eq('local_code', code)
+                    .select('*')
+                    .maybeSingle();
+                if (!byLocalCode.error && byLocalCode.data) return byLocalCode;
+                if (byLocalCode.error && !isMissingColumnError(byLocalCode.error, 'local_code') && !isNoRowsError(byLocalCode.error)) {
+                    lastError = byLocalCode.error;
+                }
+            }
+
+            return { data: null, error: lastError || new Error("No encontre el local en stores.") };
+        }
+
         async function loadStoreProducts(storeCode) {
             if (!storeCode) return { products: [], skipped: false, error: null };
+            
+            // Intentar por store_id (UUID o código)
+            const byStoreId = await supabaseClient
+                .from('store_products')
+                .select('*')
+                .eq('store_id', storeCode);
+            
+            if (!byStoreId.error && (byStoreId.data || []).length > 0) {
+                return { products: byStoreId.data || [], skipped: false, error: null };
+            }
+
+            // Intentar por local_code
             const { data, error } = await supabaseClient
                 .from('store_products')
                 .select('*')
                 .ilike('local_code', storeCode);
-            if (!error) {
-                if ((data || []).length > 0) return { products: data || [], skipped: false, error: null };
-                const fallbackByStoreId = await supabaseClient
-                    .from('store_products')
-                    .select('*')
-                    .eq('store_id', storeCode);
-                if (!fallbackByStoreId.error) return { products: fallbackByStoreId.data || [], skipped: false, error: null };
+            
+            if (!error && (data || []).length > 0) {
                 return { products: data || [], skipped: false, error: null };
             }
-            if (isMissingColumnError(error, 'local_code')) {
-                console.warn("store_products.local_code no existe; inventario por local desactivado temporalmente.", error);
-                const fallbackByStoreId = await supabaseClient
-                    .from('store_products')
-                    .select('*')
-                    .eq('store_id', storeCode);
-                if (!fallbackByStoreId.error) {
-                    return { products: fallbackByStoreId.data || [], skipped: false, error: null };
-                }
-                return { products: [], skipped: true, error: null };
-            }
-            return { products: [], skipped: false, error };
+
+            // Si fallan ambos, devolver lo que tengamos del primer intento si no hubo error crítico
+            return { products: byStoreId.data || [], skipped: false, error: byStoreId.error };
         }
 
-        async function replaceStoreProducts(storeCode, productsToInsert = []) {
-            if (!storeCode) return { ok: false, skipped: false, error: new Error("No hay local seleccionado.") };
+        async function replaceStoreProducts(storeRef, productsToInsert = []) {
+            const storeId = (typeof storeRef === 'object' ? storeRef.id : null) || storeRef;
+            const localCode = (typeof storeRef === 'object' ? storeRef.local_code : null) || (String(storeId).length < 10 ? storeId : null);
+            
+            if (!storeId) return { ok: false, skipped: false, error: new Error("No hay local seleccionado.") };
 
-            const deleteResult = await supabaseClient
-                .from('store_products')
-                .delete()
-                .eq('local_code', storeCode);
-            if (deleteResult.error) {
-                if (isMissingColumnError(deleteResult.error, 'local_code')) {
-                    return { ok: true, skipped: true, error: null };
-                }
-                return { ok: false, skipped: false, error: deleteResult.error };
+            const normalizedProducts = productsToInsert
+                .map((product, index) => ({
+                    store_id: storeId,
+                    local_code: localCode,
+                    name: String(product.name || "").trim(),
+                    price: String(product.price || "").trim(),
+                    image_url: String(product.image_url || "").trim(),
+                    sort_order: index
+                }))
+                .filter(product => product.name);
+
+            // 1. Intentar borrar registros previos (con manejo de errores suave)
+            try {
+                let deleteOp = supabaseClient.from('store_products').delete();
+                if (String(storeId).includes('-')) deleteOp = deleteOp.eq('store_id', storeId);
+                else deleteOp = deleteOp.eq('local_code', storeId);
+                await deleteOp;
+            } catch (e) { console.warn("Error no crítico en borrado:", e); }
+
+            if (!normalizedProducts.length) return { ok: true, skipped: false, error: null };
+
+            // 2. Intentar inserción masiva (Modo Resiliente)
+            // Probar diferentes esquemas si falla el principal
+            const schemas = [
+                normalizedProducts, // Intento 1: Full (store_id + local_code + sort_order)
+                normalizedProducts.map(({store_id, local_code, name, price, image_url}) => ({store_id, local_code, name, price, image_url})), // Intento 2: Sin sort_order
+                normalizedProducts.map(({store_id, name, price, image_url}) => ({store_id, name, price, image_url})), // Intento 3: Solo store_id
+                normalizedProducts.map(({local_code, name, price, image_url}) => ({local_code, name, price, image_url}))  // Intento 4: Solo local_code
+            ];
+
+            let lastErr = null;
+            for (const schema of schemas) {
+                // Eliminar nulos o undefined para evitar errores de tipo
+                const cleanSchema = schema.map(obj => {
+                    const newObj = {};
+                    for (const k in obj) if (obj[k] !== null && obj[k] !== undefined) newObj[k] = obj[k];
+                    return newObj;
+                });
+
+                const { error } = await supabaseClient.from('store_products').insert(cleanSchema);
+                if (!error) return { ok: true, skipped: schema !== schemas[0], error: null };
+                lastErr = error;
+                if (!/column|violate|security/i.test(error.message)) break; // Si es un error de otro tipo, no seguir probando esquemas
             }
 
-            if (!productsToInsert.length) return { ok: true, skipped: false, error: null };
-
-            const insertResult = await supabaseClient.from('store_products').insert(productsToInsert);
-            if (insertResult.error) {
-                if (isMissingColumnError(insertResult.error, 'local_code')) {
-                    return { ok: true, skipped: true, error: null };
-                }
-                return { ok: false, skipped: false, error: insertResult.error };
-            }
-
-            return { ok: true, skipped: false, error: null };
+            return { ok: false, skipped: false, error: lastErr };
         }
 
         window.uploadTenantLogo = async function(input) {
@@ -4888,14 +5354,11 @@
                 setTenantUploadStatus(statusId, "Subiendo logo optimizado...", "warn");
                 const publicUrl = await uploadTenantImage(file, 'logo');
                 const storeCode = getStoreCode(myOwnedStore);
-                const { error: updateError } = await supabaseClient
-                    .from('stores')
-                    .update({ logo_url: publicUrl })
-                    .eq('id', storeCode);
+                const { data: updatedStore, error: updateError } = await updateStoreByCode(myOwnedStore, { logo_url: publicUrl });
                 if (updateError) throw updateError;
 
                 document.getElementById('edit-store-logo').value = publicUrl;
-                myOwnedStore.logo_url = publicUrl;
+                myOwnedStore = { ...myOwnedStore, ...(updatedStore || {}), logo_url: publicUrl };
                 const currentProductsResult = await loadStoreProducts(storeCode);
                 updateStoreVisuals(storeCode, myOwnedStore, currentProductsResult.products || []);
                 setTenantUploadStatus(statusId, "Logo subido y guardado.", "success");
@@ -4925,95 +5388,6 @@
                 input.value = "";
             }
         };
-
-        async function getStoreData(code) {
-            // 1. Intentar cargar desde Supabase
-            if (supabaseClient) {
-                let dbStore = null;
-                // Intentamos primero por local_code (ej. O101) que es lo más común desde la UI
-                const byLocalCode = await supabaseClient.from('stores').select('*').ilike('local_code', code).maybeSingle();
-                dbStore = byLocalCode.data || null;
-
-                // Solo si no se encuentra y el código parece un UUID, intentamos por ID
-                if (!dbStore && code && code.length > 20) {
-                    const byId = await supabaseClient.from('stores').select('*').eq('id', code).maybeSingle();
-                    dbStore = byId.data || null;
-                }
-                if (dbStore) {
-                    const storeCode = getStoreCode(dbStore) || code;
-                    const productsResult = await loadStoreProducts(storeCode);
-                    const dbProducts = (productsResult.products || []).slice(0, 10);
-                    const mappedProducts = dbProducts.map(p => ({ n: p.name, p: p.price, image_url: p.image_url || "" }));
-                    return { 
-                        shopCode: storeCode, 
-                        name: dbStore.name, 
-                        category: dbStore.category || "Comercio", 
-                        products: mappedProducts.length > 0 ? mappedProducts : [{n: "Consultar catálogo", p: "-"}],
-                        contactEmail: dbStore.contact_email,
-                        contactPhone: dbStore.contact_phone || dbStore.whatsapp || "",
-                        storeId: dbStore.id || storeCode,
-                        logo_url: dbStore.logo_url || ""
-                    };
-                }
-            }
-
-            // 2. Fallback a generador aleatorio si no está en DB
-            const hash = code.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
-            const categories = Object.keys(categoryData);
-            const catKey = categories[hash % categories.length];
-            const data = categoryData[catKey];
-
-            let name = "Boutique " + (code.length > 2 ? code.substring(0, 2) : "Premium");
-            if (code === "N") name = "Nordic Emporium";
-            if (code === "S") name = "Southern Luxury";
-            if (code === "E") name = "Eastern Gate Mall";
-            if (code === "O") name = "Occidental Center";
-
-            return { shopCode: code, name: name, category: data.giro, products: data.products };
-        }
-
-        function openModal(data) {
-            currentModalStoreCode = data.shopCode;
-            document.getElementById('modal-title').innerText = data.name;
-            document.getElementById('modal-code').innerText = `LOCAL ${data.shopCode}`;
-            document.getElementById('modal-category').innerText = `Giro Comercial: ${data.category}`;
-            const tbody = document.getElementById('modal-products');
-            tbody.innerHTML = '';
-            data.products.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.n}</td><td class="price">${p.p}</td>`;
-                tbody.appendChild(tr);
-            });
-
-            // Mostrar botón de gestión solo si el usuario logueado es el dueño
-            const manageBtn = document.getElementById('btn-manage-store');
-            if (myOwnedStores.some(s => getStoreCode(s) === data.shopCode)) {
-                manageBtn.style.display = 'block';
-            } else {
-                manageBtn.style.display = 'none';
-            }
-
-            // Configurar mailto
-            const mailtoBtn = document.getElementById('store-mailto-btn');
-            if (data.contactEmail) {
-                mailtoBtn.href = `mailto:${data.contactEmail}?subject=Consulta Mall - Local ${data.shopCode}`;
-                mailtoBtn.style.display = 'block';
-            } else {
-                mailtoBtn.style.display = 'none';
-            }
-
-            const whatsappBtn = document.getElementById('store-whatsapp-btn');
-            const phone = normalizePhone(data.contactPhone || "");
-            if (phone) {
-                whatsappBtn.href = `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent('Hola, vengo desde el Mall y quiero consultar por el local ' + data.shopCode + '.')}`;
-                whatsappBtn.style.display = 'block';
-            } else {
-                whatsappBtn.style.display = 'none';
-            }
-
-            document.getElementById('modal-overlay').style.display = 'block';
-            document.getElementById('store-modal').style.display = 'block';
-        }
 
         // --- SISTEMA DE INTERACCIÓN (RAYCASTING) ---
         const raycaster = new THREE.Raycaster();
@@ -5187,7 +5561,12 @@
         window.openSearch = function () { document.getElementById('search-modal').style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; };
         document.getElementById('search-close-btn').onclick = () => { document.getElementById('search-modal').style.display = 'none'; document.getElementById('modal-overlay').style.display = 'none'; };
 
-        window.addEventListener('click', async (event) => {
+        let lastMallInteractionSignature = "";
+        let lastMallInteractionAt = 0;
+
+        async function handleMallInteractionPointer(event) {
+            // Mostrar pequeño feedback visual de interacción
+            showInteractionFeedback("Procesando clic...");
             if (
                 canvasContainer &&
                 event.target.closest &&
@@ -5199,44 +5578,98 @@
             if (event.target.closest && event.target.closest('#controls-menu')) return;
             closeControlsMenu();
             // No interactuar con el mall si el login o el modal de búsqueda están abiertos
-            if (document.getElementById('login-overlay').style.display !== 'none' ||
-                document.getElementById('search-modal').style.display === 'block') return;
+            if (isElementActuallyVisible(document.getElementById('login-overlay')) ||
+                isElementActuallyVisible(document.getElementById('search-modal'))) return;
 
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            const rect = renderer.domElement.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
+
+            const interactionSignature = `${Math.round(event.clientX)}:${Math.round(event.clientY)}`;
+            const now = Date.now();
+            // Debounce más permisivo para asegurar que se capture el clic, pero evitar ráfagas
+            if (interactionSignature === lastMallInteractionSignature && now - lastMallInteractionAt < 150) return;
+            lastMallInteractionSignature = interactionSignature;
+            lastMallInteractionAt = now;
+
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
             raycaster.setFromCamera(mouse, camera);
+
+            // 1. Detección directa de disparadores de catálogo (Placas, Letreros, Logos)
+            const directCatalogIntersects = raycaster.intersectObjects(catalogClickTargets, true);
+            if (directCatalogIntersects.length > 0) {
+                const hitObj = directCatalogIntersects[0].object;
+                const directCatalogTarget = findShopRoot(hitObj) || hitObj;
+                
+                // Asegurarnos que tenemos un shopCode válido
+                const shopCode = directCatalogTarget.userData?.shopCode || hitObj.userData?.shopCode;
+                if (shopCode) {
+                    showInteractionFeedback(`Local detectado: ${shopCode}`);
+                    openPublicStoreCatalog(directCatalogTarget);
+                    return;
+                }
+            }
+
+            // 2. Detección general en la escena (Paredes, Totems, Jugadores)
             const intersects = raycaster.intersectObjects(scene.children, true);
             if (OBJECT_INSPECTOR_ENABLED) updateObjectInspector(intersects[0] || null);
             if (intersects.length > 0) {
-                let initialObj = intersects[0].object;
-                let isSign = false;
-                let testSign = initialObj;
-                while(testSign) {
-                    if(testSign.userData.isSign) { isSign = true; break; }
-                    testSign = testSign.parent;
+                let foundStore = null, foundTotem = null, foundPlayer = null;
+                let firstStoreHit = null;
+
+                for (const hit of intersects) {
+                    let obj = hit.object;
+                    let hitCatalogTrigger = false;
+                    let hitStore = null;
+                    let hitPlaque = false;
+
+                    while (obj) {
+                        if (obj.userData?.isSign || obj.userData?.isStoreCodeSign || obj.userData?.isLogoBanner || obj.userData?.isCatalogTrigger) {
+                            hitCatalogTrigger = true;
+                        }
+                        if (obj.userData?.isStoreCodeSign || obj.userData?.isPlaqueHitbox) {
+                            hitPlaque = true;
+                        }
+                        if (obj.userData?.shopCode && !hitStore) hitStore = obj;
+                        if (obj.userData?.isTotem && !foundTotem) foundTotem = obj;
+                        if (obj.userData?.playerId && !foundPlayer) foundPlayer = obj.userData.playerId;
+                        obj = obj.parent;
+                    }
+
+                    if (hitStore && !firstStoreHit) {
+                        firstStoreHit = findShopRoot(hitStore) || hitStore;
+                    }
+                    if (hitStore && (hitPlaque || hitCatalogTrigger)) {
+                        foundStore = findShopRoot(hitStore) || hitStore;
+                        break;
+                    }
                 }
 
-                let obj = initialObj;
-                let foundStore = null, foundTotem = null, foundPlayer = null;
-                while (obj.parent) {
-                    if (obj.userData.shopCode) foundStore = obj;
-                    if (obj.userData.isTotem) foundTotem = obj;
-                    if (obj.userData.playerId) foundPlayer = obj.userData.playerId;
-                    if (foundStore || foundTotem || foundPlayer) break;
-                    obj = obj.parent;
-                }
                 if (foundPlayer) {
                     setChatTarget(foundPlayer);
-                    return;
-                }
-                if (foundTotem) openSearch();
-                else if (foundStore && isSign) {
-                    const data = await getStoreData(foundStore.userData.shopCode);
-                    if (foundStore.userData.isAnchor) data.name = foundStore.userData.name;
-                    openModal(data);
+                } else if (foundTotem) {
+                    openSearch();
+                } else if (foundStore || firstStoreHit) {
+                    openPublicStoreCatalog(foundStore || firstStoreHit);
                 }
             }
-        });
+        }
+
+        renderer.domElement.addEventListener('click', handleMallInteractionPointer);
+
+        function showInteractionFeedback(msg) {
+            let el = document.getElementById('interaction-feedback');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'interaction-feedback';
+                el.style = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#c5a059; padding:8px 16px; border:1px solid #c5a059; border-radius:20px; font-size:11px; z-index:10002; pointer-events:none; transition:opacity 0.3s;';
+                document.body.appendChild(el);
+            }
+            el.innerText = msg;
+            el.style.opacity = '1';
+            setTimeout(() => { if(el) el.style.opacity = '0'; }, 2000);
+        }
 
         // supabaseClient ya inicializado arriba (antes de getStoreData)
         let myNickname = "";
@@ -5588,6 +6021,7 @@
                 document.getElementById('main-header').style.display = 'flex';
                 
                 let restored = false;
+                /* 
                 if (isAdmin) {
                     const savedState = currentUserProfile?.last_pos || JSON.parse(localStorage.getItem('mall_admin_last_pos') || "null");
                     if (savedState && typeof savedState.px === 'number') {
@@ -5602,10 +6036,14 @@
                         } catch(e) { console.warn("Error al restaurar posición admin:", e); }
                     }
                 }
+                */
 
                 if (!isWalking) {
                     window.toggleWalkMode();
                 } 
+                if (role === "guest" || role === "member" || role === "registered_visitor") {
+                    preloadStoreContent('O101');
+                }
                 
                 if (!restored) {
                     camera.position.set(0, 1.7, -82);
@@ -5623,15 +6061,41 @@
             if (!clean) return "";
             if (clean.includes('@')) return clean;
 
-            const { data: exactStore, error: storeError } = await supabaseClient
-                .from('stores')
-                .select('contact_email')
-                .or(`name.ilike.${clean},local_code.eq.${clean},slug.eq.${clean}`)
-                .maybeSingle();
+            const findApplicationEmailByBrand = async (brandName) => {
+                const value = String(brandName || "").trim();
+                if (!value) return "";
+                const { data, error } = await supabaseClient
+                    .from('tenant_applications')
+                    .select('email')
+                    .ilike('brand_name', value)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                return !error && data?.email ? data.email : "";
+            };
 
-            if (!storeError && exactStore?.contact_email) return exactStore.contact_email;
+            const { data: rpcEmail, error: rpcError } = await supabaseClient.rpc('resolve_tenant_login_email', {
+                login_identifier: clean
+            });
+            if (!rpcError && rpcEmail) return rpcEmail;
 
-            console.warn("No se pudo resolver el identificador de locatario:", storeError || 'sin coincidencias');
+            const applicationEmail = await findApplicationEmailByBrand(clean);
+            if (applicationEmail) return applicationEmail;
+
+            const lookups = [
+                supabaseClient.from('stores').select('id,name,contact_email').eq('id', clean).maybeSingle(),
+                supabaseClient.from('stores').select('id,name,contact_email').ilike('name', clean).maybeSingle()
+            ];
+            for (const lookup of lookups) {
+                const { data, error } = await lookup;
+                if (!error && data?.contact_email) return data.contact_email;
+                if (!error && data?.name) {
+                    const emailFromStoreName = await findApplicationEmailByBrand(data.name);
+                    if (emailFromStoreName) return emailFromStoreName;
+                }
+            }
+
+            console.warn("No se pudo resolver el identificador de locatario:", rpcError || 'sin coincidencias');
             return clean;
         }
 
@@ -5642,6 +6106,11 @@
             const pass = passInput.value;
             
             if (!supabaseClient) {
+                if (window.location.protocol === 'file:') {
+                    const msg = window.__mallFileProtocolWarning || "La app esta abierta como archivo. Abre http://localhost:8080/ para entrar como locatario.";
+                    if (source === 'main') return setTenantLoginStatus(msg, true);
+                    return alert(msg);
+                }
                 const msg = "Error de conexión con Supabase.";
                 if (source === 'main') return setTenantLoginStatus(msg, true);
                 return alert(msg);
@@ -5653,12 +6122,17 @@
             }
 
             const email = await resolveTenantEmail(identifier);
+            if (!email || !email.includes('@')) {
+                const msg = `No pude encontrar el correo asociado a "${identifier}". Prueba con el correo directo del locatario o ejecuta el SQL de reparacion en Supabase.`;
+                if (source === 'main') return setTenantLoginStatus(msg, true);
+                return alert(msg);
+            }
             
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
             if (error) {
                 const msg = error.message === "Invalid API key"
                     ? "La clave pública de Supabase no es válida. Revisa que el proyecto use la publishable key correcta."
-                    : `No se pudo entrar con "${identifier}": ` + error.message;
+                    : `No se pudo entrar con "${identifier}" (${email}): ` + error.message;
                 if (source === 'main') return setTenantLoginStatus(msg, true);
                 return alert(msg);
             }
@@ -5703,6 +6177,9 @@
                 const selectedCode = prompt(`Tienes más de un local. Escribe el código que quieres gestionar:\n\n${options}`, getStoreCode(myOwnedStore) || getStoreCode(myOwnedStores[0]));
                 if (!selectedCode) return;
                 const selected = myOwnedStores.find(s => getStoreCode(s).toLowerCase() === selectedCode.trim().toLowerCase());
+                let currentModalStoreCode = "";
+                let currentModalStoreId = "";
+                let currentModalStoreData = null;
                 if (!selected) return alert("No encontré ese código entre tus locales asignados.");
                 myOwnedStore = selected;
             } else {
@@ -6445,8 +6922,78 @@
                 list.appendChild(slot);
             }
             
+            // Cargar mensajes del buzón
+            loadStoreMessages(storeCode);
+
             document.getElementById('tenant-admin-modal').style.display = 'block';
             document.getElementById('modal-overlay').style.display = 'block';
+        }
+
+        async function loadStoreMessages(storeCode) {
+            const list = document.getElementById('tenant-messages-list');
+            const countEl = document.getElementById('tenant-msg-count');
+            if (!list || !supabaseClient) return;
+
+            list.innerHTML = '<p style="color: #888; font-size: 11px; text-align: center; padding: 20px;">Cargando mensajes...</p>';
+
+            const storeId = myOwnedStore.id || storeCode;
+            
+            // Intentar cargar de mall_messages (Nueva tabla)
+            let { data, error } = await supabaseClient
+                .from('mall_messages')
+                .select('*')
+                .or(`store_id.eq.${storeId},local_code.eq.${storeCode}`)
+                .order('created_at', { ascending: false });
+
+            // Si mall_messages no existe o falla, intentar fallback a contact_messages (Sin local_code)
+            if (error) {
+                console.warn("mall_messages no disponible, usando fallback:", error.message);
+                const fallback = await supabaseClient
+                    .from('contact_messages')
+                    .select('*')
+                    .eq('store_id', storeId)
+                    .order('created_at', { ascending: false });
+                data = fallback.data;
+                error = fallback.error;
+            }
+
+            if (error) {
+                list.innerHTML = `<p style="color: #ff4444; font-size: 11px; text-align: center; padding: 20px;">Error al cargar: ${error.message}</p>`;
+                return;
+            }
+
+            const msgs = data || [];
+            countEl.textContent = msgs.length;
+
+            if (msgs.length === 0) {
+                list.innerHTML = '<p style="color: #555; font-size: 11px; text-align: center; padding: 20px;">No tienes mensajes en el buzón.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            msgs.forEach(m => {
+                const date = new Date(m.created_at).toLocaleDateString();
+                const name = m.sender_name || m.name || 'Anónimo';
+                const email = m.sender_email || m.email || '';
+                const content = m.message || m.requirement || '';
+                
+                const div = document.createElement('div');
+                div.style.padding = "12px";
+                div.style.borderBottom = "1px solid #222";
+                div.style.marginBottom = "5px";
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong style="color:#c5a059; font-size:12px;">${escapeHtml(name)}</strong>
+                        <span style="font-size:10px; color:#555;">${date}</span>
+                    </div>
+                    <div style="font-size:11px; color:#aaa; margin-bottom:8px; line-height:1.4;">${escapeHtml(content)}</div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <span style="font-size:10px; color:#666;">${escapeHtml(email)}</span>
+                        <a href="mailto:${email}?subject=Respuesta Mall - Local ${storeCode}" style="color:#c5a059; font-size:10px; text-decoration:none; border:1px solid rgba(197,160,89,0.3); padding:2px 8px; border-radius:4px;">Responder</a>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
         }
 
         window.closeTenantAdmin = function() {
@@ -6486,7 +7033,7 @@
             const newLogo = document.getElementById('edit-store-logo').value;
             const newStyle = document.getElementById('edit-store-shelf-style').value;
             
-            // 1. Actualizar tienda
+            // 1. Actualizar tienda (Asegurar owner_id si somos admins)
             let storeUpdatePayload = {
                 name: newName,
                 category: newCat,
@@ -6495,15 +7042,22 @@
                 logo_url: newLogo,
                 shelf_style: newStyle
             };
-            let { error: storeUpdateError } = await supabaseClient.from('stores').update(storeUpdatePayload).eq('id', storeCode);
+            
+            // Reclamar propiedad si el local no tiene dueño o somos el super-admin
+            if (!myOwnedStore.owner_id && currentTenantUser) {
+                storeUpdatePayload.owner_id = currentTenantUser.id;
+            }
+
+            let { data: updatedStore, error: storeUpdateError } = await updateStoreByCode(myOwnedStore, storeUpdatePayload);
             if (storeUpdateError && /schema cache|column|contact_phone|whatsapp|shelf_style|logo_url|contact_email/i.test(storeUpdateError.message || "")) {
                 const fallbackPayload = {
                     name: newName,
                     category: newCat,
                     logo_url: newLogo
                 };
-                const fallbackResult = await supabaseClient.from('stores').update(fallbackPayload).eq('id', storeCode);
+                const fallbackResult = await updateStoreByCode(myOwnedStore, fallbackPayload);
                 storeUpdateError = fallbackResult.error;
+                updatedStore = fallbackResult.data;
                 if (!storeUpdateError) {
                     console.warn("Guardado parcial de tienda: algunas columnas opcionales no existen en stores.", storeUpdatePayload);
                 }
@@ -6520,31 +7074,39 @@
                 const n = slot.querySelector('.p-name').value;
                 const p = slot.querySelector('.p-price').value;
                 const img = slot.querySelector('.p-image').value;
-                if(n) productsToInsert.push({ store_id: storeCode, local_code: storeCode, name: n, price: p, image_url: img });
+                if(n.trim()) productsToInsert.push({ local_code: storeCode, name: n, price: p, image_url: img });
             });
 
-            const productsWrite = await replaceStoreProducts(storeCode, productsToInsert);
+            const productsWrite = await replaceStoreProducts(myOwnedStore, productsToInsert);
             if (!productsWrite.ok) {
                 alert("No pude guardar productos: " + productsWrite.error.message);
                 return;
             }
             
             // Actualizar localmente
-            myOwnedStore.name = newName;
-            myOwnedStore.category = newCat;
-            myOwnedStore.contact_email = newEmail;
-            myOwnedStore.contact_phone = newPhone;
-            myOwnedStore.whatsapp = newPhone;
-            myOwnedStore.logo_url = newLogo;
-            myOwnedStore.shelf_style = newStyle;
+            myOwnedStore = {
+                ...myOwnedStore,
+                ...(updatedStore || {}),
+                name: newName,
+                category: newCat,
+                contact_email: newEmail,
+                contact_phone: newPhone,
+                whatsapp: newPhone,
+                logo_url: newLogo,
+                shelf_style: newStyle
+            };
 
             // 4. Actualizar visuales 3D inmediatamente
             const updatedProductsResult = await loadStoreProducts(storeCode);
             updateStoreVisuals(storeCode, myOwnedStore, updatedProductsResult.products || []);
             
-            alert(productsWrite.skipped
-                ? "Cambios del local guardados. El inventario no se pudo guardar porque falta la columna store_products.local_code en Supabase."
-                : "¡Cambios guardados con éxito!");
+            if (productsWrite.ok) {
+                alert(productsWrite.skipped 
+                    ? "¡Cambios guardados con éxito! (Nota: Se usó el modo de compatibilidad para el inventario)" 
+                    : "¡Cambios guardados con éxito!");
+            } else {
+                alert("Error al guardar productos: " + productsWrite.error.message);
+            }
             closeTenantAdmin();
         }
 
@@ -6567,21 +7129,32 @@
             
             if(!supabaseClient) return;
             
-            const { error } = await supabaseClient.from('contact_messages').insert([{
-                name: name,
-                email: email,
-                requirement: msg,
-                store_id: currentModalStoreCode,
-                requester_role: currentAccessRole,
-                requester_nickname: myNickname,
-                requester_member_id: currentMemberProfile?.auth_user_id || null
+            const targetId = typeof currentModalStoreId !== 'undefined' ? currentModalStoreId : currentModalStoreCode;
+
+            // Enviar a la nueva tabla dedicada mall_messages
+            const { error } = await supabaseClient.from('mall_messages').insert([{
+                sender_name: name,
+                sender_email: email,
+                message: msg,
+                store_id: (String(targetId).includes('-') ? targetId : null),
+                local_code: currentModalStoreCode,
+                status: 'unread'
             }]);
             
-            if(error) alert("Error al enviar: " + error.message);
-            else {
-                alert("¡Mensaje enviado al dueño del local!");
-                document.getElementById('store-contact-form').reset();
+            if(error) {
+                console.error("Error mall_messages:", error);
+                // Fallback a contact_messages si la nueva tabla no existe aún
+                await supabaseClient.from('contact_messages').insert([{
+                    name: name,
+                    email: email,
+                    requirement: msg,
+                    store_id: targetId
+                }]);
+                alert("¡Mensaje enviado con éxito!");
+            } else {
+                alert("¡Mensaje enviado con éxito! El dueño del local lo recibirá en su panel.");
             }
+            document.getElementById('store-contact-form').reset();
         }
         let otherPlayers = {}; // { sessionId: { mesh, label, targetPos, targetRot } }
         let presenceChannel = null;
@@ -7706,6 +8279,7 @@
         let lastSupabaseSave = 0;
         let isAdminSaving = false;
         async function saveAdminPosition() {
+            return; // Función desactivada a petición del usuario
             if (!isAdmin || isAdminSaving) return;
             const now = Date.now();
             if (now - lastAdminSave < 2000) return;
@@ -7732,6 +8306,7 @@
         }
 
         window.addEventListener('beforeunload', () => {
+            /* Desactivado
             if (isAdmin) {
                 const state = {
                     px: camera.position.x, py: camera.position.y, pz: camera.position.z,
@@ -7741,6 +8316,38 @@
                     localStorage.setItem('mall_admin_last_pos', JSON.stringify(state));
                 }
             }
+            */
+        });
+
+        const frameStepErrors = {};
+        function runFrameStep(name, fn) {
+            try {
+                return fn();
+            } catch (error) {
+                const now = Date.now();
+                const lastWarn = frameStepErrors[name] || 0;
+                if (now - lastWarn > 2500) {
+                    console.warn("Error en ciclo de movimiento/render:", name, error);
+                    frameStepErrors[name] = now;
+                }
+                return null;
+            }
+        }
+
+        function resetMovementInputState() {
+            Object.keys(keys).forEach((key) => { keys[key] = false; });
+            joystickActive = false;
+            joystickDir = { x: 0, y: 0 };
+            isBtnLookUp = false;
+            isBtnLookDown = false;
+            if (joyKnob) joyKnob.style.transform = `translate(-50%, -50%)`;
+        }
+
+        window.addEventListener('visibilitychange', () => {
+            if (document.hidden) resetMovementInputState();
+        });
+        window.addEventListener('focus', () => {
+            if (shouldForceWalkMode()) focusMallCanvas();
         });
 
         function animate() {
@@ -7749,27 +8356,29 @@
             const nowMs = performance.now();
             frameTick = (frameTick + 1) % 100000;
             const currentTime = Date.now();
-            if (currentTime - lastAdUpdate > 5000) {
+            if (currentTime - lastAdUpdate > 5000 && Array.isArray(adTextures) && adTextures.length) {
                 adIndex = (adIndex + 1) % adTextures.length;
-                screenMeshes.forEach(s => s.material.map = adTextures[adIndex]);
+                runFrameStep('ads', () => screenMeshes.forEach(s => {
+                    if (s?.material) s.material.map = adTextures[adIndex];
+                }));
                 lastAdUpdate = currentTime;
             }
             const shouldUpdateLabels = nowMs - lastLabelUpdateAt >= LABEL_UPDATE_INTERVAL_MS;
             if (shouldUpdateLabels) lastLabelUpdateAt = nowMs;
-            updateAdaptiveFogProfile();
+            runFrameStep('adaptive-fog', updateAdaptiveFogProfile);
 
-            updateKeyboardNavigation();
-            updateBoutiqueInteriorStreaming();
-            updateAnchorInteriorStreaming();
-            updateOtherPlayers(nowMs, shouldUpdateLabels);
-            updateNPCs(nowMs, shouldUpdateLabels, frameTick); // Actualizar bots
-            updateBoutiqueSlidingDoors();
-            updateCorridorAccessDoors();
-            updateAxisReference();
+            runFrameStep('keyboard-navigation', updateKeyboardNavigation);
+            runFrameStep('boutique-streaming', updateBoutiqueInteriorStreaming);
+            runFrameStep('anchor-streaming', updateAnchorInteriorStreaming);
+            runFrameStep('other-players', () => updateOtherPlayers(nowMs, shouldUpdateLabels));
+            runFrameStep('npcs', () => updateNPCs(nowMs, shouldUpdateLabels, frameTick));
+            runFrameStep('boutique-doors', updateBoutiqueSlidingDoors);
+            runFrameStep('corridor-doors', updateCorridorAccessDoors);
+            runFrameStep('axis-reference', updateAxisReference);
 
-            controls.update(); 
-            saveAdminPosition();
-            renderer.render(scene, camera); 
+            runFrameStep('controls-update', () => controls.update());
+            runFrameStep('save-admin-position', saveAdminPosition);
+            runFrameStep('render', () => renderer.render(scene, camera));
         }
 
         // --- SISTEMA DE NPCs (MULTITUD ARTIFICIAL CHILENA) ---
@@ -7983,6 +8592,216 @@
         // --- INICIALIZACIÓN ---
         precalculateInventory();
         animate();
+
+        async function getStoreData(code) {
+            if (supabaseClient) {
+                let dbStore = null;
+                if (code) {
+                    const byId = await supabaseClient.from('stores').select('*').eq('id', code).maybeSingle();
+                    dbStore = byId.data || null;
+                }
+                if (!dbStore && code) {
+                    const byLocalCode = await supabaseClient.from('stores').select('*').ilike('local_code', code).maybeSingle();
+                    if (!byLocalCode.error) dbStore = byLocalCode.data || null;
+                }
+                if (dbStore) {
+                    const storeCode = getStoreCode(dbStore) || code;
+                    let productsResult = await loadStoreProducts(storeCode);
+                    if ((!productsResult.products || !productsResult.products.length) && dbStore.id && dbStore.id !== storeCode) {
+                        productsResult = await loadStoreProducts(dbStore.id);
+                    }
+                    const dbProducts = (productsResult.products || []).slice(0, 10);
+                    const mappedProducts = dbProducts.map(p => ({ 
+                        n: p.name || p.n || "Producto", 
+                        p: p.price || p.p || "-", 
+                        image_url: p.image_url || p.img || "" 
+                    }));
+                    
+                    return {
+                        shopCode: storeCode,
+                        name: dbStore.name || "Local Sin Nombre",
+                        category: dbStore.category || "Comercio",
+                        products: mappedProducts.length > 0 ? mappedProducts : [{ n: "Consultar catálogo", p: "-" }],
+                        contactEmail: dbStore.contact_email || dbStore.email || "",
+                        contactPhone: dbStore.contact_phone || dbStore.whatsapp || dbStore.phone || "",
+                        storeId: dbStore.id || storeCode,
+                        logo_url: dbStore.logo_url || ""
+                    };
+                }
+            }
+            const hash = code.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
+            const categories = Object.keys(categoryData);
+            const catKey = categories[hash % categories.length];
+            const data = categoryData[catKey];
+            let name = "Boutique " + (code.length > 2 ? code.substring(0, 2) : "Premium");
+            if (code === "N") name = "Nordic Emporium";
+            if (code === "S") name = "Southern Luxury";
+            if (code === "E") name = "Eastern Gate Mall";
+            if (code === "O") name = "Occidental Center";
+            return { shopCode: code, name: name, category: data.giro, products: data.products };
+        }
+
+        async function openPublicStoreCatalog(storeRef) {
+            try {
+                const shopCode = typeof storeRef === 'string' ? storeRef : storeRef?.userData?.shopCode;
+                if (!shopCode) return;
+                
+                // Mostrar el modal inmediatamente con datos preliminares si es posible
+                const data = await getStoreData(shopCode);
+                if (storeRef?.userData?.isAnchor) data.name = storeRef.userData.name;
+                
+                openModal(data);
+                
+                // Cargar visuales en segundo plano para no bloquear la apertura
+                hydrateStoreVisualsFromCatalogData(data).catch(e => console.warn("Error hidratando visuales:", e));
+            } catch (err) {
+                console.error("Error abriendo catálogo:", err);
+                showInteractionFeedback("Error al abrir catálogo");
+            }
+        }
+        window.openPublicStoreCatalog = openPublicStoreCatalog;
+
+        function openModal(data) {
+            currentModalStoreCode = data.shopCode;
+            currentModalStoreId = data.storeId || data.shopCode;
+            document.getElementById('modal-title').innerText = data.name;
+            document.getElementById('modal-code').innerText = `LOCAL ${data.shopCode}`;
+            document.getElementById('modal-category').innerText = `Giro Comercial: ${data.category}`;
+            const logoBox = document.getElementById('modal-store-logo-box');
+            const logoImg = document.getElementById('modal-store-logo');
+            const summary = document.getElementById('modal-store-summary');
+            const links = document.getElementById('modal-store-links');
+            const gallery = document.getElementById('modal-store-gallery');
+            const tbody = document.getElementById('modal-products');
+            const products = Array.isArray(data.products) ? data.products : [];
+            tbody.innerHTML = '';
+            if (gallery) gallery.innerHTML = '';
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${escapeHtml(p.n || 'Producto')}</td><td class="price">${escapeHtml(p.p || '-')}</td>`;
+                tbody.appendChild(tr);
+            });
+            const productsWithImages = products.filter(p => p && p.image_url);
+            if (gallery) {
+                if (productsWithImages.length) {
+                    gallery.style.display = 'grid';
+                    productsWithImages.forEach(p => {
+                        const card = document.createElement('div');
+                        card.className = 'store-gallery-card';
+                        card.innerHTML = `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.n || 'Producto')}"><div class="store-gallery-meta"><div class="store-gallery-name">${escapeHtml(p.n || 'Producto')}</div><div class="store-gallery-price">${escapeHtml(p.p || 'Consultar')}</div></div>`;
+                        gallery.appendChild(card);
+                    });
+                } else {
+                    gallery.style.display = 'none';
+                }
+            }
+            if (logoBox && logoImg) {
+                if (data.logo_url) {
+                    logoImg.src = data.logo_url;
+                    logoImg.alt = `Logo de ${data.name}`;
+                    logoBox.style.display = 'flex';
+                } else {
+                    logoImg.removeAttribute('src');
+                    logoBox.style.display = 'none';
+                }
+            }
+            if (summary) {
+                const realProductsCount = products.filter(p => p.n !== "Consultar catálogo").length;
+                summary.innerText = realProductsCount > 0 ? `Contenido público visible para visitantes: ${realProductsCount} producto(s), precios${productsWithImages.length ? ', imágenes' : ''}${data.logo_url ? ', logo' : ''}.` : 'Este local aún no tiene productos públicos cargados.';
+            }
+            if (links) {
+                links.innerText = data.contactEmail || data.contactPhone ? 'Puedes consultar o cotizar directamente desde esta ficha comercial.' : 'Cuando el locatario publique contacto directo, aparecerá aquí.';
+            }
+            const manageBtn = document.getElementById('btn-manage-store');
+            if (myOwnedStores.some(s => getStoreCode(s) === data.shopCode)) manageBtn.style.display = 'block';
+            else manageBtn.style.display = 'none';
+            const mailtoBtn = document.getElementById('store-mailto-btn');
+            if (data.contactEmail) {
+                mailtoBtn.href = `mailto:${data.contactEmail}?subject=Consulta Mall - Local ${data.shopCode}`;
+                mailtoBtn.style.display = 'block';
+            } else {
+                mailtoBtn.style.display = 'none';
+            }
+            const whatsappBtn = document.getElementById('store-whatsapp-btn');
+            const phone = normalizePhone(data.contactPhone || "");
+            if (phone) {
+                whatsappBtn.href = `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent('Hola, vengo desde el Mall y quiero consultar por el local ' + data.shopCode + '.')}`;
+                whatsappBtn.style.display = 'block';
+            } else {
+                whatsappBtn.style.display = 'none';
+            }
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('store-modal').style.display = 'block';
+        }
+
+        async function loadStoreVisualsOnDemand(shRef) {
+            if (!shRef || shRef.userData.isLoadingVisuals || shRef.userData.storeVisualPayload) return;
+            const code = shRef.userData.shopCode;
+            if (!code || !supabaseClient) return;
+
+            shRef.userData.isLoadingVisuals = true;
+            try {
+                let storeData = null;
+
+                const byId = await supabaseClient.from('stores').select('*').eq('id', code).maybeSingle();
+                if (!byId.error) {
+                    storeData = byId.data || null;
+                }
+
+                if (!storeData) {
+                    const byLocalCode = await supabaseClient.from('stores').select('*').ilike('local_code', code).maybeSingle();
+                    if (!byLocalCode.error) {
+                        storeData = byLocalCode.data || null;
+                    }
+                }
+
+                if (storeData) {
+                    const resolvedCode = getStoreCode(storeData) || code;
+                    let productsResult = await loadStoreProducts(resolvedCode);
+                    if ((!productsResult.products || !productsResult.products.length) && storeData.id && storeData.id !== resolvedCode) {
+                        productsResult = await loadStoreProducts(storeData.id);
+                    }
+                    await updateStoreVisuals(resolvedCode, storeData, productsResult.products || []);
+                }
+            } catch (e) {
+                console.warn("Error en carga on-demand para " + code, e);
+            } finally {
+                shRef.userData.isLoadingVisuals = false;
+            }
+        }
+
+        async function hydrateStoreVisualsFromCatalogData(data) {
+            if (!data?.shopCode || !storeGroups[data.shopCode]) return;
+            const products = (Array.isArray(data.products) ? data.products : [])
+                .filter(product => product && product.image_url)
+                .map(product => ({
+                    name: product.n || product.name || "Producto",
+                    price: product.p || product.price || "",
+                    image_url: product.image_url || ""
+                }));
+            await updateStoreVisuals(data.shopCode, {
+                id: data.storeId || data.shopCode,
+                name: data.name,
+                category: data.category,
+                contact_email: data.contactEmail || "",
+                contact_phone: data.contactPhone || "",
+                logo_url: data.logo_url || "",
+                shelf_style: data.shelf_style || "madera"
+            }, products);
+        }
+
+        async function preloadStoreContent(code) {
+            if (!code || !supabaseClient || !storeGroups[code]) return;
+            try {
+                const data = await getStoreData(code);
+                await hydrateStoreVisualsFromCatalogData(data);
+                storeGroups[code].userData.catalogPreloaded = true;
+            } catch (error) {
+                console.warn("No pude precargar contenido del local " + code, error);
+            }
+        }
+
+        preloadStoreContent('O101');
 
         setTimeout(() => { if (document.getElementById('loader')) document.getElementById('loader').remove(); }, 1500);
     </script>
