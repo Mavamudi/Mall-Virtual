@@ -4322,12 +4322,46 @@
 
         // TÓTEMS DE INFORMACIÓN Y BÚSQUEDA
         function createInfoTexture() {
-            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
+            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 1024;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, 512, 512);
-            ctx.fillStyle = '#c5a059'; ctx.font = 'bold 200px "Inter"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('i', 256, 256);
-            ctx.strokeStyle = '#c5a059'; ctx.lineWidth = 20; ctx.strokeRect(10, 10, 492, 492);
+            
+            // Fondo degradado digital premium
+            const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+            grad.addColorStop(0, '#0a0a0a');
+            grad.addColorStop(0.5, '#1a1a1a');
+            grad.addColorStop(1, '#050505');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, 512, 1024);
+            
+            // Borde luminoso de la pantalla
+            ctx.strokeStyle = '#c5a059'; ctx.lineWidth = 10;
+            ctx.strokeRect(10, 10, 492, 1004);
+
+            // Icono "i" superior
+            ctx.beginPath(); ctx.arc(256, 200, 80, 0, Math.PI * 2);
+            ctx.strokeStyle = '#c5a059'; ctx.lineWidth = 8; ctx.stroke();
+            ctx.fillStyle = '#c5a059'; ctx.font = 'bold 100px "Inter"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('i', 256, 200);
+
+            // Texto Principal
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 44px "Inter"';
+            ctx.fillText('BUSCA TU', 256, 450);
+            ctx.fillText('TIENDA O', 256, 520);
+            ctx.font = 'bold 52px "Inter"';
+            ctx.fillStyle = '#c5a059';
+            ctx.fillText('PRODUCTO', 256, 600);
+
+            // Línea decorativa
+            ctx.beginPath(); ctx.moveTo(100, 700); ctx.lineTo(412, 700); ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.stroke();
+
+            // Botones simulados inferiores
+            for(let i=0; i<3; i++) {
+                ctx.strokeStyle = '#444';
+                ctx.strokeRect(100 + (i*110), 850, 80, 80);
+                ctx.fillStyle = '#222';
+                ctx.fillRect(100 + (i*110), 850, 80, 80);
+            }
+
             return new THREE.CanvasTexture(canvas);
         }
         const infoTex = createInfoTexture();
@@ -4338,8 +4372,15 @@
             const base = new THREE.Mesh(new THREE.BoxGeometry(2, 0.4, 2), darkMat); base.position.y = 0.2; gr.add(base);
             // Cuerpo Negro
             const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 4.5, 0.4), darkMat); body.position.y = 2.25; gr.add(body);
-            // Pantalla (Oro/Brillante)
-            const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3), new THREE.MeshBasicMaterial({ map: infoTex }));
+            // Pantalla Digital (Brillante/Emisiva)
+            const screenMat = new THREE.MeshStandardMaterial({ 
+                map: infoTex, 
+                emissive: new THREE.Color(0x333333),
+                emissiveMap: infoTex,
+                roughness: 0.1,
+                metalness: 0.5
+            });
+            const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3), screenMat);
             screen.position.set(0, 2.5, 0.21); gr.add(screen);
             const backScreen = screen.clone(); backScreen.rotation.y = Math.PI; backScreen.position.z = -0.21; gr.add(backScreen);
             // Marco Oro
