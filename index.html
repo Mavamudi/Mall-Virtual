@@ -4366,7 +4366,7 @@
             tex.needsUpdate = true;
             return tex;
         }
-        const infoTex = createInfoTexture();
+        const infoScreenTexture = createInfoTexture();
         function createInfoTotem(x, z) {
             const gr = new THREE.Group(); gr.position.set(x, 0, z);
             gr.userData = { isTotem: true };
@@ -4374,8 +4374,8 @@
             const base = new THREE.Mesh(new THREE.BoxGeometry(2, 0.4, 2), darkMat); base.position.y = 0.2; gr.add(base);
             // Cuerpo Negro
             const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 4.5, 0.4), darkMat); body.position.y = 2.25; gr.add(body);
-            // Pantalla Digital (Brillante Constante)
-            const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3), new THREE.MeshBasicMaterial({ map: infoTex }));
+            // Pantalla Digital (Brillante Constante - Refresco Forzado)
+            const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3), new THREE.MeshBasicMaterial({ map: infoScreenTexture }));
             screen.position.set(0, 2.5, 0.21); gr.add(screen);
             const backScreen = screen.clone(); backScreen.rotation.y = Math.PI; backScreen.position.z = -0.21; gr.add(backScreen);
             // Marco Oro
