@@ -7162,8 +7162,8 @@
         // Variables de optimización (ahorro de datos)
         let lastSentPos = new THREE.Vector3();
         let lastSentRot = 0;
-        const POS_THRESHOLD = 0.3; // No enviar si se mueve menos de 30cm
-        const ROT_THRESHOLD = 0.15; // No enviar si rota menos de ~8 grados
+        const POS_THRESHOLD = 0.2; // Sensibilidad de movimiento (20cm)
+        const ROT_THRESHOLD = 0.05; // Sensibilidad de giro mucho más alta (~3 grados)
         // Supabase ya inicializado arriba - no sobreescribir
 
         async function upsertMemberProfile(user, extra = {}) {
@@ -8252,11 +8252,11 @@
                 if (p.mesh) {
                     const prevPos = p.mesh.position.clone();
                     p.mesh.position.lerp(p.targetPos, 0.1);
-                    let targetRot = p.targetRot + Math.PI; // Compensar orientacion del modelo
+                    let targetRot = p.targetRot + Math.PI; 
                     let rotDiff = targetRot - p.mesh.rotation.y;
                     while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
                     while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
-                    p.mesh.rotation.y += rotDiff * 0.16;
+                    p.mesh.rotation.y += rotDiff * 0.35; // Giro más rápido y reactivo
 
                     const stepDistance = prevPos.distanceTo(p.mesh.position);
                     applyAvatarPose(p, stepDistance, nowMs);
