@@ -3945,6 +3945,7 @@
             const logoBannerMat = new THREE.MeshBasicMaterial({
                 map: logoBannerTex,
                 transparent: true,
+                alphaTest: 0.5,
                 depthWrite: true,
                 depthTest: true,
                 polygonOffset: true,
@@ -3957,7 +3958,6 @@
             logoBanner.material.transparent = true;
             logoBanner.material.opacity = 0;
             logoBanner.position.set(0, doorH + ((shopH - doorH) / 2), 9.135);
-            logoBanner.renderOrder = 30;
             sh.add(logoBanner);
             catalogClickTargets.push(logoBanner);
             const r = new THREE.Mesh(new THREE.BoxGeometry(12.2, 0.3, 18.2), goldMat); r.position.y = 5.2; sh.add(r);
