@@ -3218,37 +3218,58 @@
 
         // URBANISMO INTERIOR: Maceteros con árboles estilizados
         function createPlanter(x, z) {
-            const gr = new THREE.Group(); gr.position.set(x, 0.1, z);
+            const gr = new THREE.Group(); gr.position.set(x, 0, z);
             
-            // Macetero de Lujo
-            const box = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.8, 2.5), goldMat); 
-            box.position.y = 0.4; gr.add(box);
+            // Macetero de Diseño (Base Mármol Negro + Borde Oro)
+            const marbleMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.5 });
+            const potBase = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1, 1, 8), marbleMat);
+            potBase.position.y = 0.5; gr.add(potBase);
             
-            // Tierra / Sustrato
-            const dirt = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.1, 2.3), new THREE.MeshStandardMaterial({ color: 0x3d2b1f }));
-            dirt.position.y = 0.8; gr.add(dirt);
+            const potRim = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.15, 8), goldMat);
+            potRim.position.y = 1; gr.add(potRim);
+            
+            // Tierra / Sustrato con textura simulada
+            const dirt = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.15, 0.1, 8), new THREE.MeshStandardMaterial({ color: 0x2b1e14, roughness: 1 }));
+            dirt.position.y = 0.95; gr.add(dirt);
 
-            // Tronco Tapered
-            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4d3319, roughness: 0.9 });
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.15, 3, 8), trunkMat); 
-            trunk.position.y = 2.2; gr.add(trunk);
+            // Tronco con ramificación simple
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3d2b1f, roughness: 0.9 });
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.18, 3.2, 6), trunkMat); 
+            trunk.position.y = 2.4; gr.add(trunk);
 
-            // Follaje orgánico (agrupación de esferas)
-            const leafMat = new THREE.MeshStandardMaterial({ color: 0x2d5a27, roughness: 0.8 });
-            const leafMatDark = new THREE.MeshStandardMaterial({ color: 0x1a3a16, roughness: 0.8 });
+            // Rama secundaria
+            const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.06, 1, 4), trunkMat);
+            branch.position.set(0.15, 3.2, 0.15);
+            branch.rotation.z = 0.4;
+            gr.add(branch);
+
+            // Follaje "Cloud" (Agrupación densa de esferas orgánicas)
+            const leafMat = new THREE.MeshStandardMaterial({ color: 0x224411, roughness: 0.6, metalness: 0.1 });
+            const leafMatLight = new THREE.MeshStandardMaterial({ color: 0x336622, roughness: 0.5, metalness: 0.1 });
+            const leafMatDark = new THREE.MeshStandardMaterial({ color: 0x112200, roughness: 0.7, metalness: 0.1 });
             
-            const foliageConfig = [
-                { p: [0, 3.8, 0], s: 0.9 },
-                { p: [0.5, 3.5, 0.5], s: 0.65 },
-                { p: [-0.5, 3.4, -0.4], s: 0.6 },
-                { p: [0.4, 3.3, -0.5], s: 0.7 },
-                { p: [-0.4, 3.6, 0.4], s: 0.55 }
+            // Generar una nube de hojas más realista
+            const foliagePoints = [
+                { p: [0, 4.2, 0], s: 0.95 },
+                { p: [0.6, 3.8, 0.4], s: 0.75 },
+                { p: [-0.5, 3.9, -0.6], s: 0.8 },
+                { p: [0.4, 3.6, -0.7], s: 0.65 },
+                { p: [-0.7, 3.7, 0.3], s: 0.7 },
+                { p: [0.2, 4.5, -0.2], s: 0.6 },
+                { p: [-0.3, 4.4, 0.5], s: 0.55 },
+                { p: [0.8, 3.3, -0.2], s: 0.5 },
+                { p: [-0.6, 3.4, -0.1], s: 0.45 }
             ];
             
-            foliageConfig.forEach((f, idx) => {
-                const blob = new THREE.Mesh(new THREE.SphereGeometry(f.s, 12, 12), idx % 2 === 0 ? leafMat : leafMatDark);
+            foliagePoints.forEach((f, idx) => {
+                let m = leafMat;
+                if (idx % 3 === 1) m = leafMatLight;
+                if (idx % 3 === 2) m = leafMatDark;
+                
+                const blob = new THREE.Mesh(new THREE.SphereGeometry(f.s, 8, 8), m);
                 blob.position.set(f.p[0], f.p[1], f.p[2]);
-                blob.scale.set(1, 0.8, 1); // Ligeramente achatadas para look más arbóreo
+                // Variación de escala para romper la simetría
+                blob.scale.set(1 + Math.random()*0.2, 0.7 + Math.random()*0.3, 1 + Math.random()*0.2);
                 gr.add(blob);
             });
 
