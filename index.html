@@ -3888,10 +3888,7 @@
 
             if (walls.back && !hideRearWallForShop && shopCode !== "O207") cw(12, 4.8, 0.1, 0, 2.4, -9, whiteMat);
             if (walls.left !== false && shopCode !== "E206") cw(0.1, 4.8, 18, -6, 2.4, 0, walls.left === 'glass' ? glassMat : whiteMat);
-            if (walls.right !== false && shopCode !== "O206") {
-                const m = (shopCode === "O207") ? new THREE.MeshStandardMaterial({ color: 0xff0000 }) : (walls.right === 'glass' ? glassMat : whiteMat);
-                cw(0.1, 4.8, 18, 6, 2.4, 0, m);
-            }
+            if (walls.right !== false && shopCode !== "O206") cw(0.1, 4.8, 18, 6, 2.4, 0, walls.right === 'glass' ? glassMat : whiteMat);
 
             const doorH = 3.6; const shopH = 4.8; const frM = darkMat;
             cw(2.8, shopH, 0.05, -4.5, shopH / 2, 9, glassMat);
@@ -3913,13 +3910,8 @@
             cw(0.2, shopH, 0.2, -3, shopH / 2, 9.05, frM);
             cw(0.2, shopH, 0.2, 3, shopH / 2, 9.05, frM);
             cw(6, 0.15, 0.2, 0, doorH, 9.05, frM);
-            if (shopCode !== "O207") {
-                cw(0.1, 1.4, 0.1, 1.25, 0, 0.12, goldMat, leftDoorLeaf);
-                cw(0.1, 1.4, 0.1, -1.25, 0, 0.12, goldMat, rightDoorLeaf);
-            } else {
-                // En O207 solo la derecha tiene tirador porque la izquierda es fija
-                cw(0.1, 1.4, 0.1, -1.25, 0, 0.12, goldMat, rightDoorLeaf);
-            }
+            cw(0.1, 1.4, 0.1, 1.25, 0, 0.12, goldMat, leftDoorLeaf);
+            cw(0.1, 1.4, 0.1, -1.25, 0, 0.12, goldMat, rightDoorLeaf);
 
             if (shopCode !== "") {
                 const idTex = createSmallIDTexture(shopCode);
@@ -4080,19 +4072,14 @@
                 interior = new THREE.Group();
                 interior.name = "interior";
                 interior.visible = false;
-                // sh.add(interior); // DESACTIVADO PARA LIMPIEZA
+                sh.add(interior);
             }
             let showcase = sh.getObjectByName("showcaseVisuals");
             if (!showcase) {
                 showcase = new THREE.Group();
                 showcase.name = "showcaseVisuals";
-                showcase.visible = false;
-                // sh.add(showcase); // DESACTIVADO PARA LIMPIEZA
+                sh.add(showcase);
             }
-            
-            // OCULTAR PARA LIMPIEZA DE MUROS (DOBLE BLOQUEO)
-            interior.visible = false;
-            showcase.visible = false;
 
             sh.userData.ensureDynamicStoreVisuals = function () {
                 if (!sh.userData.storeVisualPayload) return;
@@ -4264,14 +4251,11 @@
                 };
 
                 const isPassageShop = shopCode === "S101" || shopCode === "S201";
-                // DESACTIVADO TEMPORALMENTE: Ocultar muebles para limpieza de muros
-                /*
                 if (!isPassageShop) createShelfUnit(-5.5);
                 if (!isPassageShop) createShelfUnit(5.5);
                 addFacadeProductPanels();
                 addFeaturedWindowProduct();
                 addInteriorProductGallery();
-                */
                 prepareGroupForDistanceFade(interior);
                 sh.userData.dynamicInteriorBuilt = true;
                 sh.userData.dynamicInteriorRevision = sh.userData.storeVisualRevision;
@@ -4383,8 +4367,7 @@
                 const code = `${wingV}${floorNum}${String(i + 1).padStart(2, '0')}`;
                 const wallConfig = { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true };
                 if (code === "E201") wallConfig.right = false;
-                const fixed = (code === "O207") ? ["left"] : [];
-                const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, wallConfig, y, code, fixed);
+                const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, wallConfig, y, code);
                 storeGroups[code] = b;
                 gr.add(b);
             });
