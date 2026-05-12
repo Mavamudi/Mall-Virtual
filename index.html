@@ -8475,13 +8475,13 @@
                         0.45,
                         true
                     );
-                    npc.mesh.rotation.y = activeEscalator.escalator.travelDir > 0 ? Math.PI : 0;
+                    npc.mesh.rotation.y = activeEscalator.escalator.travelDir > 0 ? 0 : Math.PI;
                     npc.intermediateTarget = null;
                     if (ride.done) {
                         if (ride.landing) {
                             npc.mesh.rotation.y = ride.landing.exitAxis === 'x'
-                                ? (ride.landing.exitDir > 0 ? -Math.PI / 2 : Math.PI / 2)
-                                : (ride.landing.exitDir > 0 ? Math.PI : 0);
+                                ? (ride.landing.exitDir > 0 ? Math.PI / 2 : -Math.PI / 2)
+                                : (ride.landing.exitDir > 0 ? 0 : Math.PI);
                         }
                         onEscalator = false;
                     }
@@ -8535,7 +8535,7 @@
                             npc.timer = now;
                         }
                         
-                        const targetRot = Math.atan2(dir.x, dir.z) + Math.PI; // +PI para que miren hacia adelante
+                        const targetRot = Math.atan2(dir.x, dir.z);
                         let diff = targetRot - npc.mesh.rotation.y;
                         while(diff < -Math.PI) diff += Math.PI * 2;
                         while(diff > Math.PI) diff -= Math.PI * 2;
