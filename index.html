@@ -4480,8 +4480,8 @@
                 sM.position.set(x, 6.1, z + (rot ? 0 : 0.06)); if (rot) { sM.rotation.y = -Math.PI / 2; sM.position.x += (x > 0 ? 0.06 : -0.06); }
                 scene.add(sM);
             }
-            // Barandillas a altura 2.2m o 7.6m (evitar bloqueo primer piso)
-            registerCollider(x, z, rot ? 0.2 : len, rot ? len : 0.2, 5.5, 8);
+            // Barandillas a altura 5.0m a 9.0m para asegurar bloqueo total en segundo piso
+            registerCollider(x, z, rot ? 0.2 : len, rot ? len : 0.2, 5.0, 9.0);
         }
 
 
