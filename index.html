@@ -4112,8 +4112,9 @@
                     transparent: true,
                     opacity: 0.94,
                     side: THREE.DoubleSide,
-                    depthTest: false,
-                    depthWrite: false,
+                    depthTest: true,
+                    depthWrite: true,
+                    alphaTest: 0.5,
                     polygonOffset: true,
                     polygonOffsetFactor: -2
                 });
@@ -4122,8 +4123,9 @@
                     transparent: true,
                     opacity: 0.42,
                     side: THREE.DoubleSide,
-                    depthTest: false,
-                    depthWrite: false,
+                    depthTest: true,
+                    depthWrite: true,
+                    alphaTest: 0.5,
                     polygonOffset: true,
                     polygonOffsetFactor: -1
                 });
@@ -4152,8 +4154,8 @@
                     holder.add(image);
 
                     const trimMat = goldMat.clone();
-                    trimMat.depthTest = false;
-                    trimMat.depthWrite = false;
+                    trimMat.depthTest = true;
+                    trimMat.depthWrite = true;
                     const top = new THREE.Mesh(new THREE.BoxGeometry(width + 0.12, 0.025, 0.025), trimMat);
                     const bottom = top.clone();
                     const left = new THREE.Mesh(new THREE.BoxGeometry(0.025, height + 0.12, 0.025), trimMat);
@@ -4268,12 +4270,13 @@
                         tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
                         sign.material.map = tex;
                         sign.material.needsUpdate = true;
-                        sign.material.depthTest = false;
-                        sign.material.depthWrite = false;
+                        sign.material.depthTest = true;
+                        sign.material.depthWrite = true;
+                        sign.material.alphaTest = 0.5;
                         sign.material.transparent = true;
                         sign.material.opacity = 1;
                         sign.visible = true;
-                        sign.renderOrder = 50;
+                        sign.renderOrder = -10;
                         const imageAspect = tex.image?.width && tex.image?.height ? tex.image.width / tex.image.height : (BOUTIQUE_SIGN_WIDTH / BOUTIQUE_SIGN_HEIGHT);
                         const bannerAspect = BOUTIQUE_SIGN_WIDTH / BOUTIQUE_SIGN_HEIGHT;
                         if (imageAspect > bannerAspect) {
