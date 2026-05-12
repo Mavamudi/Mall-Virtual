@@ -8545,7 +8545,7 @@
                             npc.timer = now;
                         }
                         
-                        const targetRot = Math.atan2(dir.x, dir.z) + Math.PI; 
+                        const targetRot = Math.atan2(dir.x, dir.z);
                         let diff = targetRot - npc.mesh.rotation.y;
                         while(diff < -Math.PI) diff += Math.PI * 2;
                         while(diff > Math.PI) diff -= Math.PI * 2;
