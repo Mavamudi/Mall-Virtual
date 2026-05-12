@@ -4080,6 +4080,10 @@
                 showcase.name = "showcaseVisuals";
                 sh.add(showcase);
             }
+            
+            // OCULTAR PARA LIMPIEZA DE MUROS
+            interior.visible = false;
+            showcase.visible = false;
 
             sh.userData.ensureDynamicStoreVisuals = function () {
                 if (!sh.userData.storeVisualPayload) return;
