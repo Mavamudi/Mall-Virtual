@@ -3916,6 +3916,9 @@
             if (shopCode !== "O207") {
                 cw(0.1, 1.4, 0.1, 1.25, 0, 0.12, goldMat, leftDoorLeaf);
                 cw(0.1, 1.4, 0.1, -1.25, 0, 0.12, goldMat, rightDoorLeaf);
+            } else {
+                // En O207 solo la derecha tiene tirador porque la izquierda es fija
+                cw(0.1, 1.4, 0.1, -1.25, 0, 0.12, goldMat, rightDoorLeaf);
             }
 
             if (shopCode !== "") {
@@ -4380,7 +4383,7 @@
                 const code = `${wingV}${floorNum}${String(i + 1).padStart(2, '0')}`;
                 const wallConfig = { back: true, left: i === 0 ? false : true, right: i === 0 ? 'glass' : true };
                 if (code === "E201") wallConfig.right = false;
-                const fixed = (code === "O207") ? ["left", "right"] : [];
+                const fixed = (code === "O207") ? ["left"] : [];
                 const b = createBoutique(26 * sx, o * sz, sx > 0 ? -Math.PI / 2 : Math.PI / 2, wallConfig, y, code, fixed);
                 storeGroups[code] = b;
                 gr.add(b);
